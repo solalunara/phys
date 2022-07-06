@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
-using namespace std;
+
+#include "shaders/shader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
