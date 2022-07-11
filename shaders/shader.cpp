@@ -31,9 +31,8 @@ unsigned int CreateShader( Shader type )
     {
         char info[ 2048 ] { 0 };
         glGetShaderInfoLog( id, 2048, NULL, info );
-        sprintf( "Couldn't compile %s shader - %s\n", type == Shader::Frag ? "fragment" : "vertex", info );
-        printf( info );
-        throw std::logic_error( info );
+        const char *name = type == Shader::Frag ? "fragment" : "vertex";
+        printf( "Couldn't compile %s shader - %s\n", name, info );
     }
 
     return id;
@@ -52,14 +51,12 @@ unsigned int CreateShaderProgram()
     glLinkProgram( id );
 
     int state;
-    glGetShaderiv( id, GL_LINK_STATUS, &state );
+    glGetProgramiv( id, GL_LINK_STATUS, &state );
     if ( !state )
     {
         char info[ 2048 ] { 0 };
         glGetProgramInfoLog( id, 2048, NULL, info );
-        sprintf( "Couldn't link shader program - %s\n", info );
-        printf( info );
-        throw std::logic_error( info );
+        printf( "Couldn't link shader program - %s\n", info );
     }
 
     glDeleteShader( vert );

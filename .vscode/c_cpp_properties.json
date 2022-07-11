@@ -9,7 +9,12 @@
             ],
             "compilerArgs": [
                 "-lglfw",
-                "${workspaceFolder}/glad.c"
+                "-lpng",
+                "-lwebp",
+                "${workspaceFolder}/glad.c",
+                "${workspaceFolder}/mesh/mesh.cpp",
+                "${workspaceFolder}/shaders/shader.cpp",
+                "${workspaceFolder}/textures/texture.cpp"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

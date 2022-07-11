@@ -2,9 +2,13 @@
 #include <iostream>
 
 #include "shaders/shader.h"
+#include "mesh/mesh.h"
+#include "textures/texture.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 static void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods );
 static void ResizeCallback( GLFWwindow *window, int width, int height );
@@ -49,6 +53,26 @@ int main( int argc, const char *argv[] )
 
     glfwSwapInterval( 1 );
 
+    glEnable( GL_DEPTH_TEST );
+
+    unsigned int shader = CreateShaderProgram();
+    SetShaderValue( shader, "Transform", glm::translate( glm::mat4( 1 ), glm::vec3( 0, 0, 4 ) ) );
+    SetShaderValue( shader, "Perspective", glm::ortho( -1, 1, -1, 1 ) );
+    SetShaderValue( shader, "CameraTransform", glm::mat4( 1 ) );
+    unsigned int texture = CreateTexture( "./textures/source/universe.png" );
+
+    float verts[] = {
+        0.5f, 0.5f, .0f,        1.0f, 1.0f,
+        0.5f, -.5f, .0f,        1.0f, 0.0f,
+        -.5f, -.5f, .0f,        0.0f, 0.0f,
+        -.5f, 0.5f, .0f,        0.0f, 1.0f,
+    };
+    unsigned int inds[] = {
+        0, 1, 3,
+        1, 2, 3
+    };
+    Mesh *m = new Mesh( verts, sizeof( verts ) / sizeof( float ), inds, 6, shader, texture );
+
     double t = glfwGetTime();
     while ( !glfwWindowShouldClose( window ) )
     {
@@ -56,12 +80,18 @@ int main( int argc, const char *argv[] )
         double dt = t_new - t;
         t = t_new;
 
+        glClearColor( .2f, .3f, .3f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        m->Render();
+
         glfwSwapBuffers( window );
         glfwPollEvents();
     }
 
     glfwDestroyWindow( window );
 
+    delete m;
     glfwTerminate();
 }
 

@@ -6,15 +6,19 @@
 
 struct Mesh
 {
-    Mesh( unsigned int VBO, unsigned int VAO, unsigned int EBO ) : VBO( VBO ), VAO( VAO ), EBO( EBO ) {}
-    Mesh( float *verts, size_t verts_len, unsigned int *inds, size_t inds_len );
+    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, unsigned int shader, unsigned int texture );
     ~Mesh();
 
+    void Render();
+
     float *verts;
-    size_t verts_len;
+    unsigned long long verts_len;
 
     unsigned int *inds;
-    size_t inds_len;
+    unsigned long long inds_len;
+
+    unsigned int shader;
+    unsigned int texture;
 
     unsigned int VBO;
     unsigned int VAO;

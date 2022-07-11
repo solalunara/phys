@@ -1,1 +1,0 @@
-g++ -Wall -I/usr/local/include -I/usr/include -L/usr/local/lib -lglfw ./glad.c ./main.cpp -o ./main

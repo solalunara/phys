@@ -3,6 +3,6 @@
 
 #pragma once
 
-
+unsigned int CreateTexture( const char *path );
 
 #endif
