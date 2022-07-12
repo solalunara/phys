@@ -4,6 +4,7 @@
 #include "shaders/shader.h"
 #include "mesh/mesh.h"
 #include "textures/texture.h"
+#include "transform.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -16,6 +17,8 @@ static void ResizeCallback( GLFWwindow *window, int width, int height );
 long KeyFlags[ 6 ] { 0 };
 static void SetKeyFlag( int key, bool set );
 static bool GetKeyFlag( int key );
+
+Shader *shader = NULL;
 
 int main( int argc, const char *argv[] )
 {
@@ -36,6 +39,8 @@ int main( int argc, const char *argv[] )
         printf( "Possible restart needed after driver update\n" );
     }
     glfwMakeContextCurrent( window );
+    glfwSetFramebufferSizeCallback( window, ResizeCallback );
+    glfwSetKeyCallback( window, KeyCallback );
 
     if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
         printf( "Couldn't initialize glad\n" );
@@ -54,12 +59,14 @@ int main( int argc, const char *argv[] )
     glfwSwapInterval( 1 );
 
     glEnable( GL_DEPTH_TEST );
+	glEnable( GL_FRAMEBUFFER_SRGB );
+	//glEnable( GL_CULL_FACE );
+	glDepthFunc( GL_LESS );
 
-    Shader *shader = new Shader();
+
+    shader = new Shader();
     shader->Use();
-    shader->SetShaderValue( "Transform", glm::translate( glm::mat4( 1 ), glm::vec3( 0, 0, -4 ) ) );
-    shader->SetShaderValue( "Perspective", glm::ortho( -1.f, 1.f, -1.f, 1.f, 0.f, 1000.f ) );
-    shader->SetShaderValue( "CameraTransform", glm::mat4( 1 ) );
+    shader->SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
     Texture *universe = new Texture( "./textures/source/universe.png" );
 
     float verts[] = {
@@ -72,8 +79,9 @@ int main( int argc, const char *argv[] )
         0, 1, 3,
         1, 2, 3
     };
-    Mesh *m = new Mesh( verts, 20, inds, 6, universe );
+    Mesh *m = new Mesh( verts, 20, inds, 6, universe, Transform( glm::vec3( 0, 0, -1 ), glm::identity<glm::quat>(), glm::one<glm::vec3>() ) );
 
+    Transform CameraTransform( glm::zero<glm::vec3>(), glm::identity<glm::quat>(), glm::one<glm::vec3>() );
     double t = glfwGetTime();
     while ( !glfwWindowShouldClose( window ) )
     {
@@ -84,7 +92,41 @@ int main( int argc, const char *argv[] )
         glClearColor( .2f, .3f, .3f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+        if ( GetKeyFlag( GLFW_KEY_W ) )
+            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, 0, -dt * 3 ) );
+        if ( GetKeyFlag( GLFW_KEY_S ) )
+            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, 0, +dt * 3 ) );
+        if ( GetKeyFlag( GLFW_KEY_A ) )
+            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( -dt * 3, 0, 0 ) );
+        if ( GetKeyFlag( GLFW_KEY_D ) )
+            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( +dt * 3, 0, 0 ) );
+        if ( GetKeyFlag( GLFW_KEY_Q ) )
+            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, +dt * 3, 0 ) );
+        if ( GetKeyFlag( GLFW_KEY_E ) )
+            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, -dt * 3, 0 ) );
+
+        if ( GetKeyFlag( GLFW_KEY_UP ) )
+            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( +dt * 90 ), glm::vec3( 1, 0, 0 ) );
+        if ( GetKeyFlag( GLFW_KEY_DOWN ) )
+            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( -dt * 90 ), glm::vec3( 1, 0, 0 ) );
+        if ( GetKeyFlag( GLFW_KEY_LEFT ) )
+            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( +dt * 90 ), CameraTransform.WorldToLocalDirection( glm::vec3( 0, 1, 0 ) ) );
+        if ( GetKeyFlag( GLFW_KEY_RIGHT ) )
+            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( -dt * 90 ), CameraTransform.WorldToLocalDirection( glm::vec3( 0, 1, 0 ) ) );
+
+        if ( GetKeyFlag( GLFW_KEY_P ) )
+        {
+            SetKeyFlag( GLFW_KEY_P, false );
+            if ( !m->transform.parent )
+                m->transform.parent = &CameraTransform;
+            else
+                m->transform.parent = NULL;
+        }
+
+        shader->SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
+
         m->Render( shader );
+        m->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
 
         glfwSwapBuffers( window );
         glfwPollEvents();
@@ -114,6 +156,7 @@ static void KeyCallback( GLFWwindow *window, int key, int scancode, int action, 
 static void ResizeCallback( GLFWwindow *window, int width, int height )
 {
     glViewport( 0, 0, width, height );
+    shader->SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
     glfwPollEvents();
 }
 static void SetKeyFlag( int key, bool set )

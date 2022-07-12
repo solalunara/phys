@@ -11,8 +11,8 @@
 #include <string.h>
 
 
-Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture ) : 
-    verts_len( verts_len ), inds_len( inds_len ), texture( texture )
+Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform ) : 
+    verts_len( verts_len ), inds_len( inds_len ), texture( texture ), transform( transform )
 {
     this->verts = new float[ verts_len ];
     memcpy( this->verts, verts, verts_len * sizeof( float ) );
@@ -51,6 +51,7 @@ Mesh::~Mesh()
 void Mesh::Render( Shader *shader )
 {
     shader->Use();
+    shader->SetShaderValue( "Transform", transform.GetMatrix() );
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, texture->id );
     glBindVertexArray( _VAO );
