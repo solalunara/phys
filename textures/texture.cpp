@@ -5,12 +5,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <filesystem>
+#include <string.h>
 
-unsigned int CreateTexture( const char *path )
+Texture::Texture( const char *path )
 {
-    unsigned int tex;
-    glGenTextures( 1, &tex );
-    glBindTexture( GL_TEXTURE_2D, tex );
+    glGenTextures( 1, &_id );
+    glBindTexture( GL_TEXTURE_2D, _id );
 
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -19,7 +19,7 @@ unsigned int CreateTexture( const char *path )
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
     const char *ext = std::filesystem::path( path ).extension().c_str();
-    if ( ext == ".png" )
+    if ( !strcmp( ext, ".png" ) )
     {
         FILE *fp = fopen( path, "rb" );
         if ( !fp )
@@ -54,7 +54,6 @@ unsigned int CreateTexture( const char *path )
         {
             png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
             fclose( fp );
-            return -1;
         }
 
         png_init_io( png_ptr, fp );
@@ -67,16 +66,16 @@ unsigned int CreateTexture( const char *path )
         png_get_IHDR( png_ptr, info_ptr, &width, &height, &bit_depth, &colour_type, &interlace_type, &compression_type, &filter_method );
 
         unsigned char **data_2d = png_get_rows( png_ptr, info_ptr );
-        unsigned char data[ height * width ];
-
-        png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
-        fclose( fp );
+        unsigned char data[ height * width * 4 ] { 0 };
 
         for ( int i = 0; i < height; ++i )
         {
             for ( int j = 0; j < width; ++j )
             {
-                data[ i * width + j ] = data_2d[ i ][ j ];
+                for ( int k = 0; k < 4; ++k )
+                {
+                    data[ ( i * width + j ) * 4 + k ] = data_2d[ i ][ j * 4 + k ];
+                }
             }
         }
 
@@ -100,8 +99,11 @@ unsigned int CreateTexture( const char *path )
 
         glTexImage2D( GL_TEXTURE_2D, 0, gl_colour_mode, width, height, 0, gl_colour_mode, GL_UNSIGNED_BYTE, data );
         glGenerateMipmap( GL_TEXTURE_2D );
+
+        png_destroy_read_struct( &png_ptr, &info_ptr, &end_info );
+        fclose( fp );
     }
-    else if ( ext == ".webp" )
+    else if ( !strcmp( ext, ".webp" ) )
     {
         FILE *fp = fopen( path, "r" );
         if ( !fp )
@@ -118,6 +120,10 @@ unsigned int CreateTexture( const char *path )
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
         glGenerateMipmap( GL_TEXTURE_2D );
     }
+}
 
-    return tex;
+Texture::~Texture()
+{
+    glDeleteTextures( 1, &_id );
+    _id = 0;
 }

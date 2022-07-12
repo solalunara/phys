@@ -55,12 +55,12 @@ int main( int argc, const char *argv[] )
 
     glEnable( GL_DEPTH_TEST );
 
-    unsigned int shader = CreateShaderProgram();
-    glUseProgram( shader );
-    SetShaderValue( shader, "Transform", glm::translate( glm::mat4( 1 ), glm::vec3( 0, 0, -4 ) ) );
-    SetShaderValue( shader, "Perspective", glm::ortho( -10.f, 10.f, -10.f, 10.f, 0.f, 1000.f ) );
-    SetShaderValue( shader, "CameraTransform", glm::mat4( 1 ) );
-    unsigned int texture = CreateTexture( "./textures/source/universe.png" );
+    Shader *shader = new Shader();
+    shader->Use();
+    shader->SetShaderValue( "Transform", glm::translate( glm::mat4( 1 ), glm::vec3( 0, 0, -4 ) ) );
+    shader->SetShaderValue( "Perspective", glm::ortho( -1.f, 1.f, -1.f, 1.f, 0.f, 1000.f ) );
+    shader->SetShaderValue( "CameraTransform", glm::mat4( 1 ) );
+    Texture *universe = new Texture( "./textures/source/universe.png" );
 
     float verts[] = {
         0.5f, 0.5f, .0f,        1.0f, 1.0f,
@@ -72,7 +72,7 @@ int main( int argc, const char *argv[] )
         0, 1, 3,
         1, 2, 3
     };
-    Mesh *m = new Mesh( verts, 20, inds, 6, texture );
+    Mesh *m = new Mesh( verts, 20, inds, 6, universe );
 
     double t = glfwGetTime();
     while ( !glfwWindowShouldClose( window ) )
@@ -93,8 +93,8 @@ int main( int argc, const char *argv[] )
     glfwDestroyWindow( window );
 
     delete m;
-    glDeleteProgram( shader );
-    glDeleteTextures( 1, &texture );
+    delete universe;
+    delete shader;
     glfwTerminate();
 }
 

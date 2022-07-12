@@ -1,6 +1,8 @@
 #include "mesh.h"
 
 #include "../shaders/shader.h"
+#include "../textures/texture.h"
+#include "../shaders/shader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,7 +11,7 @@
 #include <string.h>
 
 
-Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, unsigned int texture ) : 
+Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture ) : 
     verts_len( verts_len ), inds_len( inds_len ), texture( texture )
 {
     this->verts = new float[ verts_len ];
@@ -18,16 +20,16 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
     this->inds = new unsigned int[ inds_len ];
     memcpy( this->inds, inds, inds_len * sizeof( unsigned int ) );
 
-    glGenVertexArrays( 1, &VAO );
-    glGenBuffers( 1, &VBO );
-    glGenBuffers( 1, &EBO );
+    glGenVertexArrays( 1, &_VAO );
+    glGenBuffers( 1, &_VBO );
+    glGenBuffers( 1, &_EBO );
 
-    glBindVertexArray( VAO );
+    glBindVertexArray( _VAO );
     
-    glBindBuffer( GL_ARRAY_BUFFER, VBO );
+    glBindBuffer( GL_ARRAY_BUFFER, _VBO );
     glBufferData( GL_ARRAY_BUFFER, sizeof( float ) * verts_len, verts, GL_STATIC_DRAW );
 
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, EBO );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _EBO );
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( unsigned int ) * inds_len, inds, GL_STATIC_DRAW );
 
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), (void *)0 );
@@ -40,16 +42,17 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
 
 Mesh::~Mesh()
 {
-    glDeleteVertexArrays( 1, &VAO );
-    glDeleteBuffers( 1, &VBO );
-    glDeleteBuffers( 1, &EBO );
+    glDeleteVertexArrays( 1, &_VAO );
+    glDeleteBuffers( 1, &_VBO );
+    glDeleteBuffers( 1, &_EBO );
+    _VAO = _VBO = _EBO = 0;
 }
 
-void Mesh::Render( unsigned int shader )
+void Mesh::Render( Shader *shader )
 {
-    glUseProgram( shader );
+    shader->Use();
     glActiveTexture( GL_TEXTURE0 );
-    glBindTexture( GL_TEXTURE_2D, texture );
-    glBindVertexArray( VAO );
+    glBindTexture( GL_TEXTURE_2D, texture->id );
+    glBindVertexArray( _VAO );
     glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
 }

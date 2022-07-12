@@ -5,13 +5,35 @@
 
 #include <glm/glm.hpp>
 
-enum class Shader : bool { Vertex, Frag };
+enum class ShaderType : bool { Vertex, Frag };
 
-unsigned int CreateShader( Shader type );
-unsigned int CreateShaderProgram();
-void SetShaderValue( unsigned int id, const char *name, bool val );
-void SetShaderValue( unsigned int id, const char *name, int val );
-void SetShaderValue( unsigned int id, const char *name, float val );
-void SetShaderValue( unsigned int id, const char *name, glm::mat4 val );
+unsigned int CreateShader( ShaderType type );
+
+
+struct Shader
+{
+    Shader();
+    ~Shader();
+
+    Shader( const Shader & ) = delete;
+    Shader &operator =( const Shader & ) = delete;
+
+    Shader( Shader &&other ) : _id( other._id )
+    {
+        other._id = 0;
+    }
+
+    void SetShaderValue( const char *name, bool val );
+    void SetShaderValue( const char *name, int val );
+    void SetShaderValue( const char *name, float val );
+    void SetShaderValue( const char *name, glm::mat4 val );
+
+    void Use();
+
+    const unsigned int &id = _id;
+
+private:
+    unsigned int _id;
+};
 
 #endif

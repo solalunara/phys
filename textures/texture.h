@@ -3,6 +3,23 @@
 
 #pragma once
 
-unsigned int CreateTexture( const char *path );
+struct Texture
+{
+    Texture( const char *path );
+    ~Texture();
+
+    Texture( const Texture & ) = delete;
+    Texture &operator =( const Texture & ) = delete;
+
+    Texture( Texture &&other ) : _id( other._id )
+    {
+        other._id = 0;
+    }
+
+    const unsigned int &id = _id;
+
+private:
+    unsigned int _id;
+};
 
 #endif

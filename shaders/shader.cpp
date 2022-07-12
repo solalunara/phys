@@ -8,17 +8,17 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-unsigned int CreateShader( Shader type )
+unsigned int CreateShader( ShaderType type )
 {
     unsigned int id;
     switch ( type )
     {
-        case Shader::Vertex:
+        case ShaderType::Vertex:
         id = glCreateShader( GL_VERTEX_SHADER );
         glShaderSource( id, 1, &g_pszVertexShaderSource, NULL );
         break;
 
-        case Shader::Frag:
+        case ShaderType::Frag:
         id = glCreateShader( GL_FRAGMENT_SHADER );
         glShaderSource( id, 1, &g_pszFragShaderSource, NULL );
         break;
@@ -31,21 +31,21 @@ unsigned int CreateShader( Shader type )
     {
         char info[ 2048 ] { 0 };
         glGetShaderInfoLog( id, 2048, NULL, info );
-        const char *name = type == Shader::Frag ? "fragment" : "vertex";
+        const char *name = type == ShaderType::Frag ? "fragment" : "vertex";
         printf( "Couldn't compile %s shader - %s\n", name, info );
     }
 
     return id;
 }
 
-unsigned int CreateShaderProgram()
+Shader::Shader()
 {
-    unsigned int id = glCreateProgram();
+    _id = glCreateProgram();
 
-    unsigned int vert = CreateShader( Shader::Vertex );
+    unsigned int vert = CreateShader( ShaderType::Vertex );
     glAttachShader( id, vert );
     
-    unsigned int frag = CreateShader( Shader::Frag );
+    unsigned int frag = CreateShader( ShaderType::Frag );
     glAttachShader( id, frag );
 
     glLinkProgram( id );
@@ -61,23 +61,31 @@ unsigned int CreateShaderProgram()
 
     glDeleteShader( vert );
     glDeleteShader( frag );
-
-    return id;
+}
+Shader::~Shader()
+{
+    glDeleteProgram( id );
+    _id = 0;
 }
 
-void SetShaderValue( unsigned int id, const char *name, bool val )
+void Shader::Use()
+{
+    glUseProgram( id );
+}
+
+void Shader::SetShaderValue( const char *name, bool val )
 {
     glUniform1i( glGetUniformLocation( id, name ), val );
 }
-void SetShaderValue( unsigned int id, const char *name, int val )
+void Shader::SetShaderValue( const char *name, int val )
 {
     glUniform1i( glGetUniformLocation( id, name ), val );
 }
-void SetShaderValue( unsigned int id, const char *name, float val )
+void Shader::SetShaderValue( const char *name, float val )
 {
     glUniform1f( glGetUniformLocation( id, name ), val );
 }
-void SetShaderValue( unsigned int id, const char *name, glm::mat4 val )
+void Shader::SetShaderValue( const char *name, glm::mat4 val )
 {
     glUniformMatrix4fv( glGetUniformLocation( id, name ), 1, false, &val[ 0 ][ 0 ] );
 }

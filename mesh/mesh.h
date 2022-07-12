@@ -3,13 +3,25 @@
 
 #pragma once
 
+struct Texture;
+struct Shader;
 
 struct Mesh
 {
-    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, unsigned int texture );
+    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture );
     ~Mesh();
 
-    void Render( unsigned int shader );
+    Mesh( const Mesh & ) = delete;
+    Mesh &operator =( const Mesh & ) = delete;
+
+    Mesh( Mesh &&other ) : _VBO( other._VBO ), _VAO( other._VAO ), _EBO( other._EBO )
+    {
+        other._VBO = 0;
+        other._VAO = 0;
+        other._EBO = 0;
+    }
+
+    void Render( Shader *shader );
 
     float *verts;
     unsigned long long verts_len;
@@ -17,12 +29,12 @@ struct Mesh
     unsigned int *inds;
     unsigned long long inds_len;
 
-    unsigned int shader;
-    unsigned int texture;
+    Texture *texture;
 
-    unsigned int VBO;
-    unsigned int VAO;
-    unsigned int EBO;
+private:
+    unsigned int _VBO;
+    unsigned int _VAO;
+    unsigned int _EBO;
 };
 
 #endif
