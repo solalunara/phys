@@ -93,26 +93,27 @@ int main( int argc, const char *argv[] )
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         if ( GetKeyFlag( GLFW_KEY_W ) )
-            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, 0, -dt * 3 ) );
+            CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, 0, -dt * 3 ) );
         if ( GetKeyFlag( GLFW_KEY_S ) )
-            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, 0, +dt * 3 ) );
+            CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, 0, +dt * 3 ) );
         if ( GetKeyFlag( GLFW_KEY_A ) )
-            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( -dt * 3, 0, 0 ) );
+            CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( -dt * 3, 0, 0 ) );
         if ( GetKeyFlag( GLFW_KEY_D ) )
-            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( +dt * 3, 0, 0 ) );
+            CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( +dt * 3, 0, 0 ) );
         if ( GetKeyFlag( GLFW_KEY_Q ) )
-            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, +dt * 3, 0 ) );
+            CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, +dt * 3, 0 ) );
         if ( GetKeyFlag( GLFW_KEY_E ) )
-            CameraTransform.pos += CameraTransform.WorldToLocalDirection( glm::vec3( 0, -dt * 3, 0 ) );
+            CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, -dt * 3, 0 ) );
 
+        //can't do *= because it does the * in the wrong order (rot * new instaed of new * rot)
         if ( GetKeyFlag( GLFW_KEY_UP ) )
-            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( +dt * 90 ), glm::vec3( 1, 0, 0 ) );
+            CameraTransform.rot = glm::angleAxis( (float)glm::radians( +dt * 90 ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
         if ( GetKeyFlag( GLFW_KEY_DOWN ) )
-            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( -dt * 90 ), glm::vec3( 1, 0, 0 ) );
+            CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 90 ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
         if ( GetKeyFlag( GLFW_KEY_LEFT ) )
-            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( +dt * 90 ), CameraTransform.WorldToLocalDirection( glm::vec3( 0, 1, 0 ) ) );
+            CameraTransform.rot = glm::angleAxis( (float)glm::radians( +dt * 90 ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
         if ( GetKeyFlag( GLFW_KEY_RIGHT ) )
-            CameraTransform.rot *= glm::angleAxis( (float)glm::radians( -dt * 90 ), CameraTransform.WorldToLocalDirection( glm::vec3( 0, 1, 0 ) ) );
+            CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 90 ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
 
         if ( GetKeyFlag( GLFW_KEY_P ) )
         {
@@ -122,7 +123,7 @@ int main( int argc, const char *argv[] )
             else
                 m->transform.parent = NULL;
         }
-
+        
         shader->SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
 
         m->Render( shader );
