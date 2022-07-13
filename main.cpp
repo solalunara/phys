@@ -159,9 +159,21 @@ int main( int argc, const char *argv[] )
         {
             SetKeyFlag( GLFW_KEY_P, false );
             if ( !m->transform.parent )
+            {
+                glm::vec3 pos = m->transform.GetAbsOrigin();
+                glm::quat rot = m->transform.GetAbsRot();
                 m->transform.parent = &CameraTransform;
+                m->transform.SetAbsOrigin( pos );
+                m->transform.SetAbsRot( rot );
+            }
             else
+            {
+                glm::vec3 pos = m->transform.GetAbsOrigin();
+                glm::quat rot = m->transform.GetAbsRot();
                 m->transform.parent = NULL;
+                m->transform.SetAbsOrigin( pos );
+                m->transform.SetAbsRot( rot );
+            }
         }
         
         shader->SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
