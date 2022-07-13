@@ -24,6 +24,7 @@ struct Transform
             return glm::translate( glm::mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( glm::mat4( 1 ), scl );
         else
         {
+            /*
             glm::vec3 scl_parent;
             glm::quat rot_parent;
             glm::vec3 pos_parent;
@@ -31,6 +32,8 @@ struct Transform
             glm::vec4 persp;
             glm::decompose( parent->GetMatrix(), scl_parent, rot_parent, pos_parent, skew, persp );
             return glm::translate( glm::mat4( 1 ), pos + pos_parent ) * glm::mat4_cast( rot * rot_parent ) * glm::scale( glm::mat4( 1 ), scl * scl_parent );
+            */
+            return parent->GetMatrix() * glm::translate( glm::mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( glm::mat4( 1 ), scl );
         }
     }
     glm::mat4 GetInverseMatrix()
