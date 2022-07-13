@@ -18,10 +18,21 @@ long KeyFlags[ 6 ] { 0 };
 static void SetKeyFlag( int key, bool set );
 static bool GetKeyFlag( int key );
 
+enum Settings
+{
+    NONE = 0,
+    LockCursor = 1 << 0,
+    KeyRotation = 1 << 1,
+};
+
 Shader *shader = NULL;
+int WindowWidth, WindowHeight;
 
 int main( int argc, const char *argv[] )
 {
+    int Settings;
+    Settings |= LockCursor;
+
     if ( !glfwInit() )
         printf( "Couldn't initialize glfw\n" );
 
@@ -42,6 +53,8 @@ int main( int argc, const char *argv[] )
     glfwSetFramebufferSizeCallback( window, ResizeCallback );
     glfwSetKeyCallback( window, KeyCallback );
 
+    glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
+
     if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
         printf( "Couldn't initialize glad\n" );
 
@@ -52,9 +65,8 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    int width, height;
-    glfwGetFramebufferSize( window, &width, &height );
-    glViewport( 0, 0, width, height );
+    glfwGetFramebufferSize( window, &WindowWidth, &WindowHeight );
+    glViewport( 0, 0, WindowWidth, WindowHeight );
 
     glfwSwapInterval( 1 );
 
@@ -66,7 +78,7 @@ int main( int argc, const char *argv[] )
 
     shader = new Shader();
     shader->Use();
-    shader->SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
+    shader->SetShaderValue( "Perspective", glm::perspectiveFov<float>( (float)glm::radians( 90.f ), WindowWidth, WindowHeight, 0.0001f, 1000.f ) );
     Texture *universe = new Texture( "./textures/source/universe.png" );
 
     float verts[] = {
@@ -106,15 +118,43 @@ int main( int argc, const char *argv[] )
             CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, -dt * 3, 0 ) );
 
         //can't do *= because it does the * in the wrong order (rot * new instaed of new * rot)
-        if ( GetKeyFlag( GLFW_KEY_UP ) )
-            CameraTransform.rot = glm::angleAxis( (float)glm::radians( +dt * 90 ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
-        if ( GetKeyFlag( GLFW_KEY_DOWN ) )
-            CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 90 ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
-        if ( GetKeyFlag( GLFW_KEY_LEFT ) )
-            CameraTransform.rot = glm::angleAxis( (float)glm::radians( +dt * 90 ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
-        if ( GetKeyFlag( GLFW_KEY_RIGHT ) )
-            CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 90 ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
+        if ( Settings & KeyRotation )
+        {
+            if ( GetKeyFlag( GLFW_KEY_UP ) )
+                CameraTransform.rot = glm::angleAxis( (float)glm::radians( +dt * 90 ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
+            if ( GetKeyFlag( GLFW_KEY_DOWN ) )
+                CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 90 ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
+            if ( GetKeyFlag( GLFW_KEY_LEFT ) )
+                CameraTransform.rot = glm::angleAxis( (float)glm::radians( +dt * 90 ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
+            if ( GetKeyFlag( GLFW_KEY_RIGHT ) )
+                CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 90 ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
+        }
+        else if ( Settings & LockCursor ) //only do if not doing key rotation and locking cursor
+        {
+            double xpos, ypos;
+            glfwGetCursorPos( window, &xpos, &ypos );
+            glfwSetCursorPos( window, WindowWidth / 2.f, WindowHeight / 2.f );
+            double xmv, ymv;
+            xmv = xpos - WindowWidth / 2;
+            ymv = ypos - WindowHeight / 2;
+            CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 10 * ymv ), CameraTransform.LocalToWorldDirection( glm::vec3( 1, 0, 0 ) ) ) * CameraTransform.rot;
+            CameraTransform.rot = glm::angleAxis( (float)glm::radians( -dt * 10 * xmv ), glm::vec3( 0, 1, 0 ) ) * CameraTransform.rot;
+        }
 
+        if ( GetKeyFlag( GLFW_KEY_ESCAPE ) )
+        {
+            SetKeyFlag( GLFW_KEY_ESCAPE, false );
+            if ( Settings & LockCursor )
+            {
+                glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+                Settings &= ~LockCursor;
+            }
+            else
+            {
+                glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
+                Settings |= LockCursor;
+            }
+        }
         if ( GetKeyFlag( GLFW_KEY_P ) )
         {
             SetKeyFlag( GLFW_KEY_P, false );
@@ -156,6 +196,8 @@ static void KeyCallback( GLFWwindow *window, int key, int scancode, int action, 
 }
 static void ResizeCallback( GLFWwindow *window, int width, int height )
 {
+    WindowWidth = width;
+    WindowHeight = height;
     glViewport( 0, 0, width, height );
     shader->SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
     glfwPollEvents();
