@@ -9,21 +9,18 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include <vector>
+
 struct Transform
 {
-    Transform( glm::vec3 pos, glm::quat rot, glm::vec3 scl ) : pos( pos ), rot( rot ), scl( scl ) {}
+    Transform( glm::vec3 pos, glm::quat rot, glm::vec3 scl ) : pos( pos ), rot( rot ), scl( scl ), parent( NULL ) {}
     glm::vec3 pos;
     glm::quat rot;
     glm::vec3 scl;
 
-    Transform *parent;
-
     glm::mat4 GetMatrix()
     {
-        if ( !parent )
-            return glm::translate( glm::mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( glm::mat4( 1 ), scl );
-        else
-            return parent->GetMatrix() * glm::translate( glm::mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( glm::mat4( 1 ), scl );
+        return ( parent ? parent->GetMatrix() : glm::identity<glm::mat4>() ) * glm::translate( glm::mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( glm::mat4( 1 ), scl );
     }
     glm::mat4 GetInverseMatrix()
     {
@@ -98,6 +95,38 @@ struct Transform
     {
         return GetInverseMatrix() * glm::vec4( p, 0, 1 );
     }
+
+    void SetParent( Transform *parent )
+    {
+        if ( this->parent )
+        {
+            int i;
+            for ( i = 0; i < this->parent->children.size(); ++i )
+                if ( this->parent->children[ i ] == this ) break;
+            this->parent->children.erase( this->parent->children.begin() + i );
+        }
+        if ( parent )
+            parent->children.push_back( this );
+        this->parent = parent;
+    }
+    bool HasParent() { return parent; }
+
+    Transform( const Transform & ) = delete;
+    Transform &operator =( const Transform & ) = delete;
+    Transform( Transform &&other ) :
+        pos( other.pos ), rot( other.rot ), scl( other.scl ), parent( other.parent ), children( std::vector<Transform *>() )
+    {
+        for ( int i = 0; i < other.children.size(); ++i )
+        {
+            Transform *child = other.children[ i ];
+            child->parent = this;
+            children.push_back( child );
+        }
+    }
+
+private:
+    Transform *parent = NULL;
+    std::vector<Transform *> children = std::vector<Transform *>();
 };
 
 #endif

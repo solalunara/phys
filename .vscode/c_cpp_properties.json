@@ -14,7 +14,8 @@
                 "${workspaceFolder}/glad.c",
                 "${workspaceFolder}/mesh/mesh.cpp",
                 "${workspaceFolder}/shaders/shader.cpp",
-                "${workspaceFolder}/textures/texture.cpp"
+                "${workspaceFolder}/textures/texture.cpp",
+                "${workspaceFolder}/entity/entity.cpp"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

@@ -4,6 +4,7 @@
 #include "shaders/shader.h"
 #include "mesh/mesh.h"
 #include "textures/texture.h"
+#include "entity/entity.h"
 #include "transform.h"
 
 #include <glad/glad.h>
@@ -81,17 +82,9 @@ int main( int argc, const char *argv[] )
     shader->SetShaderValue( "Perspective", glm::perspectiveFov<float>( (float)glm::radians( 90.f ), WindowWidth, WindowHeight, 0.0001f, 1000.f ) );
     Texture *universe = new Texture( "./textures/source/universe.png" );
 
-    float verts[] = {
-        0.5f, 0.5f, .0f,        1.0f, 1.0f,
-        0.5f, -.5f, .0f,        1.0f, 0.0f,
-        -.5f, -.5f, .0f,        0.0f, 0.0f,
-        -.5f, 0.5f, .0f,        0.0f, 1.0f,
-    };
-    unsigned int inds[] = {
-        0, 1, 3,
-        1, 2, 3
-    };
-    Mesh *m = new Mesh( verts, 20, inds, 6, universe, Transform( glm::vec3( 0, 0, -1 ), glm::identity<glm::quat>(), glm::one<glm::vec3>() ) );
+
+    Mesh *floor = new Mesh( glm::vec2( -1.f, -1.f ), glm::vec2( 1.f, 1.f ), universe, Transform( glm::vec3( 0, -1, 0 ), glm::angleAxis( glm::radians( 90.f ), glm::vec3( 1, 0, 0 ) ), glm::one<glm::vec3>() ) );
+    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe );
 
     Transform CameraTransform( glm::zero<glm::vec3>(), glm::identity<glm::quat>(), glm::one<glm::vec3>() );
     double t = glfwGetTime();
@@ -158,28 +151,30 @@ int main( int argc, const char *argv[] )
         if ( GetKeyFlag( GLFW_KEY_P ) )
         {
             SetKeyFlag( GLFW_KEY_P, false );
-            if ( !m->transform.parent )
+            if ( !ent->transform.HasParent() )
             {
-                glm::vec3 pos = m->transform.GetAbsOrigin();
-                glm::quat rot = m->transform.GetAbsRot();
-                m->transform.parent = &CameraTransform;
-                m->transform.SetAbsOrigin( pos );
-                m->transform.SetAbsRot( rot );
+                glm::vec3 pos = ent->transform.GetAbsOrigin();
+                glm::quat rot = ent->transform.GetAbsRot();
+                ent->transform.SetParent( &CameraTransform );
+                ent->transform.SetAbsOrigin( pos );
+                ent->transform.SetAbsRot( rot );
             }
             else
             {
-                glm::vec3 pos = m->transform.GetAbsOrigin();
-                glm::quat rot = m->transform.GetAbsRot();
-                m->transform.parent = NULL;
-                m->transform.SetAbsOrigin( pos );
-                m->transform.SetAbsRot( rot );
+                glm::vec3 pos = ent->transform.GetAbsOrigin();
+                glm::quat rot = ent->transform.GetAbsRot();
+                ent->transform.SetParent( NULL );
+                ent->transform.SetAbsOrigin( pos );
+                ent->transform.SetAbsRot( rot );
             }
         }
         
         shader->SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
 
-        m->Render( shader );
-        m->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
+        ent->Render( shader );
+        ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
+
+        floor->Render( shader );
 
         glfwSwapBuffers( window );
         glfwPollEvents();
@@ -187,7 +182,7 @@ int main( int argc, const char *argv[] )
 
     glfwDestroyWindow( window );
 
-    delete m;
+    delete ent;
     delete universe;
     delete shader;
     glfwTerminate();
