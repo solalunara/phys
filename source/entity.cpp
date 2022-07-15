@@ -1,4 +1,4 @@
-#include "entity.h"
+#include "../header/entity.h"
 
 Entity::Entity( Mesh *sides[ 6 ], Transform transform ) :
     sides{ sides[ 0 ], sides[ 1 ], sides[ 2 ], sides[ 3 ], sides[ 4 ], sides[ 5 ] }, transform( std::move( transform ) )

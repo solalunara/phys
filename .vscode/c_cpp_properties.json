@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/header",
                 "/usr/local/include",
                 "/usr/include"
             ],
@@ -11,11 +11,8 @@
                 "-lglfw",
                 "-lpng",
                 "-lwebp",
-                "${workspaceFolder}/glad.c",
-                "${workspaceFolder}/mesh/mesh.cpp",
-                "${workspaceFolder}/shaders/shader.cpp",
-                "${workspaceFolder}/textures/texture.cpp",
-                "${workspaceFolder}/entity/entity.cpp"
+                "${workspaceFolder}/glad/glad.c",
+                "${workspaceFolder}/source/*"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

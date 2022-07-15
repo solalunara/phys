@@ -1,10 +1,10 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "shaders/shader.h"
-#include "mesh/mesh.h"
-#include "textures/texture.h"
-#include "entity/entity.h"
+#include "shader.h"
+#include "mesh.h"
+#include "texture.h"
+#include "entity.h"
 #include "transform.h"
 
 #include <glad/glad.h>
@@ -80,7 +80,7 @@ int main( int argc, const char *argv[] )
     shader = new Shader();
     shader->Use();
     shader->SetShaderValue( "Perspective", glm::perspectiveFov<float>( (float)glm::radians( 90.f ), WindowWidth, WindowHeight, 0.0001f, 1000.f ) );
-    Texture *universe = new Texture( "./textures/source/universe.png" );
+    Texture *universe = new Texture( "./assets/textures/universe.png" );
 
 
     Mesh *floor = new Mesh( glm::vec2( -1.f, -1.f ), glm::vec2( 1.f, 1.f ), universe, Transform( glm::vec3( 0, -1, 0 ), glm::angleAxis( glm::radians( 90.f ), glm::vec3( 1, 0, 0 ) ), glm::one<glm::vec3>() ) );
@@ -88,6 +88,7 @@ int main( int argc, const char *argv[] )
 
     Transform CameraTransform( glm::zero<glm::vec3>(), glm::identity<glm::quat>(), glm::one<glm::vec3>() );
     double t = glfwGetTime();
+    int frames = 0;
     while ( !glfwWindowShouldClose( window ) )
     {
         double t_new = glfwGetTime();
@@ -96,6 +97,7 @@ int main( int argc, const char *argv[] )
 
         glClearColor( .2f, .3f, .3f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
 
         if ( GetKeyFlag( GLFW_KEY_W ) )
             CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, 0, -dt * 3 ) );
@@ -178,6 +180,7 @@ int main( int argc, const char *argv[] )
 
         glfwSwapBuffers( window );
         glfwPollEvents();
+        ++frames;
     }
 
     glfwDestroyWindow( window );

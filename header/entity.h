@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../mesh/mesh.h"
+#include "mesh.h"
 
 struct Entity
 {

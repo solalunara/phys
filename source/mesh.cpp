@@ -1,8 +1,8 @@
 #include "mesh.h"
 
-#include "../shaders/shader.h"
-#include "../textures/texture.h"
-#include "../shaders/shader.h"
+#include "shader.h"
+#include "texture.h"
+#include "shader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -73,7 +73,6 @@ Mesh::~Mesh()
 void Mesh::Render( Shader *shader )
 {
     shader->Use();
-    auto a = transform.GetMatrix();
     shader->SetShaderValue( "Transform", transform.GetMatrix() );
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, texture->id );
