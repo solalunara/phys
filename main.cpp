@@ -83,8 +83,8 @@ int main( int argc, const char *argv[] )
     Texture *universe = new Texture( "./assets/textures/universe.png" );
 
 
-    Mesh *floor = new Mesh( glm::vec2( -1.f, -1.f ), glm::vec2( 1.f, 1.f ), universe, Transform( glm::vec3( 0, -1, 0 ), glm::angleAxis( glm::radians( 90.f ), glm::vec3( 1, 0, 0 ) ), glm::one<glm::vec3>() ) );
     Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe );
+    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe );
 
     Transform CameraTransform( glm::zero<glm::vec3>(), glm::identity<glm::quat>(), glm::one<glm::vec3>() );
     double t = glfwGetTime();
@@ -176,7 +176,7 @@ int main( int argc, const char *argv[] )
         ent->Render( shader );
         ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
 
-        floor->Render( shader );
+        bbox->Render( shader );
 
         glfwSwapBuffers( window );
         glfwPollEvents();
