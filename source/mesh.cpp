@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 
 
 Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform ) : 

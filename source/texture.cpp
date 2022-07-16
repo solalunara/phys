@@ -7,7 +7,8 @@
 #include <filesystem>
 #include <string.h>
 
-Texture::Texture( const char *path )
+Texture::Texture( const char *path ) :
+    path( path )
 {
     glGenTextures( 1, &_id );
     glBindTexture( GL_TEXTURE_2D, _id );
