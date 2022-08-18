@@ -12,8 +12,8 @@ struct Entity;
 
 struct Mesh
 {
-    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container );
-    Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container );
+    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container, bool PartOfEntity );
+    Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container, bool PartOfEntity );
     ~Mesh();
 
     Mesh( const Mesh & ) = delete;

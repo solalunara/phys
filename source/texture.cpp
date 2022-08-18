@@ -11,6 +11,7 @@
 Texture::Texture( const char *path, Window *container ) :
     path( path ), container( container )
 {
+    glfwMakeContextCurrent( container->ID );
     container->shader.Use();
     glGenTextures( 1, &_id );
     glBindTexture( GL_TEXTURE_2D, _id );

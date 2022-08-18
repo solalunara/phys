@@ -36,9 +36,14 @@ public:
         other.ID = 0;
     }
 
-
     void SetState( WindowState state, int xres, int yres );
     void Render();
+
+    long KeyFlags[ 6 ] { 0 };
+    void SetKeyFlag( int key, bool set );
+    bool GetKeyFlag( int key );
+
+    bool LockCursor = false;
 
     GLFWwindow *ID;
     WindowState CurrentState;
@@ -59,5 +64,6 @@ inline Window *GetWindowFromID( GLFWwindow *ID )
 }
 
 void ResizeCallback( GLFWwindow *window, int width, int height );
+void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods );
 
 #endif

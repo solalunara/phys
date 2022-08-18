@@ -52,6 +52,7 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
 
     glfwMakeContextCurrent( ID );
     glfwSetFramebufferSizeCallback( ID, ResizeCallback );
+    glfwSetKeyCallback( ID, KeyCallback );
     if ( !Windows.size() )
     {
         MainWindow = this;
@@ -62,11 +63,14 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
 
     Windows.push_back( this );
 
-    int xsiz, ysiz;
-    glfwGetFramebufferSize( MainWindow->ID, &xsiz, &ysiz );
-    ResizeCallback( MainWindow->ID, xsiz, ysiz );
-
     glfwSwapInterval( 1 );
+
+    ResizeCallback( ID, xres, yres );
+
+    glEnable( GL_DEPTH_TEST );
+	glEnable( GL_FRAMEBUFFER_SRGB );
+	//glEnable( GL_CULL_FACE );
+	glDepthFunc( GL_LESS );
 }
 
 Window::~Window()
@@ -78,6 +82,19 @@ Window::~Window()
         delete Entities[ i ];
     for ( int i = 0; i < Textures.size(); ++i )
         delete Textures[ i ];
+    for ( int i = Windows.size(); --i >= 0; ) //reverse b/c erasing elements of vector
+    {
+        if ( Windows[ i ] == this ) 
+            Windows.erase( Windows.begin() + i );
+        else
+        {
+            //refresh the viewport on other windows
+            int xres, yres;
+            glfwGetFramebufferSize( Windows[ i ]->ID, &xres, &yres );
+            glfwMakeContextCurrent( Windows[ i ]->ID );
+            glViewport( 0, 0, xres, yres );
+        }
+    }
 }
 
 void Window::SetState( WindowState state, int xres, int yres )
@@ -112,6 +129,7 @@ void Window::SetState( WindowState state, int xres, int yres )
 }
 void Window::Render()
 {
+    shader.Use();
     shader.SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
     for ( int i = 0; i < Meshes.size(); ++i )
         Meshes[ i ]->Render( NULL );
@@ -119,9 +137,37 @@ void Window::Render()
         Entities[ i ]->Render();
 }
 
+void Window::SetKeyFlag( int key, bool set )
+{
+    if ( set )
+        KeyFlags[ key / 64 ] |= 1 << ( key % 64 );
+    else
+        KeyFlags[ key / 64 ] &= ~( 1 << ( key % 64 ) );
+}
+bool Window::GetKeyFlag( int key )
+{
+    return KeyFlags[ key / 64 ] & ( 1 << ( key % 64 ) );
+}
+
 void ResizeCallback( GLFWwindow *window, int width, int height )
 {
+    glfwMakeContextCurrent( window );
     glViewport( 0, 0, width, height );
+    GetWindowFromID( window )->shader.Use();
     GetWindowFromID( window )->shader.SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
     glfwPollEvents();
+}
+
+void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods )
+{
+    switch ( action )
+    {
+        case GLFW_PRESS:
+        GetWindowFromID( window )->SetKeyFlag( key, true );
+        break;
+
+        case GLFW_RELEASE:
+        GetWindowFromID( window )->SetKeyFlag( key, false );
+        break;
+    }
 }

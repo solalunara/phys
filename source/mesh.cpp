@@ -13,9 +13,10 @@
 #include <string>
 
 
-Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container ) : 
+Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container, bool PartOfEntity ) : 
     verts_len( verts_len ), inds_len( inds_len ), texture( texture ), transform( std::move( transform ) ), container( container )
 {
+    glfwMakeContextCurrent( container->ID );
     this->verts = new float[ verts_len ];
     memcpy( this->verts, verts, verts_len * sizeof( float ) );
 
@@ -41,11 +42,11 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
 
     glBindVertexArray( 0 );
 
-    if ( container )
+    if ( !PartOfEntity )
         container->Meshes.push_back( this );
 }
 
-Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container ) :
+Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container, bool PartOfEntity ) :
     Mesh(
         new float[] {
             maxs.x, maxs.y, .0f,        1.0f, 1.0f,
@@ -61,7 +62,8 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transfor
         6,
         texture,
         std::move( transform ),
-        container
+        container,
+        PartOfEntity
     )
 {
 }
