@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jul  5 12:19:34 2022
+# Make data base, printed on Thu Aug 18 16:52:31 2022
 
 # Variables
 
@@ -21,11 +21,9 @@ NO_AT_BRIDGE = 1
 # environment
 GTK_RC_FILES = /etc/gtk/gtkrc:/home/fvp/.gtkrc:/home/fvp/.config/gtkrc
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-59f780e3-7b49-4286-a9d6-5144e79d9deb.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-366dd61b-25c5-4e9b-a19d-b4bf9195f71c.sock
 # environment
-VSCODE_CWD = /home/fvp/prog/phys
-# environment
-WINDOWID = 6291458
+VSCODE_CWD = /home/fvp
 # environment
 WINDOWPATH = 1
 # default
@@ -42,16 +40,12 @@ PWD = /home/fvp/prog/phys
 %D = $(patsubst %/,%,$(dir $%))
 # environment
 MAIL = /var/spool/mail/fvp
-# environment
-OLDPWD = /home/fvp/prog
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
 VSCODE_LOG_STACK = false
 # automatic
 %F = $(notdir $%)
-# environment
-ALACRITTY_SOCKET = /run/user/1000/Alacritty-:0-1107.sock
 # environment
 VSCODE_CODE_CACHE_PATH = /home/fvp/.config/Code/CachedData/da15b6fd3ef856477bf6f4fb29ba1b7af717770d
 # environment
@@ -89,13 +83,13 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 7558
+VSCODE_PID = 9796
 # environment
 XDG_SESSION_TYPE = tty
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/491,unix/fvparch:/tmp/.ICE-unix/491
+SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/495,unix/fvparch:/tmp/.ICE-unix/495
 # automatic
 *F = $(notdir $*)
 # environment
@@ -115,7 +109,7 @@ MAKECMDGOALS := all
 # environment
 DOTNET_BUNDLE_EXTRACT_BASE_DIR = /home/fvp/.cache/dotnet_bundle_extract
 # environment
-SHLVL = 4
+SHLVL = 3
 # environment
 MAKELEVEL := 0
 # default
@@ -129,7 +123,7 @@ MOTD_SHOWN = pam
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = 502b39026f1a4fe39edf8fe81d013735
+INVOCATION_ID = ebc734f95f29429fa4393e2d8f8d6080
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -140,8 +134,6 @@ KDE_APPLICATIONS_AS_SCOPE = 1
 XDG_SEAT = seat0
 # environment
 XDG_CURRENT_DESKTOP = KDE
-# environment
-ALACRITTY_LOG = /tmp/Alacritty-1107.log
 # automatic
 +F = $(notdir $+)
 # environment
@@ -157,7 +149,7 @@ XDG_VTNR = 1
 # makefile
 .DEFAULT_GOAL := 
 # environment
-SYSTEMD_EXEC_PID = 526
+SYSTEMD_EXEC_PID = 530
 # environment
 DISPLAY = :0
 # environment
@@ -169,15 +161,13 @@ MAKE_VERSION := 4.3
 # environment
 KDE_SESSION_UID = 1000
 # environment
-MANAGERPID = 391
+MANAGERPID = 396
 # environment
 _ = /usr/bin/make
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-COLORTERM = truecolor
-# environment
-JOURNAL_STREAM = 8:19076
+JOURNAL_STREAM = 8:14258
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -191,7 +181,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 VSCODE_IPC_HOOK = /run/user/1000/vscode-23dedcd4-1.67.1-main.sock
 # environment
-TERM = alacritty
+TERM = linux
 # environment
 XDG_SESSION_ID = 1
 # environment
@@ -217,7 +207,7 @@ KDE_FULL_SESSION = true
 # environment
 DOTNET_ROOT = /usr/share/dotnet
 # variable set hash-table stats:
-# Load=102/1024=10%, Rehash=0, Collisions=4/129=3%
+# Load=97/1024=9%, Rehash=0, Collisions=4/124=3%
 
 # Pattern-specific Variable Values
 
@@ -225,9 +215,9 @@ DOTNET_ROOT = /usr/share/dotnet
 
 # Directories
 
-# . (device 66309, inode 525810): 5 files, no impossibilities.
+# . (device 66309, inode 525810): 11 files, no impossibilities.
 
-# 5 files, no impossibilities in 1 directories.
+# 11 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -239,6 +229,7 @@ DOTNET_ROOT = /usr/share/dotnet
 Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
+ 
 #  File has been updated.
 #  Failed to be updated.
 
@@ -277,13 +268,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 13 / storage = 112 B / avg = 8 B
-# current buf: size = 8162 B / used = 112 B / count = 13 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 19 / storage = 154 B / avg = 8 B
+# current buf: size = 8162 B / used = 154 B / count = 19 / avg = 8 B
 
-# strcache performance: lookups = 16 / hit rate = 18%
+# strcache performance: lookups = 22 / hit rate = 13%
 # hash-table stats:
-# Load=13/8192=0%, Rehash=0, Collisions=0/16=0%
- 
-# Finished Make data base on Tue Jul  5 12:19:34 2022
+# Load=19/8192=0%, Rehash=0, Collisions=0/22=0%
+# Finished Make data base on Thu Aug 18 16:52:31 2022
 
  

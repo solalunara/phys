@@ -75,6 +75,7 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
 
 Window::~Window()
 {
+    glfwMakeContextCurrent( ID );
     glfwDestroyWindow( ID );
     for ( int i = 0; i < Meshes.size(); ++i )
         delete Meshes[ i ];
