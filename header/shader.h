@@ -13,10 +13,17 @@ unsigned int CreateShader( ShaderType type );
 struct Shader
 {
     Shader();
+    Shader( bool NullShader );
     ~Shader();
 
     Shader( const Shader & ) = delete;
     Shader &operator =( const Shader & ) = delete;
+
+    void operator =( Shader &&other )
+    {
+        _id = other._id;
+        other._id = 0;
+    }
 
     Shader( Shader &&other ) : _id( other._id )
     {

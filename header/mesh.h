@@ -7,11 +7,13 @@
 
 struct Texture;
 struct Shader;
+struct Window;
+struct Entity;
 
 struct Mesh
 {
-    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform );
-    Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform );
+    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container );
+    Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container );
     ~Mesh();
 
     Mesh( const Mesh & ) = delete;
@@ -26,8 +28,12 @@ struct Mesh
 
     void Render( Shader *shader );
 
+    Window *container;
     Texture *texture;
     Transform transform;
+
+    Entity *LinkedEnt = NULL;
+    int LinkedEntIndex = -1;
 
 private:
     unsigned int _VBO;

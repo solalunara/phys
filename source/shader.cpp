@@ -38,6 +38,11 @@ unsigned int CreateShader( ShaderType type )
     return id;
 }
 
+//shader ctor which doesn't actually create a shader so we can do other stuff first
+Shader::Shader( bool NullShader )
+{
+}
+
 Shader::Shader()
 {
     _id = glCreateProgram();

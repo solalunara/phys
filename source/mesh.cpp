@@ -3,6 +3,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "shader.h"
+#include "window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,8 +13,8 @@
 #include <string>
 
 
-Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform ) : 
-    verts_len( verts_len ), inds_len( inds_len ), texture( texture ), transform( std::move( transform ) )
+Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container ) : 
+    verts_len( verts_len ), inds_len( inds_len ), texture( texture ), transform( std::move( transform ) ), container( container )
 {
     this->verts = new float[ verts_len ];
     memcpy( this->verts, verts, verts_len * sizeof( float ) );
@@ -39,9 +40,12 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
     glEnableVertexAttribArray( 1 );
 
     glBindVertexArray( 0 );
+
+    if ( container )
+        container->Meshes.push_back( this );
 }
 
-Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform ) :
+Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container ) :
     Mesh(
         new float[] {
             maxs.x, maxs.y, .0f,        1.0f, 1.0f,
@@ -56,7 +60,8 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transfor
         },
         6,
         texture,
-        std::move( transform )
+        std::move( transform ),
+        container
     )
 {
 }
@@ -73,8 +78,16 @@ Mesh::~Mesh()
 
 void Mesh::Render( Shader *shader )
 {
-    shader->Use();
-    shader->SetShaderValue( "Transform", transform.GetMatrix() );
+    if ( !shader )
+    {
+        container->shader.Use();
+        container->shader.SetShaderValue( "Transform", transform.GetMatrix() );
+    }
+    else
+    {
+        shader->Use();
+        shader->SetShaderValue( "Transform", transform.GetMatrix() );
+    }
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, texture->id );
     glBindVertexArray( _VAO );

@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "window.h"
 
 #include <png.h>
 #include <webp/decode.h>
@@ -7,9 +8,10 @@
 #include <filesystem>
 #include <string.h>
 
-Texture::Texture( const char *path ) :
-    path( path )
+Texture::Texture( const char *path, Window *container ) :
+    path( path ), container( container )
 {
+    container->shader.Use();
     glGenTextures( 1, &_id );
     glBindTexture( GL_TEXTURE_2D, _id );
 
@@ -121,6 +123,7 @@ Texture::Texture( const char *path ) :
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
         glGenerateMipmap( GL_TEXTURE_2D );
     }
+    container->Textures.push_back( this );
 }
 
 Texture::~Texture()

@@ -7,6 +7,7 @@
 #include "texture.h"
 #include "entity.h"
 #include "transform.h"
+#include "window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -17,7 +18,6 @@ using std::vector;
 
 
 static void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods );
-static void ResizeCallback( GLFWwindow *window, int width, int height );
 
 long KeyFlags[ 6 ] { 0 };
 static void SetKeyFlag( int key, bool set );
@@ -30,12 +30,6 @@ enum Settings
     KeyRotation = 1 << 1,
 };
 
-static Shader *shader = NULL;
-
-static GLFWwindow *CreateWindow( int xsiz, int ysiz, const char *name, GLFWmonitor *monitor, GLFWwindow *share );
-static vector<GLFWwindow *> Windows = vector<GLFWwindow *>();
-static GLFWwindow *MainWindow = NULL;
-
 int main( int argc, const char *argv[] )
 {
     int Settings;
@@ -44,10 +38,9 @@ int main( int argc, const char *argv[] )
     if ( !glfwInit() )
         printf( "Couldn't initialize glfw\n" );
 
-    vector<GLFWwindow *> Windows{};
-    Windows.push_back( glfwCreateWindow( 1000, 768, "phys", NULL, NULL ) );
-    Windows.push_back( glfwCreateWindow( 100, 76, "popup", NULL, Windows[ 0 ] ) );
-    MainWindow = Windows[ 0 ];
+
+    Window *main = new Window( WindowState::Windowed, 1000, 768, "phys" );
+    Window *popup = new Window( WindowState::Windowed, 100, 76, "popup" );
     if ( !MainWindow )
     {
         const char *msg[ 1 ] { new char[ 1024 ] { 0 } };
@@ -55,14 +48,10 @@ int main( int argc, const char *argv[] )
         printf( "Couldn't create window - %s\n", msg[ 0 ] );
         printf( "Possible restart needed after driver update\n" );
     }
-    glfwMakeContextCurrent( MainWindow );
-    glfwSetFramebufferSizeCallback( MainWindow, ResizeCallback );
-    glfwSetKeyCallback( MainWindow, KeyCallback );
+    glfwMakeContextCurrent( MainWindow->ID );
+    glfwSetKeyCallback( MainWindow->ID, KeyCallback );
 
-    glfwSetInputMode( MainWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
-
-    if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
-        printf( "Couldn't initialize glad\n" );
+    glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
 
     int Major, Minor;
     glGetIntegerv( GL_MAJOR_VERSION, &Major );
@@ -71,41 +60,26 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-
-    glfwSwapInterval( 1 );
-
     glEnable( GL_DEPTH_TEST );
 	glEnable( GL_FRAMEBUFFER_SRGB );
 	//glEnable( GL_CULL_FACE );
 	glDepthFunc( GL_LESS );
 
+    Texture *universe = new Texture( "./assets/textures/universe.png", MainWindow );
+    Texture *universe_popup = new Texture( "./assets/textures/universe.png", popup );
 
-    shader = new Shader();
-    shader->Use();
-    Texture *universe = new Texture( "./assets/textures/universe.png" );
-
-    //this has to be put after shader creation if we don't want a segfault
-    { //declare a scope so we can use these variable names later
-        int xsiz, ysiz;
-        glfwGetFramebufferSize( MainWindow, &xsiz, &ysiz );
-        ResizeCallback( MainWindow, xsiz, ysiz );
-    }
-
-
-    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe );
-    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe );
+    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, MainWindow );
+    Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe_popup, popup );
+    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, MainWindow );
 
     Transform CameraTransform( glm::zero<glm::vec3>(), glm::identity<glm::quat>(), glm::one<glm::vec3>() );
     double t = glfwGetTime();
-    while ( !glfwWindowShouldClose( MainWindow ) )
+    while ( !glfwWindowShouldClose( MainWindow->ID ) )
     {
+        //per frame for all windows
         double t_new = glfwGetTime();
         double dt = t_new - t;
         t = t_new;
-
-        glClearColor( .2f, .3f, .3f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
 
         if ( GetKeyFlag( GLFW_KEY_W ) )
             CameraTransform.pos += CameraTransform.LocalToWorldDirection( glm::vec3( 0, 0, -dt * 3 ) );
@@ -136,9 +110,9 @@ int main( int argc, const char *argv[] )
         {
             double xpos, ypos;
             int xsiz, ysiz;
-            glfwGetCursorPos( MainWindow, &xpos, &ypos );
-            glfwGetFramebufferSize( MainWindow, &xsiz, &ysiz );
-            glfwSetCursorPos( MainWindow, xsiz / 2.f, ysiz / 2.f );
+            glfwGetCursorPos( MainWindow->ID, &xpos, &ypos );
+            glfwGetFramebufferSize( MainWindow->ID, &xsiz, &ysiz );
+            glfwSetCursorPos( MainWindow->ID, xsiz / 2.f, ysiz / 2.f );
             double xmv, ymv;
             xmv = xpos - xsiz / 2;
             ymv = ypos - ysiz / 2;
@@ -151,15 +125,16 @@ int main( int argc, const char *argv[] )
             SetKeyFlag( GLFW_KEY_ESCAPE, false );
             if ( Settings & LockCursor )
             {
-                glfwSetInputMode( MainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+                glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
                 Settings &= ~LockCursor;
             }
             else
             {
-                glfwSetInputMode( MainWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
+                glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
                 Settings |= LockCursor;
             }
         }
+
         if ( GetKeyFlag( GLFW_KEY_P ) )
         {
             SetKeyFlag( GLFW_KEY_P, false );
@@ -180,23 +155,23 @@ int main( int argc, const char *argv[] )
                 ent->transform.SetAbsRot( rot );
             }
         }
-        
-        shader->SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
 
-        ent->Render( shader );
+        //per frame per window
+        for ( int i = 0; i < Windows.size(); ++i )
+        {
+            glfwMakeContextCurrent( Windows[ i ]->ID );
+            glClearColor( .2f, .3f, .3f, 1.0f );
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+            Windows[ i ]->Render();
+            glfwSwapBuffers( Windows[ i ]->ID );
+        }
+        
+
         ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
 
-        bbox->Render( shader );
-
-        glfwSwapBuffers( MainWindow );
         glfwPollEvents();
     }
 
-    glfwDestroyWindow( MainWindow );
-
-    delete ent;
-    delete universe;
-    delete shader;
     glfwTerminate();
 }
 
@@ -213,12 +188,6 @@ static void KeyCallback( GLFWwindow *window, int key, int scancode, int action, 
         break;
     }
 }
-static void ResizeCallback( GLFWwindow *window, int width, int height )
-{
-    glViewport( 0, 0, width, height );
-    shader->SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
-    glfwPollEvents();
-}
 static void SetKeyFlag( int key, bool set )
 {
     if ( set )
@@ -229,19 +198,4 @@ static void SetKeyFlag( int key, bool set )
 static bool GetKeyFlag( int key )
 {
     return KeyFlags[ key / 64 ] & ( 1 << ( key % 64 ) );
-}
-
-static GLFWwindow *CreateWindow( int xsiz, int ysiz, const char *name, GLFWmonitor *monitor, GLFWwindow *share )
-{
-    Windows.push_back( glfwCreateWindow( xsiz, ysiz, name, monitor, share ) );
-    if ( Windows.size() == 1 )
-        MainWindow = Windows[ 0 ];
-    if ( !Windows[ Windows.size() - 1 ] )
-    {
-        const char *msg[ 1 ] { new char[ 1024 ] { 0 } };
-        glfwGetError( msg );
-        printf( "Couldn't create window - %s\n", msg[ 0 ] );
-        printf( "Possible restart needed after driver update\n" );
-        Windows.erase( Windows.end() - 1 );
-    }
 }

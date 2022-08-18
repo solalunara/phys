@@ -3,9 +3,11 @@
 
 #pragma once
 
+struct Window;
+
 struct Texture
 {
-    Texture( const char *path );
+    Texture( const char *path, Window *container );
     ~Texture();
 
     Texture( const Texture & ) = delete;
@@ -18,6 +20,8 @@ struct Texture
 
     const char *path;
     const unsigned int &id = _id;
+
+    Window *container;
 
 private:
     unsigned int _id;

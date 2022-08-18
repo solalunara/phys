@@ -6,6 +6,8 @@
 #include "mesh.h"
 #include <glm/glm.hpp>
 
+struct Window;
+
 enum class Side : char
 {
     NONE = 0,
@@ -25,10 +27,11 @@ struct TexSide
 
 struct Entity
 {
-    Entity( Mesh *sides[ 6 ], Transform transform );
-    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *texture );
-    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *textures[ 6 ] );
+    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *texture, Window *container );
+    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *textures[ 6 ], Window *container );
     ~Entity();
+
+    Window *container;
 
     Mesh *sides[ 6 ];
 
@@ -49,7 +52,7 @@ struct Entity
     Transform transform;
     glm::vec3 velocity;
 
-    void Render( Shader *shader );
+    void Render();
 };
 
 #endif
