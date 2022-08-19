@@ -54,7 +54,6 @@ public:
     vector<Entity *> Entities;
 };
 inline vector<Window *> Windows = vector<Window *>();
-inline Window *MainWindow = 0;
 
 inline Window *GetWindowFromID( GLFWwindow *ID )
 {

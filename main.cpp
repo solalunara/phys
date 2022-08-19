@@ -33,14 +33,13 @@ int main( int argc, const char *argv[] )
 
 
     Window *main = new Window( WindowState::Windowed, 1000, 768, "phys" );
-    Window *popup = new Window( WindowState::Windowed, 100, 76, "popup" );
-    if ( !MainWindow )
+    for ( int i = 1; i < argc; ++i )
     {
-        const char *msg[ 1 ] { new char[ 1024 ] { 0 } };
-        glfwGetError( msg );
-        printf( "Couldn't create window - %s\n", msg[ 0 ] );
-        printf( "Possible restart needed after driver update\n" );
+        Window *w = new Window( WindowState::Windowed, 200, 152, argv[ i ] );
+        Texture *universe = new Texture( "./assets/textures/universe.png", w );
+        new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, w );
     }
+    Window *popup = new Window( WindowState::Windowed, 100, 76, "popup" );
 
     //glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
 
@@ -51,30 +50,40 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    Texture *universe = new Texture( "./assets/textures/universe.png", MainWindow );
+    Texture *universe = new Texture( "./assets/textures/universe.png", main );
     Texture *universe_popup = new Texture( "./assets/textures/universe.png", popup );
 
-    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, MainWindow );
+    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, main );
     Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe_popup, popup );
-    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, MainWindow );
+    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, main );
 
     double t = glfwGetTime();
-    while ( !glfwWindowShouldClose( MainWindow->ID ) )
+    double dt;
+
+    while ( true )
     {
-        //per frame for all windows
-        double t_new = glfwGetTime();
-        double dt = t_new - t;
-        t = t_new;
-
-        ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
-
         //per frame per window
         for ( int i = 0; i < Windows.size(); ++i )
         {
+            if ( i == 0 )
+            {
+                //per frame for all windows
+                double t_new = glfwGetTime();
+                dt = t_new - t;
+                t = t_new;
+
+                ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
+            }
             if ( glfwWindowShouldClose( Windows[ i ]->ID ) )
             {
                 delete Windows[ i ];
-                continue;
+                if ( Windows.size() )
+                    continue;
+                else
+                {
+                    glfwTerminate();
+                    exit( 0 );
+                }
             }
             glfwMakeContextCurrent( Windows[ i ]->ID );
             glClearColor( .2f, .3f, .3f, 1.0f );
@@ -155,9 +164,7 @@ int main( int argc, const char *argv[] )
 
             Windows[ i ]->Render();
             glfwSwapBuffers( Windows[ i ]->ID );
+            glfwPollEvents();
         }
-        glfwPollEvents();
     }
-
-    glfwTerminate();
 }
