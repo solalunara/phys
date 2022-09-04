@@ -34,14 +34,13 @@ public:
     Window( const Window & ) = delete;
     Window &operator =( const Window & ) = delete;
     Window( Window &&other ) :
-        ID( other.ID ), shader( std::move( other.shader ) ), CameraTransform( std::move( other.CameraTransform ) )
+        ID( other.ID ), shader( std::move( other.shader ) ), TextShader( std::move( other.TextShader ) ), CameraTransform( std::move( other.CameraTransform ) )
     {
         other.ID = 0;
     }
 
     void SetState( WindowState state, int xres, int yres );
     void Render();
-    void RenderText( const char *text, float x, float y, float scale, glm::vec3 color );
 
     long KeyFlags[ 6 ] { 0 };
     void SetKeyFlag( int key, bool set );
@@ -52,6 +51,7 @@ public:
     GLFWwindow *ID;
     WindowState CurrentState;
     Shader shader;
+    Shader TextShader;
     Transform CameraTransform;
     vector<Texture *> Textures;
     vector<Mesh *> Meshes;

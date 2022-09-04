@@ -1,3 +1,23 @@
 {
-    "makefile.extensionOutputFolder": "./.vscode"
+    "makefile.extensionOutputFolder": "./.vscode",
+    "files.associations": {
+        "*.tcc": "cpp",
+        "bitset": "cpp",
+        "functional": "cpp",
+        "memory_resource": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "variant": "cpp",
+        "__config": "cpp",
+        "atomic": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "locale": "cpp",
+        "thread": "cpp",
+        "*.inc": "cpp"
+    }
 }

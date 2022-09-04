@@ -4,9 +4,15 @@
 #pragma once
 
 #include "mesh.h"
+#include <vector>
 #include <glm/glm.hpp>
+using std::vector;
+using glm::vec2;
+using glm::vec3;
+using glm::quat;
 
 struct Window;
+struct Text;
 struct GlobalTexture;
 
 enum class Side : char
@@ -28,10 +34,8 @@ struct TexSide
 
 struct Entity
 {
-    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *texture, Window *container );
-    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *textures[ 6 ], Window *container );
-    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, GlobalTexture *texture, Window *container );
-    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, GlobalTexture *textures[ 6 ], Window *container );
+    Entity( vec3 mins, vec3 maxs, Transform transform, Texture *texture, Window *container );
+    Entity( vec3 mins, vec3 maxs, Transform transform, Texture *textures[ 6 ], Window *container );
     ~Entity();
 
     Window *container;
@@ -53,9 +57,19 @@ struct Entity
     Texture *bottom_tex    = sides[ 5 ]->texture;
 
     Transform transform;
-    glm::vec3 velocity;
+    vec3 velocity;
 
     void Render();
 };
+
+struct Word
+{
+    Word( const char *text, float x, float y, float z, float scale, vec3 color, Window *container );
+    ~Word();
+
+    Window *container;
+    vector<Text *> chars;
+};
+
 
 #endif

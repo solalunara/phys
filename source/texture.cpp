@@ -9,15 +9,18 @@
 #include <string.h>
 
 Texture::Texture( const unsigned char *buffer, const char *name, unsigned int width, unsigned int rows, Window *container ) :
-    path( name ), container( container )
+    container( container )
 {
+    this->path = new char[ strlen( name ) + 1 ];
+    strcpy( this->path, name );
+    glfwMakeContextCurrent( container->ID );
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // disable byte-alignment restriction
     glGenTextures( 1, &_id );
     glBindTexture( GL_TEXTURE_2D, _id );
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RED,
+        GL_R8,
         width,
         rows,
         0,
@@ -26,16 +29,18 @@ Texture::Texture( const unsigned char *buffer, const char *name, unsigned int wi
         buffer
     );
     // set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     container->Textures.push_back( this );
 }
 
 Texture::Texture( const char *path, Window *container ) :
-    path( path ), container( container )
+    container( container )
 {
+    this->path = new char[ strlen( path ) + 1 ];
+    strcpy( this->path, path );
     glfwMakeContextCurrent( container->ID );
     container->shader.Use();
     glGenTextures( 1, &_id );

@@ -8,92 +8,98 @@
 #include <glm/matrix.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::quat;
+using glm::mat4;
 
 #include <vector>
+using std::vector;
 
 struct Transform
 {
-    Transform( glm::vec3 pos, glm::quat rot, glm::vec3 scl ) : pos( pos ), rot( rot ), scl( scl ), parent( NULL ) {}
-    glm::vec3 pos;
-    glm::quat rot;
-    glm::vec3 scl;
+    Transform( vec3 pos, quat rot, vec3 scl ) : pos( pos ), rot( rot ), scl( scl ), parent( NULL ) {}
+    vec3 pos;
+    quat rot;
+    vec3 scl;
 
-    glm::mat4 GetMatrix()
+    mat4 GetMatrix()
     {
-        return ( parent ? parent->GetMatrix() : glm::identity<glm::mat4>() ) * glm::translate( glm::mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( glm::mat4( 1 ), scl );
+        return ( parent ? parent->GetMatrix() : glm::identity<mat4>() ) * glm::translate( mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( mat4( 1 ), scl );
     }
-    glm::mat4 GetInverseMatrix()
+    mat4 GetInverseMatrix()
     {
         return glm::inverse( GetMatrix() );
     }
 
-    glm::vec3 GetAbsOrigin()
+    vec3 GetAbsOrigin()
     {
-        glm::vec3 scl;
-        glm::quat rot;
-        glm::vec3 pos;
-        glm::vec3 skew;
-        glm::vec4 persp;
+        vec3 scl;
+        quat rot;
+        vec3 pos;
+        vec3 skew;
+        vec4 persp;
         glm::decompose( GetMatrix(), scl, rot, pos, skew, persp );
         return pos;
     }
-    glm::quat GetAbsRot()
+    quat GetAbsRot()
     {
-        glm::vec3 scl;
-        glm::quat rot;
-        glm::vec3 pos;
-        glm::vec3 skew;
-        glm::vec4 persp;
+        vec3 scl;
+        quat rot;
+        vec3 pos;
+        vec3 skew;
+        vec4 persp;
         glm::decompose( GetMatrix(), scl, rot, pos, skew, persp );
         return rot;
     }
 
-    void SetAbsOrigin( glm::vec3 pt )
+    void SetAbsOrigin( vec3 pt )
     {
         if ( !parent )
             pos = pt;
         else
-            pos = parent->GetInverseMatrix() * glm::vec4( pos, 1 );
+            pos = parent->GetInverseMatrix() * vec4( pos, 1 );
     }
-    void SetAbsRot( glm::quat rt )
+    void SetAbsRot( quat rt )
     {
         if ( !parent )
             rot = rt;
         else
         {
-            glm::vec3 scl;
-            glm::quat rot_parent;
-            glm::vec3 pos;
-            glm::vec3 skew;
-            glm::vec4 persp;
+            vec3 scl;
+            quat rot_parent;
+            vec3 pos;
+            vec3 skew;
+            vec4 persp;
             glm::decompose( parent->GetMatrix(), scl, rot_parent, pos, skew, persp );
             rot = glm::inverse( rot_parent ) * rt;
         }
     }
 
-    glm::vec3 LocalToWorldDirection( glm::vec3 v )
+    vec3 LocalToWorldDirection( vec3 v )
     {
-        return GetMatrix() * glm::vec4( v, 0 );
+        return GetMatrix() * vec4( v, 0 );
     }
-    glm::vec3 LocalToWorldPoint( glm::vec3 p )
+    vec3 LocalToWorldPoint( vec3 p )
     {
-        return GetMatrix() * glm::vec4( p, 1 );
+        return GetMatrix() * vec4( p, 1 );
     }
-    glm::vec2 LocalToWorldPoint( glm::vec2 p )
+    vec2 LocalToWorldPoint( vec2 p )
     {
-        return GetMatrix() * glm::vec4( p, 0, 1 );
+        return GetMatrix() * vec4( p, 0, 1 );
     }
-    glm::vec3 WorldToLocalDirection( glm::vec3 v )
+    vec3 WorldToLocalDirection( vec3 v )
     {
-        return GetInverseMatrix() * glm::vec4( v, 0 );
+        return GetInverseMatrix() * vec4( v, 0 );
     }
-    glm::vec3 WorldToLocalPoint( glm::vec3 p )
+    vec3 WorldToLocalPoint( vec3 p )
     {
-        return GetInverseMatrix() * glm::vec4( p, 1 );
+        return GetInverseMatrix() * vec4( p, 1 );
     }
-    glm::vec2 WorldToLocalPoint( glm::vec2 p )
+    vec2 WorldToLocalPoint( vec2 p )
     {
-        return GetInverseMatrix() * glm::vec4( p, 0, 1 );
+        return GetInverseMatrix() * vec4( p, 0, 1 );
     }
 
     void SetParent( Transform *parent )
@@ -114,7 +120,7 @@ struct Transform
     Transform( const Transform & ) = delete;
     Transform &operator =( const Transform & ) = delete;
     Transform( Transform &&other ) :
-        pos( other.pos ), rot( other.rot ), scl( other.scl ), parent( other.parent ), children( std::vector<Transform *>() )
+        pos( other.pos ), rot( other.rot ), scl( other.scl ), parent( other.parent ), children( vector<Transform *>() )
     {
         for ( int i = 0; i < other.children.size(); ++i )
         {
@@ -126,7 +132,7 @@ struct Transform
 
 private:
     Transform *parent = NULL;
-    std::vector<Transform *> children = std::vector<Transform *>();
+    vector<Transform *> children = vector<Transform *>();
 };
 
 #endif

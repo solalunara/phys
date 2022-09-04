@@ -36,9 +36,7 @@ enum Settings
 
 int main( int argc, const char *argv[] )
 {
-
-
-    int Settings;
+    int Settings = 0;
 
     if ( !glfwInit() )
         printf( "Couldn't initialize glfw\n" );
@@ -49,7 +47,7 @@ int main( int argc, const char *argv[] )
     for ( int i = 1; i < argc; ++i )
     {
         Window *w = new Window( WindowState::Windowed, 200, 152, argv[ i ] );
-        new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, w );
+        new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( w ), w );
     }
     Window *popup = new Window( WindowState::Windowed, 100, 76, "popup" );
 
@@ -65,14 +63,16 @@ int main( int argc, const char *argv[] )
     for ( unsigned char c = 0; c < 128; c++ )
     {
         // load character glyph 
-        if ( FT_Load_Char( face, c, FT_LOAD_RENDER ) )
-        {
-            std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-            continue;
-        }
-        const char name[ 2 ] { c, '\0' };
+        //if ( FT_Load_Char( face, c, FT_LOAD_RENDER ) )
+        //{
+        //    std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+        //    continue;
+        //}
+        unsigned int in = FT_Get_Char_Index( face, c );
+        FT_Load_Glyph( face, in, FT_LOAD_DEFAULT );
+        FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
         // generate texture
-        GlobalTexture *texture = new GlobalTexture( face->glyph->bitmap.buffer, name, face->glyph->bitmap.width, face->glyph->bitmap.rows );
+        GlobalTexture *texture = new GlobalTexture( face->glyph->bitmap.buffer, std::to_string( static_cast<int>( c ) ).c_str(), face->glyph->bitmap.width, face->glyph->bitmap.rows );
         // now store character for later use
         Character character = {
             texture, 
@@ -94,12 +94,12 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    main->RenderText( "hello", 0, 0, 1, glm::vec3( 1.0f, 1.0f, 1.0f ) );
+    Word *hello = new Word( "hello", 0, 0, -2, .01f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
 
 
-    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, main );
-    Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, popup );
-    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, main );
+    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
+    Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( popup ), popup );
+    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
 
     double t = glfwGetTime();
     double dt;
@@ -123,6 +123,7 @@ int main( int argc, const char *argv[] )
                     continue;
                 else
                 {
+                    delete hello;
                     glfwTerminate();
                     exit( 0 );
                 }

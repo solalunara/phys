@@ -16,7 +16,7 @@ using glm::vec3;
 using glm::quat;
 
 Window::Window( WindowState state, int xres, int yres, const char *name ) :
-    shader( NULL ), CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() )
+    shader( 0 ), TextShader( 0 ), CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() )
 {
     glfwDefaultWindowHints();
     const GLFWvidmode* mode = glfwGetVideoMode( glfwGetPrimaryMonitor() );
@@ -60,7 +60,8 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
         if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
             printf( "Couldn't initialize glad\n" );
     }
-    shader = std::move( Shader() );
+    shader = std::move( Shader( false ) );
+    TextShader = std::move( Shader( true ) );
 
     Windows.push_back( this );
 
@@ -72,6 +73,8 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
 	glEnable( GL_FRAMEBUFFER_SRGB );
 	//glEnable( GL_CULL_FACE );
 	glDepthFunc( GL_LESS );
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
 
     for ( int i = 0; i < GlobalTextures.size(); ++i )
         new Texture( GlobalTextures[ i ]->path, this );
@@ -97,6 +100,7 @@ Window::~Window()
             int xres, yres;
             glfwGetFramebufferSize( Windows[ i ]->ID, &xres, &yres );
             glfwMakeContextCurrent( Windows[ i ]->ID );
+            Windows[ i ]->Render();
             glViewport( 0, 0, xres, yres );
         }
     }
@@ -134,41 +138,12 @@ void Window::SetState( WindowState state, int xres, int yres )
 }
 void Window::Render()
 {
-    shader.Use();
     shader.SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
+    TextShader.SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
     for ( int i = 0; i < Meshes.size(); ++i )
-        Meshes[ i ]->Render( NULL );
+        Meshes[ i ]->Render();
     for ( int i = 0; i < Entities.size(); ++i )
         Entities[ i ]->Render();
-}
-
-void Window::RenderText( const char *text, float x, float y, float scale, glm::vec3 color )
-{
-    // activate corresponding render state	
-    shader.Use();
-    shader.SetShaderValue( "TextColorX", color.x );
-    shader.SetShaderValue( "TextColorY", color.y );
-    shader.SetShaderValue( "TextColorZ", color.z );
-
-    // iterate through all characters
-    for ( int i = 0; i < strlen( text ); ++i )
-    {
-        Character ch = Characters[ text[ i ] ];
-
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
-
-        Mesh *m = new Mesh( glm::vec2( -w / 2, -h / 2 ), glm::vec2( w / 2, h / 2 ),
-            ch.TextureID, Transform( vec3( xpos, ypos, -1 ), identity<quat>(), one<vec3>() ), this, false );
-
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Window::SetKeyFlag( int key, bool set )
@@ -187,8 +162,8 @@ void ResizeCallback( GLFWwindow *window, int width, int height )
 {
     glfwMakeContextCurrent( window );
     glViewport( 0, 0, width, height );
-    GetWindowFromID( window )->shader.Use();
     GetWindowFromID( window )->shader.SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
+    GetWindowFromID( window )->TextShader.SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
     glfwPollEvents();
 }
 

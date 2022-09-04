@@ -8,7 +8,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-unsigned int CreateShader( ShaderType type )
+unsigned int CreateShader( ShaderType type, bool Text )
 {
     unsigned int id;
     switch ( type )
@@ -19,8 +19,16 @@ unsigned int CreateShader( ShaderType type )
         break;
 
         case ShaderType::Frag:
-        id = glCreateShader( GL_FRAGMENT_SHADER );
-        glShaderSource( id, 1, &g_pszFragShaderSource, NULL );
+        if ( !Text )
+        {
+            id = glCreateShader( GL_FRAGMENT_SHADER );
+            glShaderSource( id, 1, &g_pszFragShaderSource, NULL );
+        }
+        else
+        {
+            id = glCreateShader( GL_FRAGMENT_SHADER );
+            glShaderSource( id, 1, &g_pszTextFragShaderSource, NULL );
+        }
         break;
     }
     glCompileShader( id );
@@ -39,18 +47,18 @@ unsigned int CreateShader( ShaderType type )
 }
 
 //shader ctor which doesn't actually create a shader so we can do other stuff first
-Shader::Shader( bool NullShader )
+Shader::Shader( int NullShader )
 {
 }
 
-Shader::Shader()
+Shader::Shader( bool Text )
 {
     _id = glCreateProgram();
 
-    unsigned int vert = CreateShader( ShaderType::Vertex );
+    unsigned int vert = CreateShader( ShaderType::Vertex, Text );
     glAttachShader( id, vert );
     
-    unsigned int frag = CreateShader( ShaderType::Frag );
+    unsigned int frag = CreateShader( ShaderType::Frag, Text );
     glAttachShader( id, frag );
 
     glLinkProgram( id );
@@ -80,17 +88,21 @@ void Shader::Use()
 
 void Shader::SetShaderValue( const char *name, bool val )
 {
+    Use();
     glUniform1i( glGetUniformLocation( id, name ), val );
 }
 void Shader::SetShaderValue( const char *name, int val )
 {
+    Use();
     glUniform1i( glGetUniformLocation( id, name ), val );
 }
 void Shader::SetShaderValue( const char *name, float val )
 {
+    Use();
     glUniform1f( glGetUniformLocation( id, name ), val );
 }
 void Shader::SetShaderValue( const char *name, glm::mat4 val )
 {
+    Use();
     glUniformMatrix4fv( glGetUniformLocation( id, name ), 1, false, &val[ 0 ][ 0 ] );
 }

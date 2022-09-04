@@ -18,7 +18,7 @@ public:
 
     Texture *FindLocalTexture( Window *w );
 
-    const char *path;
+    char *path;
 };
 inline vector<GlobalTexture *> GlobalTextures;
 

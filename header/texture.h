@@ -19,7 +19,7 @@ struct Texture
         other._id = 0;
     }
 
-    const char *path;
+    char *path;
     const unsigned int &id = _id;
 
     Window *container;
