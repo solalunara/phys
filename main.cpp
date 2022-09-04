@@ -62,18 +62,16 @@ int main( int argc, const char *argv[] )
 
     while ( true )
     {
+        //per frame for all windows
+        double t_new = glfwGetTime();
+        dt = t_new - t;
+        t = t_new;
+        ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
+
+
         //per frame per window
         for ( int i = 0; i < Windows.size(); ++i )
         {
-            if ( i == 0 )
-            {
-                //per frame for all windows
-                double t_new = glfwGetTime();
-                dt = t_new - t;
-                t = t_new;
-
-                ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
-            }
             if ( glfwWindowShouldClose( Windows[ i ]->ID ) )
             {
                 delete Windows[ i ];
