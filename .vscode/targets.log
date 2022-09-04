@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Aug 18 17:26:55 2022
+# Make data base, printed on Sat Sep  3 18:31:07 2022
 
 # Variables
 
@@ -21,11 +21,11 @@ NO_AT_BRIDGE = 1
 # environment
 GTK_RC_FILES = /etc/gtk/gtkrc:/home/fvp/.gtkrc:/home/fvp/.config/gtkrc
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-36a56f13-8d2b-4545-89e0-6efb8af71671.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-d41fa9ff-f2a7-407b-baa6-af283fe16dfb.sock
 # environment
 VSCODE_CWD = /home/fvp/prog/phys
 # environment
-WINDOWID = 6291458
+WINDOWID = 52428802
 # environment
 WINDOWPATH = 1
 # default
@@ -51,7 +51,7 @@ VSCODE_LOG_STACK = false
 # automatic
 %F = $(notdir $%)
 # environment
-ALACRITTY_SOCKET = /run/user/1000/Alacritty-:0-1102.sock
+ALACRITTY_SOCKET = /run/user/1000/Alacritty-:0-1143.sock
 # environment
 VSCODE_CODE_CACHE_PATH = /home/fvp/.config/Code/CachedData/da15b6fd3ef856477bf6f4fb29ba1b7af717770d
 # environment
@@ -69,13 +69,11 @@ CURDIR := /home/fvp/prog/phys
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
 MFLAGS = -pqrR
-# environment
-SSH_AUTH_SOCK = /tmp/pageant.fvp/pageant.2510
 # default
 .SHELLFLAGS := -c
 # environment
@@ -87,21 +85,19 @@ XCURSOR_THEME = breeze_cursors
 # makefile
 MAKEFILE_LIST := 
 # automatic
- 
 @F = $(notdir $@)
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 14104
+VSCODE_PID = 1171
 # environment
 XDG_SESSION_TYPE = tty
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/495,unix/fvparch:/tmp/.ICE-unix/495
+SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/489,unix/fvparch:/tmp/.ICE-unix/489
 # automatic
 *F = $(notdir $*)
- 
 # environment
 CHROME_DESKTOP = code-url-handler.desktop
 # environment
@@ -125,7 +121,7 @@ MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /usr/local/sbin:/usr/local/bin:/usr/bin:/home/fvp/.dotnet/tools:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+PATH = /usr/local/sbin:/usr/local/bin:/usr/bin:/home/fvp/.dotnet/tools:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
 # default
 MAKEFILES := 
 # environment
@@ -133,7 +129,7 @@ MOTD_SHOWN = pam
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = ebc734f95f29429fa4393e2d8f8d6080
+INVOCATION_ID = a890c6dd0d404017ad29331da17a77ec
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -145,7 +141,7 @@ XDG_SEAT = seat0
 # environment
 XDG_CURRENT_DESKTOP = KDE
 # environment
-ALACRITTY_LOG = /tmp/Alacritty-1102.log
+ALACRITTY_LOG = /tmp/Alacritty-1143.log
 # automatic
 +F = $(notdir $+)
 # environment
@@ -161,7 +157,7 @@ XDG_VTNR = 1
 # makefile
 .DEFAULT_GOAL := 
 # environment
-SYSTEMD_EXEC_PID = 530
+SYSTEMD_EXEC_PID = 524
 # environment
 DISPLAY = :0
 # environment
@@ -173,9 +169,7 @@ MAKE_VERSION := 4.3
 # environment
 KDE_SESSION_UID = 1000
 # environment
-MANAGERPID = 396
-# environment
-SSH_AGENT_PID = 2512
+MANAGERPID = 390
 # environment
 _ = /usr/bin/make
 # environment
@@ -183,7 +177,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 COLORTERM = truecolor
 # environment
-JOURNAL_STREAM = 8:14258
+JOURNAL_STREAM = 8:21276
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -204,7 +198,6 @@ XDG_SESSION_ID = 1
 XCURSOR_SIZE = 24
 # default
 .RECIPEPREFIX := 
- 
 # automatic
 <F = $(notdir $<)
 # default
@@ -224,7 +217,7 @@ KDE_FULL_SESSION = true
 # environment
 DOTNET_ROOT = /usr/share/dotnet
 # variable set hash-table stats:
-# Load=104/1024=10%, Rehash=0, Collisions=4/131=3%
+# Load=102/1024=10%, Rehash=0, Collisions=4/129=3%
 
 # Pattern-specific Variable Values
 
@@ -271,7 +264,6 @@ makefile:
 
 # Not a target:
 GNUmakefile:
- 
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
@@ -290,8 +282,8 @@ GNUmakefile:
 
 # strcache performance: lookups = 22 / hit rate = 13%
 # hash-table stats:
- 
 # Load=19/8192=0%, Rehash=0, Collisions=0/22=0%
-# Finished Make data base on Thu Aug 18 17:26:55 2022
+ 
+# Finished Make data base on Sat Sep  3 18:31:07 2022
 
  

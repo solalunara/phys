@@ -5,12 +5,14 @@
             "includePath": [
                 "${workspaceFolder}/header",
                 "/usr/local/include",
-                "/usr/include"
+                "/usr/include",
+                "/usr/include/freetype2"
             ],
             "compilerArgs": [
                 "-lglfw",
                 "-lpng",
                 "-lwebp",
+                "-lfreetype2",
                 "${workspaceFolder}/glad/glad.c",
                 "${workspaceFolder}/source/*"
             ],

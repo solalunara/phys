@@ -1,6 +1,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector> 
+#include <map>
+
+using std::vector;
+using std::map;
 
 #include "shader.h"
 #include "mesh.h"
@@ -8,13 +12,19 @@
 #include "entity.h"
 #include "transform.h"
 #include "window.h"
+#include "GlobalTexture.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-using std::vector;
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+FT_Library  library;
+FT_Face     face;
+FT_Error    error;
 
 
 
@@ -26,6 +36,8 @@ enum Settings
 
 int main( int argc, const char *argv[] )
 {
+
+
     int Settings;
 
     if ( !glfwInit() )
@@ -33,13 +45,45 @@ int main( int argc, const char *argv[] )
 
 
     Window *main = new Window( WindowState::Windowed, 1000, 768, "phys" );
+    GlobalTexture *universe = new GlobalTexture( "./assets/textures/universe.png" );
     for ( int i = 1; i < argc; ++i )
     {
         Window *w = new Window( WindowState::Windowed, 200, 152, argv[ i ] );
-        Texture *universe = new Texture( "./assets/textures/universe.png", w );
         new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, w );
     }
     Window *popup = new Window( WindowState::Windowed, 100, 76, "popup" );
+
+    error = FT_Init_FreeType( &library );
+    if ( error )
+        printf( "Error initializing freetype library\n" );
+    error = FT_New_Face( library, "/usr/share/fonts/TTF/Hack-Regular.ttf", 0, &face );
+    if ( error == FT_Err_Unknown_File_Format )
+        printf( "Error initializing freetype face -- unknown file format\n" );
+    else if ( error )
+        printf( "Error initializing freetype face\n" );
+    FT_Set_Pixel_Sizes( face, 0, 48 );  
+    for ( unsigned char c = 0; c < 128; c++ )
+    {
+        // load character glyph 
+        if ( FT_Load_Char( face, c, FT_LOAD_RENDER ) )
+        {
+            std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+            continue;
+        }
+        const char name[ 2 ] { c, '\0' };
+        // generate texture
+        GlobalTexture *texture = new GlobalTexture( face->glyph->bitmap.buffer, name, face->glyph->bitmap.width, face->glyph->bitmap.rows );
+        // now store character for later use
+        Character character = {
+            texture, 
+            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            face->glyph->advance.x
+        };
+        Characters.insert( std::pair<char, Character>( c, character ) );
+    }
+    FT_Done_Face( face );
+    FT_Done_FreeType( library );
 
     //glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
 
@@ -50,11 +94,11 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    Texture *universe = new Texture( "./assets/textures/universe.png", main );
-    Texture *universe_popup = new Texture( "./assets/textures/universe.png", popup );
+    main->RenderText( "hello", 0, 0, 1, glm::vec3( 1.0f, 1.0f, 1.0f ) );
+
 
     Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, main );
-    Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe_popup, popup );
+    Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, popup );
     Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe, main );
 
     double t = glfwGetTime();

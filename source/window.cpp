@@ -2,8 +2,10 @@
 #include "mesh.h"
 #include "entity.h"
 #include "texture.h"
+#include "GlobalTexture.h"
 
 #include <string>
+#include <string.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -70,6 +72,9 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
 	glEnable( GL_FRAMEBUFFER_SRGB );
 	//glEnable( GL_CULL_FACE );
 	glDepthFunc( GL_LESS );
+
+    for ( int i = 0; i < GlobalTextures.size(); ++i )
+        new Texture( GlobalTextures[ i ]->path, this );
 }
 
 Window::~Window()
@@ -135,6 +140,35 @@ void Window::Render()
         Meshes[ i ]->Render( NULL );
     for ( int i = 0; i < Entities.size(); ++i )
         Entities[ i ]->Render();
+}
+
+void Window::RenderText( const char *text, float x, float y, float scale, glm::vec3 color )
+{
+    // activate corresponding render state	
+    shader.Use();
+    shader.SetShaderValue( "TextColorX", color.x );
+    shader.SetShaderValue( "TextColorY", color.y );
+    shader.SetShaderValue( "TextColorZ", color.z );
+
+    // iterate through all characters
+    for ( int i = 0; i < strlen( text ); ++i )
+    {
+        Character ch = Characters[ text[ i ] ];
+
+        float xpos = x + ch.Bearing.x * scale;
+        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        float w = ch.Size.x * scale;
+        float h = ch.Size.y * scale;
+
+        Mesh *m = new Mesh( glm::vec2( -w / 2, -h / 2 ), glm::vec2( w / 2, h / 2 ),
+            ch.TextureID, Transform( vec3( xpos, ypos, -1 ), identity<quat>(), one<vec3>() ), this, false );
+
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Window::SetKeyFlag( int key, bool set )

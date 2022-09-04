@@ -4,6 +4,7 @@
 #include "texture.h"
 #include "shader.h"
 #include "window.h"
+#include "GlobalTexture.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -45,8 +46,64 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
     if ( !PartOfEntity )
         container->Meshes.push_back( this );
 }
+Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, GlobalTexture *texture, Transform transform, Window *container, bool PartOfEntity ) : 
+    verts_len( verts_len ), inds_len( inds_len ), transform( std::move( transform ) ), container( container ), texture( texture->FindLocalTexture( container ) )
+{
+    if ( !this->texture )
+        printf( "failed to find texture!\n" );
+    glfwMakeContextCurrent( container->ID );
+    this->verts = new float[ verts_len ];
+    memcpy( this->verts, verts, verts_len * sizeof( float ) );
+
+    this->inds = new unsigned int[ inds_len ];
+    memcpy( this->inds, inds, inds_len * sizeof( unsigned int ) );
+
+    glGenVertexArrays( 1, &_VAO );
+    glGenBuffers( 1, &_VBO );
+    glGenBuffers( 1, &_EBO );
+
+    glBindVertexArray( _VAO );
+    
+    glBindBuffer( GL_ARRAY_BUFFER, _VBO );
+    glBufferData( GL_ARRAY_BUFFER, sizeof( float ) * verts_len, verts, GL_STATIC_DRAW );
+
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _EBO );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( unsigned int ) * inds_len, inds, GL_STATIC_DRAW );
+
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), (void *)0 );
+    glEnableVertexAttribArray( 0 );  
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), (void *)( 3 * sizeof( float ) ) );
+    glEnableVertexAttribArray( 1 );
+
+    glBindVertexArray( 0 );
+
+    if ( !PartOfEntity )
+        container->Meshes.push_back( this );
+}
 
 Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform transform, Window *container, bool PartOfEntity ) :
+    Mesh(
+        new float[] {
+            maxs.x, maxs.y, .0f,        1.0f, 1.0f,
+            maxs.x, mins.y, .0f,        1.0f, 0.0f,
+            mins.x, mins.y, .0f,        0.0f, 0.0f,
+            mins.x, maxs.y, .0f,        0.0f, 1.0f,
+        }, 
+        20,
+        new unsigned int[] {
+            0, 1, 3,
+            1, 2, 3
+        },
+        6,
+        texture,
+        std::move( transform ),
+        container,
+        PartOfEntity
+    )
+{
+}
+
+Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, GlobalTexture *texture, Transform transform, Window *container, bool PartOfEntity ) :
     Mesh(
         new float[] {
             maxs.x, maxs.y, .0f,        1.0f, 1.0f,
