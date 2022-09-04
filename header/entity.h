@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 struct Window;
+struct GlobalTexture;
 
 enum class Side : char
 {
@@ -29,6 +30,8 @@ struct Entity
 {
     Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *texture, Window *container );
     Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, Texture *textures[ 6 ], Window *container );
+    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, GlobalTexture *texture, Window *container );
+    Entity( glm::vec3 mins, glm::vec3 maxs, Transform transform, GlobalTexture *textures[ 6 ], Window *container );
     ~Entity();
 
     Window *container;

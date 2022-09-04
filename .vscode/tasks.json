@@ -7,6 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-Iheader",
+                "-I/usr/include/freetype2",
                 "-g",
                 "${file}",
                 "-o",
@@ -14,6 +15,7 @@
                 "-lglfw",
                 "-lpng",
                 "-lwebp",
+                "-lfreetype",
                 "${workspaceFolder}/glad/glad.c",
                 "${workspaceFolder}/source/*",
             ],

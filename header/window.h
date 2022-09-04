@@ -4,10 +4,13 @@
 #pragma once
 
 #include <vector>
+#include <map>
 using std::vector;
+using std::map;
 
 #include "shader.h"
 #include "transform.h"
+#include "GlobalTexture.h"
 
 struct GLFWmonitor;
 struct GLFWwindow;
@@ -38,6 +41,7 @@ public:
 
     void SetState( WindowState state, int xres, int yres );
     void Render();
+    void RenderText( const char *text, float x, float y, float scale, glm::vec3 color );
 
     long KeyFlags[ 6 ] { 0 };
     void SetKeyFlag( int key, bool set );
@@ -54,6 +58,14 @@ public:
     vector<Entity *> Entities;
 };
 inline vector<Window *> Windows = vector<Window *>();
+
+struct Character {
+    GlobalTexture *TextureID;  // ID handle of the glyph texture
+    glm::ivec2    Size;       // Size of glyph
+    glm::ivec2    Bearing;    // Offset from baseline to left/top of glyph
+    unsigned int  Advance;    // Offset to advance to next glyph
+};
+inline map<char, Character> Characters;
 
 inline Window *GetWindowFromID( GLFWwindow *ID )
 {

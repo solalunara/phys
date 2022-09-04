@@ -8,6 +8,7 @@ struct Window;
 struct Texture
 {
     Texture( const char *path, Window *container );
+    Texture( const unsigned char *buffer, const char *name, unsigned int width, unsigned int rows, Window *container );
     ~Texture();
 
     Texture( const Texture & ) = delete;
