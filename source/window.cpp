@@ -16,7 +16,7 @@ using glm::vec3;
 using glm::quat;
 
 Window::Window( WindowState state, int xres, int yres, const char *name ) :
-    shader( 0 ), TextShader( 0 ), CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() )
+    shader( -1 ), CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() )
 {
     glfwDefaultWindowHints();
     const GLFWvidmode* mode = glfwGetVideoMode( glfwGetPrimaryMonitor() );
@@ -60,8 +60,7 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
         if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
             printf( "Couldn't initialize glad\n" );
     }
-    shader = std::move( Shader( false ) );
-    TextShader = std::move( Shader( true ) );
+    shader = std::move( Shader() );
 
     Windows.push_back( this );
 
@@ -73,11 +72,14 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
 	glEnable( GL_FRAMEBUFFER_SRGB );
 	//glEnable( GL_CULL_FACE );
 	glDepthFunc( GL_LESS );
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
+    //glEnable( GL_BLEND );
+    //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
 
+    //create local textures for every global texture instantiated
     for ( int i = 0; i < GlobalTextures.size(); ++i )
         new Texture( GlobalTextures[ i ]->path, this );
+    
+    //set UI perspective
 }
 
 Window::~Window()
@@ -99,11 +101,12 @@ Window::~Window()
             //refresh the viewport on other windows
             int xres, yres;
             glfwGetFramebufferSize( Windows[ i ]->ID, &xres, &yres );
-            glfwMakeContextCurrent( Windows[ i ]->ID );
+            ResizeCallback( Windows[ i ]->ID, xres, yres );
             Windows[ i ]->Render();
-            glViewport( 0, 0, xres, yres );
         }
     }
+    //make sure we delete the right shader
+    glfwMakeContextCurrent( ID );
 }
 
 void Window::SetState( WindowState state, int xres, int yres )
@@ -163,7 +166,6 @@ void ResizeCallback( GLFWwindow *window, int width, int height )
     glfwMakeContextCurrent( window );
     glViewport( 0, 0, width, height );
     GetWindowFromID( window )->shader.SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
-    GetWindowFromID( window )->TextShader.SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
     glfwPollEvents();
 }
 

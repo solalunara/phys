@@ -10,10 +10,13 @@ uniform float TextColorX; \
 uniform float TextColorY; \
 uniform float TextColorZ; \
 out vec3 TextColor; \
+uniform bool Text; \
+out bool TextF; \
 void main() \
 { \
     gl_Position = Perspective * CameraTransform * Transform * vec4( pos, 1.0 ); \
     TexCoord = InTexCoord; \
     TextColor = vec3( TextColorX, TextColorY, TextColorZ ); \
+    TextF = Text; \
 } \
 ";

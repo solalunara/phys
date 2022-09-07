@@ -94,7 +94,7 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    Word *hello = new Word( "hello", 0, 0, -2, .01f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
+    Word *hello = new Word( "hello", 0, 0, -2, .01f, glm::vec3( 1.0f, 1.0f, 1.0f ), true, main );
 
 
     Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
@@ -118,12 +118,16 @@ int main( int argc, const char *argv[] )
         {
             if ( glfwWindowShouldClose( Windows[ i ]->ID ) )
             {
+                if ( hello )
+                {
+                    delete hello;
+                    hello = NULL;
+                }
                 delete Windows[ i ];
                 if ( Windows.size() )
                     continue;
                 else
                 {
-                    delete hello;
                     glfwTerminate();
                     exit( 0 );
                 }

@@ -8,7 +8,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-unsigned int CreateShader( ShaderType type, bool Text )
+unsigned int CreateShader( ShaderType type )
 {
     unsigned int id;
     switch ( type )
@@ -19,16 +19,8 @@ unsigned int CreateShader( ShaderType type, bool Text )
         break;
 
         case ShaderType::Frag:
-        if ( !Text )
-        {
-            id = glCreateShader( GL_FRAGMENT_SHADER );
-            glShaderSource( id, 1, &g_pszFragShaderSource, NULL );
-        }
-        else
-        {
-            id = glCreateShader( GL_FRAGMENT_SHADER );
-            glShaderSource( id, 1, &g_pszTextFragShaderSource, NULL );
-        }
+        id = glCreateShader( GL_FRAGMENT_SHADER );
+        glShaderSource( id, 1, &g_pszFragShaderSource, NULL );
         break;
     }
     glCompileShader( id );
@@ -47,18 +39,19 @@ unsigned int CreateShader( ShaderType type, bool Text )
 }
 
 //shader ctor which doesn't actually create a shader so we can do other stuff first
-Shader::Shader( int NullShader )
+Shader::Shader( int id ) :
+    _id( id )
 {
 }
 
-Shader::Shader( bool Text )
+Shader::Shader()
 {
     _id = glCreateProgram();
 
-    unsigned int vert = CreateShader( ShaderType::Vertex, Text );
+    unsigned int vert = CreateShader( ShaderType::Vertex );
     glAttachShader( id, vert );
     
-    unsigned int frag = CreateShader( ShaderType::Frag, Text );
+    unsigned int frag = CreateShader( ShaderType::Frag );
     glAttachShader( id, frag );
 
     glLinkProgram( id );

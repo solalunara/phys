@@ -34,8 +34,8 @@ void Entity::Render()
         sides[ i ]->Render();
 }
 
-Word::Word( const char *text, float x, float y, float z, float scale, vec3 color, Window *container ) :
-    container( container )
+Word::Word( const char *text, float x, float y, float z, float scale, vec3 color, bool UI, Window *container ) :
+    container( container ), UI( UI )
 {
     for ( int i = 0; i < strlen( text ); ++i )
     {
@@ -48,7 +48,7 @@ Word::Word( const char *text, float x, float y, float z, float scale, vec3 color
         float h = ch.Size.y * scale;
 
         chars.push_back( new Text( vec2( -w / 2, -h / 2 ), vec2( w / 2, h / 2 ),
-            ch.TextureID->FindLocalTexture( container ), Transform( vec3( xpos, ypos, z ), glm::identity<quat>(), glm::one<vec3>() ), container, color, text[ i ], this ) );
+            ch.TextureID->FindLocalTexture( container ), Transform( vec3( xpos, ypos, z ), glm::identity<quat>(), glm::one<vec3>() ), container, color, text[ i ], UI, this ) );
 
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
@@ -57,9 +57,9 @@ Word::Word( const char *text, float x, float y, float z, float scale, vec3 color
 
 Word::~Word()
 {
-    for ( int i = 0; i < chars.size(); ++i )
+    for ( int i = chars.size(); i >= 0; --i )
     {
-        for ( int j = 0; j < container->Meshes.size(); ++j )
+        for ( int j = container->Meshes.size(); j >= 0; --j )
         {
             if ( chars[ i ] == container->Meshes[ j ] )
             {

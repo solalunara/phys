@@ -64,10 +64,11 @@ struct Entity
 
 struct Word
 {
-    Word( const char *text, float x, float y, float z, float scale, vec3 color, Window *container );
+    Word( const char *text, float x, float y, float z, float scale, vec3 color, bool UI, Window *container );
     ~Word();
 
     Window *container;
+    bool UI;
     vector<Text *> chars;
 };
 

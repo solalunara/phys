@@ -109,9 +109,13 @@ void Mesh::Render()
         container->TextShader.SetShaderValue( "TextColorX", t->Color.x );
         container->TextShader.SetShaderValue( "TextColorY", t->Color.y );
         container->TextShader.SetShaderValue( "TextColorZ", t->Color.z );
+        if ( t->UI )
+            container->TextShader.SetShaderValue( "CameraTransform", glm::identity<mat4>() );
     }
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, texture->id );
     glBindVertexArray( _VAO );
     glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+    if ( IsText() && static_cast<Text *>( this )->UI )
+        container->TextShader.SetShaderValue( "CameraTransform", container->CameraTransform.GetInverseMatrix() );
 }

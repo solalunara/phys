@@ -58,8 +58,8 @@ private:
 struct Text : 
     public Mesh
 {
-    Text( vec2 mins, vec2 maxs, Texture *texture, Transform transform, Window *container, vec3 Color, char Character, Word *OwningWord ) :
-        Mesh( mins, maxs, texture, std::move( transform ), container, false ), Color( Color ), Character( Character ), OwningWord( OwningWord )
+    Text( vec2 mins, vec2 maxs, Texture *texture, Transform transform, Window *container, vec3 Color, char Character, bool UI, Word *OwningWord ) :
+        Mesh( mins, maxs, texture, std::move( transform ), container, false ), Color( Color ), Character( Character ), OwningWord( OwningWord ), UI( UI )
     {
         //textures are naturally upside-down, flip them on the local x axis
         this->transform.rot = glm::angleAxis( glm::radians( 180.f ), this->transform.LocalToWorldDirection( vec3( 1, 0, 0 ) ) ) * transform.rot;
@@ -70,6 +70,7 @@ struct Text :
     Word *OwningWord;
     vec3 Color;
     char Character;
+    bool UI;
 };
 
 #endif

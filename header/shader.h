@@ -7,13 +7,13 @@
 
 enum class ShaderType : bool { Vertex, Frag };
 
-unsigned int CreateShader( ShaderType type, bool Text );
+unsigned int CreateShader( ShaderType type );
 
 
 struct Shader
 {
-    Shader( bool Text );
-    Shader( int NullShader );
+    Shader();
+    Shader( int id );
     ~Shader();
 
     Shader( const Shader & ) = delete;
