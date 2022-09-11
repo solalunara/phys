@@ -5,11 +5,11 @@
 
 #include "transform.h"
 #include "window.h"
-#include "mesh.h"
 #include <vector>
 using std::vector;
 
 struct Mesh;
+struct Element;
 
 struct Element
 {
@@ -18,29 +18,26 @@ struct Element
     Element( Element && ) = delete;
     ~Element();
 
+    void AddElement( Element *e );
+    void RemoveElement( Element *e );
     virtual void Render();
+    virtual inline bool IsMesh() { return false; }
 
     Window *const container;
     Transform transform;
 
 protected:
-    Element( Window *container, Transform &&transform, vector<Mesh *> Meshes ) :
-        container( container ), Meshes( Meshes ), transform( (Transform &&)transform )
-    {
-        for ( int i = 0; i < Meshes.size(); ++i )
-            if ( !Meshes[ i ]->transform.HasParent() ) Meshes[ i ]->transform.SetParent( &transform );
-        container->Elements.push_back( this );
-    }
+    Element( Window *container, Transform &&transform, vector<Element *> Elements );
 
-    vector<Mesh *> Meshes;
-
+private:
+    vector<Element *> Elements;
 };
 
 struct UIElement :
     public Element
 {
     UIElement( Window *container, Transform &&transform ) :
-        Element( container, (Transform &&)transform, vector<Mesh *>() )
+        Element( container, (Transform &&)transform, vector<Element *>() )
     {
     }
 
@@ -51,7 +48,7 @@ struct GameElement :
     public Element
 {
     GameElement( Window *container, Transform &&transform ) :
-        Element( container, (Transform &&)transform, vector<Mesh *>() )
+        Element( container, (Transform &&)transform, vector<Element *>() )
     {
     }
 

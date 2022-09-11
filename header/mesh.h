@@ -4,6 +4,7 @@
 #pragma once
 
 #include "transform.h"
+#include "element.h"
 using glm::vec2;
 using glm::vec3;
 
@@ -14,7 +15,8 @@ struct Entity;
 struct GlobalTexture;
 struct Word;
 
-struct Mesh
+struct Mesh :
+    public Element
 {
     Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform &&transform, Window *container );
     ~Mesh();
@@ -22,20 +24,14 @@ struct Mesh
     Mesh( const Mesh & ) = delete;
     Mesh &operator =( const Mesh & ) = delete;
 
-    Mesh( Mesh &&other ) : _VBO( other._VBO ), _VAO( other._VAO ), _EBO( other._EBO ), transform( (Transform &&)other.transform )
-    {
-        other._VBO = 0;
-        other._VAO = 0;
-        other._EBO = 0;
-    }
+    Mesh( Mesh &&other ) = delete;
 
     void Render();
 
     virtual inline bool IsText() { return false; }
+    virtual inline bool IsMesh() { return true; }
 
-    Window *const &container = _container;
     Texture *const &texture = _texture;
-    Transform transform;
 
 protected:
     Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform &&transform, Window *container );
@@ -50,7 +46,6 @@ protected:
     unsigned int *inds;
     unsigned long long inds_len;
 
-    Window *_container;
     Texture *_texture;
 };
 

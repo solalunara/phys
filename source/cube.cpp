@@ -20,6 +20,6 @@ Cube::Cube( vec3 mins, vec3 maxs, Transform &&transform, Texture *textures[ 6 ],
     for ( int i = 0; i < 6; ++i )
     {
         this->sides[ i ]->transform.SetParent( &this->transform );
-        Meshes.push_back( this->sides[ i ] );
+        AddElement( this->sides[ i ] );
     }
 }

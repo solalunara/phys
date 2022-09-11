@@ -41,7 +41,7 @@ UIText::UIText( const char *text, float x, float y, float scale, vec3 color, Win
 
     for ( unsigned long long i = 0; i < len; ++i )
     {
-        Meshes.push_back( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
+        AddElement( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
             data[ i ].ch.TextureID->FindLocalTexture( container ), Transform( vec3( data[ i ].xpos - TextWidth / 2, data[ i ].ypos, 0 ), glm::identity<quat>(), glm::one<vec3>() ), 
             container, color, text[ i ], this ) );
     }
@@ -83,7 +83,7 @@ GameText::GameText( const char *text, float x, float y, float z, float scale, ve
 
     for ( unsigned long long i = 0; i < len; ++i )
     {
-        Meshes.push_back( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
+        AddElement( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
             data[ i ].ch.TextureID->FindLocalTexture( container ), Transform( vec3( data[ i ].xpos - TextWidth / 2, data[ i ].ypos, 0 ), glm::identity<quat>(), glm::one<vec3>() ), 
             container, color, text[ i ], this ) );
     }

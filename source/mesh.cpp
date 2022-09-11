@@ -16,7 +16,7 @@
 
 
 Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform &&transform, Window *container ) : 
-    verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), transform( (Transform &&)transform ), _container( container )
+    verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Element( container, (Transform &&)transform, vector<Element *>() )
 {
     if ( !container )
         printf( "Attempted to make mesh with no container!\n" );
