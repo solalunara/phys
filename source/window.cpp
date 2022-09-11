@@ -176,9 +176,9 @@ void ResizeCallback( GLFWwindow *window, int width, int height )
 {
     glfwMakeContextCurrent( window );
     glViewport( 0, 0, width, height );
-    Window::GetWindowFromID( window )->Perspective = glm::perspectiveFov( (float)glm::radians( Window::GetWindowFromID( window )->FOV ), (float)width, (float)height, NEARCLIP, FARCLIP );
-    Window::GetWindowFromID( window )->UIPerspective = glm::ortho( -width / 2.f, width / 2.f, -height / 2.f, height / 2.f, NEARCLIP, FARCLIP );
-    glfwPollEvents();
+    Window *w = Window::GetWindowFromID( window );
+    w->Perspective = glm::perspectiveFov( (float)glm::radians( w->FOV ), (float)width, (float)height, NEARCLIP, FARCLIP );
+    w->UIPerspective = glm::ortho( -width / 2.f, width / 2.f, -height / 2.f, height / 2.f, NEARCLIP, FARCLIP );
 }
 
 void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods )
