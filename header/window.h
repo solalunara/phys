@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <map>
+#include <cstring>
 using std::vector;
 using std::map;
 
@@ -17,6 +18,7 @@ struct GLFWwindow;
 struct Mesh;
 struct Entity;
 struct Texture;
+struct Element;
 
 enum class WindowState : unsigned char
 {
@@ -25,42 +27,53 @@ enum class WindowState : unsigned char
     Fullscreen = 2,
 };
 
+struct Window;
+inline vector<Window *> Windows = vector<Window *>();
+
 class Window
 {
 public:
-    Window( WindowState state, int xres, int yres, const char *name );
+    Window( WindowState state, float FOV, int xres, int yres, const char *name );
     ~Window();
 
     Window( const Window & ) = delete;
     Window &operator =( const Window & ) = delete;
-    Window( Window &&other ) :
-        ID( other.ID ), 
-        shader( std::move( other.shader ) ), 
-        CameraTransform( std::move( other.CameraTransform ) )
-    {
-        other.ID = 0;
-    }
+    Window( Window && ) = delete;
 
     void SetState( WindowState state, int xres, int yres );
     void Render();
 
-    long KeyFlags[ 6 ] { 0 };
     void SetKeyFlag( int key, bool set );
     bool GetKeyFlag( int key );
 
     bool LockCursor = false;
 
-    GLFWwindow *ID;
-    WindowState CurrentState;
+    char name[ 512 ];
 
     Shader shader;
+    GLFWwindow *const &ID = _ID;
 
     Transform CameraTransform;
-    vector<Texture *> Textures;
-    vector<Mesh *> Meshes;
-    vector<Entity *> Entities;
+    Transform UICameraTransform;
+    mat4 Perspective;
+    mat4 UIPerspective;
+    float FOV;
+
+    vector<Texture *> Textures = vector<Texture *>();
+    vector<Element *> Elements = vector<Element *>();
+
+    static Window *GetWindowFromID( GLFWwindow *ID )
+    {
+        for ( int i = 0; i < Windows.size(); ++i )
+            if ( Windows[ i ]->ID == ID ) return Windows[ i ];
+        return NULL;
+    }
+
+private:
+    GLFWwindow *_ID;
+    WindowState CurrentState;
+    long KeyFlags[ 6 ] { 0 };
 };
-inline vector<Window *> Windows = vector<Window *>();
 
 struct Character {
     GlobalTexture *TextureID;  // ID handle of the glyph texture
@@ -70,12 +83,6 @@ struct Character {
 };
 inline map<char, Character> Characters;
 
-inline Window *GetWindowFromID( GLFWwindow *ID )
-{
-    for ( int i = 0; i < Windows.size(); ++i )
-        if ( Windows[ i ]->ID == ID ) return Windows[ i ];
-    return NULL;
-}
 
 void ResizeCallback( GLFWwindow *window, int width, int height );
 void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods );

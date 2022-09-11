@@ -1,13 +1,17 @@
 #include "window.h"
 #include "mesh.h"
-#include "entity.h"
+#include "cube.h"
 #include "texture.h"
 #include "GlobalTexture.h"
+#include "element.h"
 
 #include <string>
 #include <string.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#define NEARCLIP 0.0001f
+#define FARCLIP 100000.f
 
 using glm::zero;
 using glm::identity;
@@ -15,15 +19,21 @@ using glm::one;
 using glm::vec3;
 using glm::quat;
 
-Window::Window( WindowState state, int xres, int yres, const char *name ) :
-    shader( -1 ), CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() )
+Window::Window( WindowState state, float FOV, int xres, int yres, const char *name ) :
+    shader( -1 ), 
+    CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() ),
+    UICameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() ),
+    Perspective( glm::perspectiveFov( (float)glm::radians( FOV ), (float)xres, (float)yres, NEARCLIP, FARCLIP ) ),
+    UIPerspective( glm::ortho( -1.f, 1.f, -1.f, 1.f, NEARCLIP, FARCLIP ) ),
+    FOV( FOV )
 {
+    strcpy( this->name, name );
     glfwDefaultWindowHints();
     const GLFWvidmode* mode = glfwGetVideoMode( glfwGetPrimaryMonitor() );
     switch ( state )
     {
         case WindowState::Windowed:
-        ID = glfwCreateWindow( xres, yres, name, NULL, NULL );
+        _ID = glfwCreateWindow( xres, yres, name, NULL, NULL );
         break;
 
         case WindowState::Borderless:
@@ -32,7 +42,7 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
         glfwWindowHint( GLFW_BLUE_BITS, mode->blueBits );
         glfwWindowHint( GLFW_REFRESH_RATE, mode->refreshRate );
         glfwWindowHint( GLFW_AUTO_ICONIFY, GLFW_FALSE );
-        ID = glfwCreateWindow( xres, yres, name, glfwGetPrimaryMonitor(), NULL );
+        _ID = glfwCreateWindow( xres, yres, name, glfwGetPrimaryMonitor(), NULL );
         break;
 
         case WindowState::Fullscreen:
@@ -40,7 +50,7 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
         glfwWindowHint( GLFW_GREEN_BITS, mode->greenBits );
         glfwWindowHint( GLFW_BLUE_BITS, mode->blueBits );
         glfwWindowHint( GLFW_REFRESH_RATE, mode->refreshRate );
-        ID = glfwCreateWindow( xres, yres, name, glfwGetPrimaryMonitor(), NULL );
+        _ID = glfwCreateWindow( xres, yres, name, glfwGetPrimaryMonitor(), NULL );
         break;
     }
 
@@ -78,18 +88,14 @@ Window::Window( WindowState state, int xres, int yres, const char *name ) :
     //create local textures for every global texture instantiated
     for ( int i = 0; i < GlobalTextures.size(); ++i )
         new Texture( GlobalTextures[ i ]->path, this );
-    
-    //set UI perspective
 }
 
 Window::~Window()
 {
     glfwMakeContextCurrent( ID );
     glfwDestroyWindow( ID );
-    for ( int i = 0; i < Meshes.size(); ++i )
-        delete Meshes[ i ];
-    for ( int i = 0; i < Entities.size(); ++i )
-        delete Entities[ i ];
+    for ( int i = 0; i < Elements.size(); ++i )
+        delete Elements[ i ];
     for ( int i = 0; i < Textures.size(); ++i )
         delete Textures[ i ];
     for ( int i = Windows.size(); --i >= 0; ) //reverse b/c erasing elements of vector
@@ -137,16 +143,21 @@ void Window::SetState( WindowState state, int xres, int yres )
         glfwSetWindowAttrib( ID, GLFW_AUTO_ICONIFY, GLFW_TRUE );
         glfwSetWindowMonitor( ID, glfwGetPrimaryMonitor(), 0, 0, xres, yres, mode->refreshRate );
         break;
+
     }
 }
 void Window::Render()
 {
     shader.SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
-    TextShader.SetShaderValue( "CameraTransform", CameraTransform.GetInverseMatrix() );
-    for ( int i = 0; i < Meshes.size(); ++i )
-        Meshes[ i ]->Render();
-    for ( int i = 0; i < Entities.size(); ++i )
-        Entities[ i ]->Render();
+    shader.SetShaderValue( "UICameraTransform", UICameraTransform.GetInverseMatrix() );
+    shader.SetShaderValue( "Perspective", Perspective );
+    shader.SetShaderValue( "UIPerspective", UIPerspective );
+    for ( int i = 0; i < Elements.size(); ++i )
+        Elements[ i ]->Render();
+
+    //int x, y;
+    //glfwGetFramebufferSize( ID, &x, &y );
+    //ResizeCallback( ID, x, y );
 }
 
 void Window::SetKeyFlag( int key, bool set )
@@ -165,7 +176,7 @@ void ResizeCallback( GLFWwindow *window, int width, int height )
 {
     glfwMakeContextCurrent( window );
     glViewport( 0, 0, width, height );
-    GetWindowFromID( window )->shader.SetShaderValue( "Perspective", glm::perspectiveFov( (float)glm::radians( 90.f ), (float)width, (float)height, 0.0001f, 1000.f ) );
+    Window::GetWindowFromID( window )->Perspective = glm::perspectiveFov( (float)glm::radians( Window::GetWindowFromID( window )->FOV ), (float)width, (float)height, NEARCLIP, FARCLIP );
     glfwPollEvents();
 }
 
@@ -174,11 +185,11 @@ void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mod
     switch ( action )
     {
         case GLFW_PRESS:
-        GetWindowFromID( window )->SetKeyFlag( key, true );
+        Window::GetWindowFromID( window )->SetKeyFlag( key, true );
         break;
 
         case GLFW_RELEASE:
-        GetWindowFromID( window )->SetKeyFlag( key, false );
+        Window::GetWindowFromID( window )->SetKeyFlag( key, false );
         break;
     }
 }

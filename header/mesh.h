@@ -16,13 +16,13 @@ struct Word;
 
 struct Mesh
 {
-    Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform transform, Window *container, bool PartOfEntity );
+    Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform &&transform, Window *container );
     ~Mesh();
 
     Mesh( const Mesh & ) = delete;
     Mesh &operator =( const Mesh & ) = delete;
 
-    Mesh( Mesh &&other ) : _VBO( other._VBO ), _VAO( other._VAO ), _EBO( other._EBO ), transform( std::move( other.transform ) )
+    Mesh( Mesh &&other ) : _VBO( other._VBO ), _VAO( other._VAO ), _EBO( other._EBO ), transform( (Transform &&)other.transform )
     {
         other._VBO = 0;
         other._VAO = 0;
@@ -33,16 +33,12 @@ struct Mesh
 
     virtual inline bool IsText() { return false; }
 
-    Window *container;
-    Texture *texture;
+    Window *const &container = _container;
+    Texture *const &texture = _texture;
     Transform transform;
 
-
-    Entity *LinkedEnt = NULL;
-    int LinkedEntIndex = -1;
-
-private:
-    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform transform, Window *container, bool PartOfEntity );
+protected:
+    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform &&transform, Window *container );
 
     unsigned int _VBO;
     unsigned int _VAO;
@@ -53,13 +49,16 @@ private:
 
     unsigned int *inds;
     unsigned long long inds_len;
+
+    Window *_container;
+    Texture *_texture;
 };
 
-struct Text : 
+struct CharacterMesh : 
     public Mesh
 {
-    Text( vec2 mins, vec2 maxs, Texture *texture, Transform transform, Window *container, vec3 Color, char Character, bool UI, Word *OwningWord ) :
-        Mesh( mins, maxs, texture, std::move( transform ), container, false ), Color( Color ), Character( Character ), OwningWord( OwningWord ), UI( UI )
+    CharacterMesh( vec2 mins, vec2 maxs, Texture *texture, Transform &&transform, Window *container, vec3 Color, char c, bool UI ) :
+        Mesh( mins, maxs, texture, (Transform &&)transform, container ), Color( Color ), c( c )
     {
         //textures are naturally upside-down, flip them on the local x axis
         this->transform.rot = glm::angleAxis( glm::radians( 180.f ), this->transform.LocalToWorldDirection( vec3( 1, 0, 0 ) ) ) * transform.rot;
@@ -67,10 +66,8 @@ struct Text :
 
     virtual bool IsText() { return true; }
 
-    Word *OwningWord;
     vec3 Color;
-    char Character;
-    bool UI;
+    char c;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "mesh.h"
+#include "element.h"
 #include <vector>
 #include <glm/glm.hpp>
 using std::vector;
@@ -32,13 +33,11 @@ struct TexSide
     Side side;
 };
 
-struct Entity
+struct Cube :
+    public GameElement
 {
-    Entity( vec3 mins, vec3 maxs, Transform transform, Texture *texture, Window *container );
-    Entity( vec3 mins, vec3 maxs, Transform transform, Texture *textures[ 6 ], Window *container );
-    ~Entity();
-
-    Window *container;
+    Cube( vec3 mins, vec3 maxs, Transform &&transform, Texture *texture, Window *container );
+    Cube( vec3 mins, vec3 maxs, Transform &&transform, Texture *textures[ 6 ], Window *container );
 
     Mesh *sides[ 6 ];
 
@@ -56,21 +55,9 @@ struct Entity
     Texture *top_tex       = sides[ 4 ]->texture;
     Texture *bottom_tex    = sides[ 5 ]->texture;
 
-    Transform transform;
-    vec3 velocity;
-
-    void Render();
+private:
+    vec3 mins;
+    vec3 maxs;
 };
-
-struct Word
-{
-    Word( const char *text, float x, float y, float z, float scale, vec3 color, bool UI, Window *container );
-    ~Word();
-
-    Window *container;
-    bool UI;
-    vector<Text *> chars;
-};
-
 
 #endif

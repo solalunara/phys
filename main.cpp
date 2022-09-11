@@ -9,10 +9,11 @@ using std::map;
 #include "shader.h"
 #include "mesh.h"
 #include "texture.h"
-#include "entity.h"
+#include "cube.h"
 #include "transform.h"
 #include "window.h"
 #include "GlobalTexture.h"
+#include "text.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -42,14 +43,14 @@ int main( int argc, const char *argv[] )
         printf( "Couldn't initialize glfw\n" );
 
 
-    Window *main = new Window( WindowState::Windowed, 1000, 768, "phys" );
+    Window *main = new Window( WindowState::Windowed, 90.f, 1000, 768, "phys" );
     GlobalTexture *universe = new GlobalTexture( "./assets/textures/universe.png" );
     for ( int i = 1; i < argc; ++i )
     {
-        Window *w = new Window( WindowState::Windowed, 200, 152, argv[ i ] );
-        new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( w ), w );
+        Window *w = new Window( WindowState::Windowed, 90.f, 200, 152, argv[ i ] );
+        new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( w ), w );
     }
-    Window *popup = new Window( WindowState::Windowed, 100, 76, "popup" );
+    Window *popup = new Window( WindowState::Windowed, 90.f, 300, 200, "popup" );
 
     error = FT_Init_FreeType( &library );
     if ( error )
@@ -62,12 +63,6 @@ int main( int argc, const char *argv[] )
     FT_Set_Pixel_Sizes( face, 0, 48 );  
     for ( unsigned char c = 0; c < 128; c++ )
     {
-        // load character glyph 
-        //if ( FT_Load_Char( face, c, FT_LOAD_RENDER ) )
-        //{
-        //    std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-        //    continue;
-        //}
         unsigned int in = FT_Get_Char_Index( face, c );
         FT_Load_Glyph( face, in, FT_LOAD_DEFAULT );
         FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
@@ -94,12 +89,12 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    Word *hello = new Word( "hello", 0, 0, -2, .01f, glm::vec3( 1.0f, 1.0f, 1.0f ), true, main );
+    UIText *hello = new UIText( "hello", 0, 0, .01f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
 
 
-    Entity *ent = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
-    Entity *ent_popup = new Entity( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( popup ), popup );
-    Entity *bbox = new Entity( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
+    Cube *ent = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
+    Cube *ent_popup = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( popup ), popup );
+    Cube *bbox = new Cube( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
 
     double t = glfwGetTime();
     double dt;
@@ -118,11 +113,6 @@ int main( int argc, const char *argv[] )
         {
             if ( glfwWindowShouldClose( Windows[ i ]->ID ) )
             {
-                if ( hello )
-                {
-                    delete hello;
-                    hello = NULL;
-                }
                 delete Windows[ i ];
                 if ( Windows.size() )
                     continue;

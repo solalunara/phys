@@ -24,16 +24,16 @@ struct Transform
     quat rot;
     vec3 scl;
 
-    mat4 GetMatrix()
+    mat4 GetMatrix() const
     {
         return ( parent ? parent->GetMatrix() : glm::identity<mat4>() ) * glm::translate( mat4( 1 ), pos ) * glm::mat4_cast( rot ) * glm::scale( mat4( 1 ), scl );
     }
-    mat4 GetInverseMatrix()
+    mat4 GetInverseMatrix() const
     {
         return glm::inverse( GetMatrix() );
     }
 
-    vec3 GetAbsOrigin()
+    vec3 GetAbsOrigin() const
     {
         vec3 scl;
         quat rot;
@@ -43,7 +43,7 @@ struct Transform
         glm::decompose( GetMatrix(), scl, rot, pos, skew, persp );
         return pos;
     }
-    quat GetAbsRot()
+    quat GetAbsRot() const
     {
         vec3 scl;
         quat rot;
@@ -77,27 +77,27 @@ struct Transform
         }
     }
 
-    vec3 LocalToWorldDirection( vec3 v )
+    vec3 LocalToWorldDirection( vec3 v ) const
     {
         return GetMatrix() * vec4( v, 0 );
     }
-    vec3 LocalToWorldPoint( vec3 p )
+    vec3 LocalToWorldPoint( vec3 p ) const
     {
         return GetMatrix() * vec4( p, 1 );
     }
-    vec2 LocalToWorldPoint( vec2 p )
+    vec2 LocalToWorldPoint( vec2 p ) const
     {
         return GetMatrix() * vec4( p, 0, 1 );
     }
-    vec3 WorldToLocalDirection( vec3 v )
+    vec3 WorldToLocalDirection( vec3 v ) const
     {
         return GetInverseMatrix() * vec4( v, 0 );
     }
-    vec3 WorldToLocalPoint( vec3 p )
+    vec3 WorldToLocalPoint( vec3 p ) const
     {
         return GetInverseMatrix() * vec4( p, 1 );
     }
-    vec2 WorldToLocalPoint( vec2 p )
+    vec2 WorldToLocalPoint( vec2 p ) const
     {
         return GetInverseMatrix() * vec4( p, 0, 1 );
     }
@@ -115,19 +115,24 @@ struct Transform
             parent->children.push_back( this );
         this->parent = parent;
     }
-    bool HasParent() { return parent; }
+    bool HasParent() const { return parent; }
 
     Transform( const Transform & ) = delete;
     Transform &operator =( const Transform & ) = delete;
     Transform( Transform &&other ) :
         pos( other.pos ), rot( other.rot ), scl( other.scl ), parent( other.parent ), children( vector<Transform *>() )
     {
-        for ( int i = 0; i < other.children.size(); ++i )
+        for ( int i = other.children.size(); --i >= 0; )
         {
             Transform *child = other.children[ i ];
             child->parent = this;
             children.push_back( child );
+            other.children.erase( other.children.begin() + i );
         }
+    }
+    Transform RawCopy()
+    {
+        return Transform( pos, rot, scl );
     }
 
 private:

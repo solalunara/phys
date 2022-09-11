@@ -18,6 +18,7 @@
         "hash_set": "cpp",
         "locale": "cpp",
         "thread": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "numeric": "cpp"
     }
 }
