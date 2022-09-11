@@ -24,7 +24,7 @@ Window::Window( WindowState state, float FOV, int xres, int yres, const char *na
     CameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() ),
     UICameraTransform( zero<vec3>(), identity<quat>(), one<vec3>() ),
     Perspective( glm::perspectiveFov( (float)glm::radians( FOV ), (float)xres, (float)yres, NEARCLIP, FARCLIP ) ),
-    UIPerspective( glm::ortho( -1.f, 1.f, -1.f, 1.f, NEARCLIP, FARCLIP ) ),
+    UIPerspective( glm::ortho( -xres / 2.f, xres / 2.f, -yres / 2.f, yres / 2.f, NEARCLIP, FARCLIP ) ),
     FOV( FOV )
 {
     strcpy( this->name, name );
@@ -177,6 +177,7 @@ void ResizeCallback( GLFWwindow *window, int width, int height )
     glfwMakeContextCurrent( window );
     glViewport( 0, 0, width, height );
     Window::GetWindowFromID( window )->Perspective = glm::perspectiveFov( (float)glm::radians( Window::GetWindowFromID( window )->FOV ), (float)width, (float)height, NEARCLIP, FARCLIP );
+    Window::GetWindowFromID( window )->UIPerspective = glm::ortho( -width / 2.f, width / 2.f, -height / 2.f, height / 2.f, NEARCLIP, FARCLIP );
     glfwPollEvents();
 }
 

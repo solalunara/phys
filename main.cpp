@@ -73,7 +73,7 @@ int main( int argc, const char *argv[] )
             texture, 
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            face->glyph->advance.x
+            static_cast<unsigned int>( face->glyph->advance.x )
         };
         Characters.insert( std::pair<char, Character>( c, character ) );
     }
@@ -89,7 +89,7 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    UIText *hello = new UIText( "hello", 0, 0, .01f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
+    UIText *hello = new UIText( "hello", 0, 0, 1.f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
 
 
     Cube *ent = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
