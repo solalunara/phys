@@ -27,6 +27,7 @@ Window::Window( WindowState state, float FOV, int xres, int yres, const char *na
     UIPerspective( glm::ortho( -xres / 2.f, xres / 2.f, -yres / 2.f, yres / 2.f, NEARCLIP, FARCLIP ) ),
     FOV( FOV )
 {
+    this->name = new char[ strlen( name ) + 1 ];
     strcpy( this->name, name );
     glfwDefaultWindowHints();
     const GLFWvidmode* mode = glfwGetVideoMode( glfwGetPrimaryMonitor() );
@@ -92,6 +93,7 @@ Window::Window( WindowState state, float FOV, int xres, int yres, const char *na
 
 Window::~Window()
 {
+    delete name;
     glfwMakeContextCurrent( ID );
     glfwDestroyWindow( ID );
     for ( int i = 0; i < Elements.size(); ++i )
