@@ -6,14 +6,12 @@
 #include "element.h"
 #include <cstring>
 
+struct Text;
+
 struct UIPanelTitlebar :
     public UIElement
 {
-    UIPanelTitlebar( const char *PanelTitle )
-    {
-        _PanelTitle = new char[ strlen( PanelTitle ) + 1 ];
-        strcpy( _PanelTitle, PanelTitle );
-    }
+    UIPanelTitlebar( const char *PanelTitle, float x, float y, float scale, float depth, Window *container );
 
     // const char *const -> a constant pointer to a constant character
     // neccesary to make title read-only and to make the variable itself read-only
