@@ -16,6 +16,14 @@ Element::~Element()
 {
     for ( int i = 0; i < Elements.size(); ++i )
         delete Elements[ i ];
+    for ( int i = 0; i < container->Elements.size(); ++i )
+    {
+        if ( container->Elements[ i ] == this )
+        {
+            container->Elements.erase( container->Elements.begin() + i );
+            break;
+        }
+    }
 }
 
 void Element::Render()
