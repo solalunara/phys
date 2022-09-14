@@ -48,7 +48,7 @@ public:
 
     bool LockCursor = false;
 
-    char name[ 512 ];
+    char *name;
 
     Shader shader;
     GLFWwindow *const &ID = _ID;

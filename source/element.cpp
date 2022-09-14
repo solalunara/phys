@@ -7,7 +7,7 @@ Element::Element( Window *container, Transform &&transform, vector<Element *> El
     container( container ), Elements( Elements ), transform( (Transform &&)transform )
 {
     for ( int i = 0; i < Elements.size(); ++i )
-        if ( !Elements[ i ]->transform.HasParent() ) Elements[ i ]->transform.SetParent( &transform );
+        Elements[ i ]->transform.SetParent( &transform );
     
     container->Elements.push_back( this );
 }
@@ -45,6 +45,8 @@ void Element::AddElement( Element *e )
             break;
         }
     }
+
+    e->transform.SetParent( &this->transform );
 }
 void Element::RemoveElement( Element *e )
 {

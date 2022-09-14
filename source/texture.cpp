@@ -11,6 +11,7 @@
 Texture::Texture( const unsigned char *buffer, const char *name, unsigned int width, unsigned int rows, Window *container ) :
     container( container )
 {
+    this->path = new char[ strlen( name ) + 1 ];
     strcpy( this->path, name );
     glfwMakeContextCurrent( container->ID );
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ); // disable byte-alignment restriction
@@ -38,6 +39,7 @@ Texture::Texture( const unsigned char *buffer, const char *name, unsigned int wi
 Texture::Texture( const char *path, Window *container ) :
     container( container )
 {
+    this->path = new char[ strlen( path ) + 1 ];
     strcpy( this->path, path );
     glfwMakeContextCurrent( container->ID );
     container->shader.Use();
@@ -157,6 +159,7 @@ Texture::Texture( const char *path, Window *container ) :
 
 Texture::~Texture()
 {
+    delete path;
     glDeleteTextures( 1, &_id );
     _id = 0;
 }

@@ -22,7 +22,7 @@ struct Texture
         other._id = 0;
     }
 
-    char path[ 512 ];
+    char *path;
     const unsigned int &id = _id;
 
     Window *container;

@@ -18,8 +18,5 @@ Cube::Cube( vec3 mins, vec3 maxs, Transform &&transform, Texture *textures[ 6 ],
     }, GameElement( container, (Transform &&)transform )
 {
     for ( int i = 0; i < 6; ++i )
-    {
-        this->sides[ i ]->transform.SetParent( &this->transform );
         AddElement( this->sides[ i ] );
-    }
 }
