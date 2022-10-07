@@ -45,6 +45,9 @@ int main( int argc, const char *argv[] )
 
     Window *main = new Window( WindowState::Windowed, 90.f, 1000, 768, "phys" );
     GlobalTexture *universe = new GlobalTexture( "./assets/textures/universe.png" );
+    GlobalTexture *dirt = new GlobalTexture( "./assets/textures/dirt.png" );
+    GlobalTexture *grass = new GlobalTexture( "./assets/textures/grass.png" );
+    GlobalTexture *metal = new GlobalTexture( "./assets/textures/metal.png" );
     for ( int i = 1; i < argc; ++i )
     {
         Window *w = new Window( WindowState::Windowed, 90.f, 200, 152, argv[ i ] );
@@ -52,33 +55,36 @@ int main( int argc, const char *argv[] )
     }
     Window *popup = new Window( WindowState::Windowed, 90.f, 300, 200, "popup" );
 
-    error = FT_Init_FreeType( &library );
-    if ( error )
-        printf( "Error initializing freetype library\n" );
-    error = FT_New_Face( library, "/usr/share/fonts/TTF/Hack-Regular.ttf", 0, &face );
-    if ( error == FT_Err_Unknown_File_Format )
-        printf( "Error initializing freetype face -- unknown file format\n" );
-    else if ( error )
-        printf( "Error initializing freetype face\n" );
-    FT_Set_Pixel_Sizes( face, 0, 48 );  
-    for ( unsigned char c = 0; c < 128; c++ )
+    //freetype init
     {
-        unsigned int in = FT_Get_Char_Index( face, c );
-        FT_Load_Glyph( face, in, FT_LOAD_DEFAULT );
-        FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
-        // generate texture
-        GlobalTexture *texture = new GlobalTexture( face->glyph->bitmap.buffer, std::to_string( static_cast<int>( c ) ).c_str(), face->glyph->bitmap.width, face->glyph->bitmap.rows );
-        // now store character for later use
-        Character character = {
-            texture, 
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<unsigned int>( face->glyph->advance.x )
-        };
-        Characters.insert( std::pair<char, Character>( c, character ) );
+        error = FT_Init_FreeType( &library );
+        if ( error )
+            printf( "Error initializing freetype library\n" );
+        error = FT_New_Face( library, "/usr/share/fonts/TTF/Hack-Regular.ttf", 0, &face );
+        if ( error == FT_Err_Unknown_File_Format )
+            printf( "Error initializing freetype face -- unknown file format\n" );
+        else if ( error )
+            printf( "Error initializing freetype face\n" );
+        FT_Set_Pixel_Sizes( face, 0, 48 );  
+        for ( unsigned char c = 0; c < 128; c++ )
+        {
+            unsigned int in = FT_Get_Char_Index( face, c );
+            FT_Load_Glyph( face, in, FT_LOAD_DEFAULT );
+            FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
+            // generate texture
+            GlobalTexture *texture = new GlobalTexture( face->glyph->bitmap.buffer, std::to_string( static_cast<int>( c ) ).c_str(), face->glyph->bitmap.width, face->glyph->bitmap.rows );
+            // now store character for later use
+            Character character = {
+                texture, 
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<unsigned int>( face->glyph->advance.x )
+            };
+            Characters.insert( std::pair<char, Character>( c, character ) );
+        }
+        FT_Done_Face( face );
+        FT_Done_FreeType( library );
     }
-    FT_Done_Face( face );
-    FT_Done_FreeType( library );
 
     //glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
 
@@ -89,15 +95,27 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    UIText *hello = new UIText( "hello", 0, 0, 1.f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
+    UIText *hello = new UIText( "helloo", 0, 0, 1.f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
 
-
-    Cube *ent = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
-    Cube *ent_popup = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( popup ), popup );
-    Cube *bbox = new Cube( glm::vec3( -5.f, -5.f, -5.f ), glm::vec3( 5.f, 5.f, 5.f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( main ), main );
 
     double t = glfwGetTime();
     double dt;
+
+    //set the ground
+    for ( int i = -20; i < 20; ++i )
+        for ( int j = -20; j < 20; ++j )
+            new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( i, -1.f, j ), glm::identity<quat>(), glm::one<vec3>() ), new Texture *[] {
+                dirt->FindLocalTexture( main ),
+                dirt->FindLocalTexture( main ),
+                dirt->FindLocalTexture( main ),
+                dirt->FindLocalTexture( main ),
+                grass->FindLocalTexture( main ),
+                dirt->FindLocalTexture( main ),
+            }, main );
+
+    new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0, 0, -1 ), glm::identity<quat>(), glm::one<vec3>() ), metal->FindLocalTexture( main ), main );
+
+    
 
     while ( true )
     {
@@ -105,7 +123,6 @@ int main( int argc, const char *argv[] )
         double t_new = glfwGetTime();
         dt = t_new - t;
         t = t_new;
-        ent->transform.rot *= glm::angleAxis( (float)glm::radians( dt * 90 ), glm::vec3( 0, 1.f, 0 ) );
 
 
         //per frame per window
@@ -181,6 +198,7 @@ int main( int argc, const char *argv[] )
             if ( Windows[ i ]->GetKeyFlag( GLFW_KEY_P ) )
             {
                 Windows[ i ]->SetKeyFlag( GLFW_KEY_P, false );
+                /*
                 if ( !ent->transform.HasParent() )
                 {
                     glm::vec3 pos = ent->transform.GetAbsOrigin();
@@ -197,6 +215,7 @@ int main( int argc, const char *argv[] )
                     ent->transform.SetAbsOrigin( pos );
                     ent->transform.SetAbsRot( rot );
                 }
+                */
             }
 
             Windows[ i ]->Render();

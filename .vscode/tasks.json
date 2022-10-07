@@ -6,21 +6,21 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-fdiagnostics-color=always",
-                "-Iheader",
+                "-I${workspaceFolder}/header",
                 "-I/usr/include/freetype2",
                 "-g",
-                "${file}",
+                "${workspaceFolder}/main.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}",
+                "${workspaceFolder}/main",
                 "-lglfw",
                 "-lpng",
                 "-lwebp",
                 "-lfreetype",
                 "${workspaceFolder}/glad/glad.c",
-                "${workspaceFolder}/source/*",
+                "$(find ${workspaceFolder}/source/ -type f -iregex \".*\\.cpp\")",
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
                 "$gcc"

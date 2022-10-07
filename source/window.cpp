@@ -83,8 +83,8 @@ Window::Window( WindowState state, float FOV, int xres, int yres, const char *na
 	glEnable( GL_FRAMEBUFFER_SRGB );
 	//glEnable( GL_CULL_FACE );
 	glDepthFunc( GL_LESS );
-    //glEnable( GL_BLEND );
-    //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
 
     //create local textures for every global texture instantiated
     for ( int i = 0; i < GlobalTextures.size(); ++i )

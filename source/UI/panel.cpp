@@ -7,4 +7,6 @@ UIPanelTitlebar::UIPanelTitlebar( const char *PanelTitle, float x, float y, floa
 {
     _PanelTitle = new char[ strlen( PanelTitle ) + 1 ];
     strcpy( _PanelTitle, PanelTitle );
+    //TODO: scale will need to be adjusted
+    AddElement( new UIText( PanelTitle, x, y, scale, vec3( 1 ), container ) );
 }
