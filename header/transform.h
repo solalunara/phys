@@ -19,7 +19,18 @@ using std::vector;
 
 struct Transform
 {
+    Transform( const Transform & ) = delete;
+    Transform &operator =( const Transform & ) = delete;
+    Transform( Transform && ) = delete;
+
     Transform( vec3 pos, quat rot, vec3 scl ) : pos( pos ), rot( rot ), scl( scl ), parent( NULL ) {}
+    /*
+    ~Transform()
+    {
+        for ( int i = 0; i < children.size(); ++i )
+            delete children[ i ];
+    }
+    */
     vec3 pos;
     quat rot;
     vec3 scl;
@@ -104,6 +115,7 @@ struct Transform
 
     void SetParent( Transform *parent )
     {
+        /*
         if ( this->parent )
         {
             int i;
@@ -113,23 +125,11 @@ struct Transform
         }
         if ( parent )
             parent->children.push_back( this );
+        */
         this->parent = parent;
     }
     bool HasParent() const { return parent; }
 
-    Transform( const Transform & ) = delete;
-    Transform &operator =( const Transform & ) = delete;
-    Transform( Transform &&other ) :
-        pos( other.pos ), rot( other.rot ), scl( other.scl ), parent( other.parent ), children( vector<Transform *>() )
-    {
-        for ( int i = other.children.size(); --i >= 0; )
-        {
-            Transform *child = other.children[ i ];
-            child->parent = this;
-            children.push_back( child );
-            other.children.erase( other.children.begin() + i );
-        }
-    }
     Transform RawCopy()
     {
         return Transform( pos, rot, scl );
@@ -137,7 +137,6 @@ struct Transform
 
 private:
     Transform *parent = NULL;
-    vector<Transform *> children = vector<Transform *>();
 };
 
 #endif

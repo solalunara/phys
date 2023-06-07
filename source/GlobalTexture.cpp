@@ -32,6 +32,7 @@ GlobalTexture::~GlobalTexture()
             break;
         }
     }
+    delete[] path;
 }
 
 Texture *GlobalTexture::FindLocalTexture( Window *w )

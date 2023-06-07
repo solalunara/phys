@@ -159,7 +159,7 @@ Texture::Texture( const char *path, Window *container ) :
 
 Texture::~Texture()
 {
-    delete path;
+    delete[] path;
     glDeleteTextures( 1, &_id );
     _id = 0;
 }

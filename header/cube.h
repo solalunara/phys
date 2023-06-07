@@ -36,24 +36,26 @@ struct TexSide
 struct Cube :
     public GameElement
 {
-    Cube( vec3 mins, vec3 maxs, Transform &&transform, Texture *texture, Window *container );
-    Cube( vec3 mins, vec3 maxs, Transform &&transform, Texture *textures[ 6 ], Window *container );
+    Cube( vec3 mins, vec3 maxs, Transform *transform, Texture *texture, Window *container );
+    Cube( vec3 mins, vec3 maxs, Transform *transform, Texture *textures[ 6 ], Window *container );
 
-    Mesh *sides[ 6 ];
+    //Mesh *sides[ 6 ];
 
+    /*
     Mesh *front     = sides[ 0 ];
     Mesh *back      = sides[ 1 ];
     Mesh *left      = sides[ 2 ];
     Mesh *right     = sides[ 3 ];
     Mesh *top       = sides[ 4 ];
     Mesh *bottom    = sides[ 5 ];
+    */
 
-    Texture *front_tex     = sides[ 0 ]->texture;
-    Texture *back_tex      = sides[ 1 ]->texture;
-    Texture *left_tex      = sides[ 2 ]->texture;
-    Texture *right_tex     = sides[ 3 ]->texture;
-    Texture *top_tex       = sides[ 4 ]->texture;
-    Texture *bottom_tex    = sides[ 5 ]->texture;
+    Texture *front_tex;
+    Texture *back_tex;
+    Texture *left_tex;
+    Texture *right_tex;
+    Texture *top_tex;
+    Texture *bottom_tex;
 
 private:
     vec3 mins;

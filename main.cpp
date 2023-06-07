@@ -14,6 +14,8 @@ using std::map;
 #include "window.h"
 #include "GlobalTexture.h"
 #include "text.h"
+#include "axis.h"
+#include "function.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -35,6 +37,7 @@ enum Settings
     KeyRotation = 1 << 0,
 };
 
+
 int main( int argc, const char *argv[] )
 {
     int Settings = 0;
@@ -48,12 +51,12 @@ int main( int argc, const char *argv[] )
     GlobalTexture *dirt = new GlobalTexture( "./assets/textures/dirt.png" );
     GlobalTexture *grass = new GlobalTexture( "./assets/textures/grass.png" );
     GlobalTexture *metal = new GlobalTexture( "./assets/textures/metal.png" );
+    GlobalTexture *black = new GlobalTexture( "./assets/textures/black.png" );
     for ( int i = 1; i < argc; ++i )
     {
         Window *w = new Window( WindowState::Windowed, 90.f, 200, 152, argv[ i ] );
-        new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( w ), w );
+        new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( w ), w );
     }
-    Window *popup = new Window( WindowState::Windowed, 90.f, 300, 200, "popup" );
 
     //freetype init
     {
@@ -95,16 +98,16 @@ int main( int argc, const char *argv[] )
     if ( Major < 3 || ( Major == 3 && Minor < 3 ) )
         printf( "OpenGL version not supported. Errors likely. Please update to 3.3\n" );
 
-    UIText *hello = new UIText( "helloo", 0, 0, 1.f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
+    //UIText *hello = new UIText( "helloo", 0, 0, 1.f, glm::vec3( 1.0f, 1.0f, 1.0f ), main );
 
 
     double t = glfwGetTime();
     double dt;
 
     //set the ground
-    for ( int i = -20; i < 20; ++i )
-        for ( int j = -20; j < 20; ++j )
-            new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( i, -1.f, j ), glm::identity<quat>(), glm::one<vec3>() ), new Texture *[] {
+    for ( int i = -10; i < 10; ++i )
+        for ( int j = -10; j < 10; ++j )
+            new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( i, -3.f, j ), glm::identity<quat>(), glm::one<vec3>() ), new Texture *[] {
                 dirt->FindLocalTexture( main ),
                 dirt->FindLocalTexture( main ),
                 dirt->FindLocalTexture( main ),
@@ -113,9 +116,19 @@ int main( int argc, const char *argv[] )
                 dirt->FindLocalTexture( main ),
             }, main );
 
-    new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), Transform( glm::vec3( 0, 0, -1 ), glm::identity<quat>(), glm::one<vec3>() ), metal->FindLocalTexture( main ), main );
+    Axis *x = new Axis( i_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
+    Axis *y = new Axis( j_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
+    Axis *z = new Axis( k_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
 
-    
+    float wavelength = 2.f;
+    float frequency = 1.f;
+    float k = 2.f * M_PI / wavelength;
+    float w = frequency * ( 2.f * M_PI );
+    Transform *DefTransform = new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() );
+    DynamicFunction *fn1 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, sin( k * x - w * t ), 0 ); }, DefTransform, black, main );
+    DynamicFunction *fn2 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, 0, cos( k * x - w * t ) ); }, DefTransform, black, main );
+
+    main->CameraTransform.pos = vec3( 5, 0, 5 );
 
     while ( true )
     {
@@ -123,6 +136,7 @@ int main( int argc, const char *argv[] )
         double t_new = glfwGetTime();
         dt = t_new - t;
         t = t_new;
+        DynamicFunction::FunctionTime = t;
 
 
         //per frame per window
@@ -217,8 +231,15 @@ int main( int argc, const char *argv[] )
                 }
                 */
             }
-
+            /*
+            #define N 20
+            Cube *cubes[ N ];
+            for ( int i = 0; i < N; ++i )
+                cubes[ i ] = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( 0, 0, 0 ), glm::identity<quat>(), glm::one<vec3>() ), dirt->FindLocalTexture( main ), main );
+            */
             Windows[ i ]->Render();
+            //for ( int i = 0; i < N; ++i )
+            //    delete cubes[ i ];
             glfwSwapBuffers( Windows[ i ]->ID );
             glfwPollEvents();
         }

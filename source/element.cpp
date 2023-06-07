@@ -3,17 +3,18 @@
 #include "mesh.h"
 
 
-Element::Element( Window *container, Transform &&transform, vector<Element *> Elements ) :
-    container( container ), Elements( Elements ), transform( (Transform &&)transform )
+Element::Element( Window *container, Transform *transform, vector<Element *> Elements ) :
+    container( container ), Elements( Elements ), transform( transform )
 {
     for ( int i = 0; i < Elements.size(); ++i )
-        Elements[ i ]->transform.SetParent( &transform );
+        Elements[ i ]->transform->SetParent( transform );
     
     container->Elements.push_back( this );
 }
 
 Element::~Element()
 {
+    delete transform;
     for ( int i = 0; i < Elements.size(); ++i )
         delete Elements[ i ];
     for ( int i = 0; i < container->Elements.size(); ++i )
@@ -46,7 +47,7 @@ void Element::AddElement( Element *e )
         }
     }
 
-    e->transform.SetParent( &this->transform );
+    e->transform->SetParent( this->transform );
 }
 void Element::RemoveElement( Element *e )
 {

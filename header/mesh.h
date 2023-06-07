@@ -18,7 +18,7 @@ struct Word;
 struct Mesh :
     public Element
 {
-    Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform &&transform, Window *container );
+    Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform *transform, Window *container );
     ~Mesh();
 
     Mesh( const Mesh & ) = delete;
@@ -34,7 +34,7 @@ struct Mesh :
     Texture *const &texture = _texture;
 
 protected:
-    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform &&transform, Window *container );
+    Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container );
 
     unsigned int _VBO;
     unsigned int _VAO;
@@ -52,11 +52,11 @@ protected:
 struct CharacterMesh : 
     public Mesh
 {
-    CharacterMesh( vec2 mins, vec2 maxs, Texture *texture, Transform &&transform, Window *container, vec3 Color, char c, bool UI ) :
-        Mesh( mins, maxs, texture, (Transform &&)transform, container ), Color( Color ), c( c )
+    CharacterMesh( vec2 mins, vec2 maxs, Texture *texture, Transform *transform, Window *container, vec3 Color, char c, bool UI ) :
+        Mesh( mins, maxs, texture, transform, container ), Color( Color ), c( c )
     {
         //textures are naturally upside-down, flip them on the local x axis
-        this->transform.rot = glm::angleAxis( glm::radians( 180.f ), this->transform.LocalToWorldDirection( vec3( 1, 0, 0 ) ) ) * transform.rot;
+        this->transform->rot = glm::angleAxis( glm::radians( 180.f ), this->transform->LocalToWorldDirection( vec3( 1, 0, 0 ) ) ) * transform->rot;
     }
 
     virtual bool IsText() { return true; }

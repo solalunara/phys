@@ -1,14 +1,14 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target 'all'.  Stop.
 
-# GNU Make 4.3
+# GNU Make 4.4.1
 # Built for x86_64-pc-linux-gnu
-# Copyright (C) 1988-2020 Free Software Foundation, Inc.
-# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# Copyright (C) 1988-2023 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Sep  3 18:31:07 2022
+# Make data base, printed on Tue Jun  6 15:58:58 2023
 
 # Variables
 
@@ -21,11 +21,11 @@ NO_AT_BRIDGE = 1
 # environment
 GTK_RC_FILES = /etc/gtk/gtkrc:/home/fvp/.gtkrc:/home/fvp/.config/gtkrc
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-d41fa9ff-f2a7-407b-baa6-af283fe16dfb.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-1ea8e55b-f607-450e-a638-220c1c2fa782.sock
 # environment
-VSCODE_CWD = /home/fvp/prog/phys
+LC_NUMERIC = en_GB.UTF-8
 # environment
-WINDOWID = 52428802
+VSCODE_CWD = /home/fvp
 # environment
 WINDOWPATH = 1
 # default
@@ -37,21 +37,17 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /home/fvp/prog/phys
+PWD = /run/media/fvp/e7b3230e-3206-40ef-85df-9fc292bee6ce/prog/graph
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
 MAIL = /var/spool/mail/fvp
-# environment
-OLDPWD = /home/fvp
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
 VSCODE_LOG_STACK = false
 # automatic
 %F = $(notdir $%)
-# environment
-ALACRITTY_SOCKET = /run/user/1000/Alacritty-:0-1143.sock
 # environment
 VSCODE_CODE_CACHE_PATH = /home/fvp/.config/Code/CachedData/da15b6fd3ef856477bf6f4fb29ba1b7af717770d
 # environment
@@ -61,11 +57,11 @@ XAUTHORITY = /home/fvp/.Xauthority
 # default
 .LOADED := 
 # default
-.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+.INCLUDE_DIRS := /usr/local/include /usr/include
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /home/fvp/prog/phys
+CURDIR := /run/media/fvp/e7b3230e-3206-40ef-85df-9fc292bee6ce/prog/graph
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
@@ -89,13 +85,13 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 1171
+VSCODE_PID = 26076
 # environment
 XDG_SESSION_TYPE = tty
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/489,unix/fvparch:/tmp/.ICE-unix/489
+SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/451,unix/fvparch:/tmp/.ICE-unix/451
 # automatic
 *F = $(notdir $*)
 # environment
@@ -115,21 +111,27 @@ MAKECMDGOALS := all
 # environment
 DOTNET_BUNDLE_EXTRACT_BASE_DIR = /home/fvp/.cache/dotnet_bundle_extract
 # environment
-SHLVL = 4
+SHLVL = 1
 # environment
 MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /usr/local/sbin:/usr/local/bin:/usr/bin:/home/fvp/.dotnet/tools:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+PATH = /usr/local/texlive/2022/bin/x86_64-linux:/usr/local/sbin:/usr/local/bin:/usr/bin:/home/fvp/.dotnet/tools:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
 # default
 MAKEFILES := 
+# environment
+LANGUAGE = en_US
+# environment
+LC_MONETARY = en_GB.UTF-8
 # environment
 MOTD_SHOWN = pam
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = a890c6dd0d404017ad29331da17a77ec
+LC_TIME = C
+# environment
+INVOCATION_ID = 775d636d10704a01b10faf915c53a21f
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -140,8 +142,6 @@ KDE_APPLICATIONS_AS_SCOPE = 1
 XDG_SEAT = seat0
 # environment
 XDG_CURRENT_DESKTOP = KDE
-# environment
-ALACRITTY_LOG = /tmp/Alacritty-1143.log
 # automatic
 +F = $(notdir $+)
 # environment
@@ -157,7 +157,7 @@ XDG_VTNR = 1
 # makefile
 .DEFAULT_GOAL := 
 # environment
-SYSTEMD_EXEC_PID = 524
+SYSTEMD_EXEC_PID = 487
 # environment
 DISPLAY = :0
 # environment
@@ -165,19 +165,21 @@ GTK_MODULES = canberra-gtk-module
 # environment
 USER = fvp
 # default
-MAKE_VERSION := 4.3
+MAKE_VERSION := 4.4.1
 # environment
 KDE_SESSION_UID = 1000
 # environment
-MANAGERPID = 390
+MANAGERPID = 333
+# environment
+LC_MEASUREMENT = C
+# environment
+DEBUGINFOD_URLS = https://debuginfod.archlinux.org
 # environment
 _ = /usr/bin/make
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-COLORTERM = truecolor
-# environment
-JOURNAL_STREAM = 8:21276
+JOURNAL_STREAM = 8:19006
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -191,7 +193,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 VSCODE_IPC_HOOK = /run/user/1000/vscode-23dedcd4-1.67.1-main.sock
 # environment
-TERM = alacritty
+TERM = linux
 # environment
 XDG_SESSION_ID = 1
 # environment
@@ -211,13 +213,14 @@ ELECTRON_NO_ATTACH_CONSOLE = 1
 # environment
 KDE_SESSION_VERSION = 5
 # default
-.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink guile load
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs notintermediate shell-export archives jobserver jobserver-fifo output-sync check-symlink guile load
 # environment
 KDE_FULL_SESSION = true
 # environment
 DOTNET_ROOT = /usr/share/dotnet
 # variable set hash-table stats:
-# Load=102/1024=10%, Rehash=0, Collisions=4/129=3%
+ 
+# Load=103/1024=10%, Rehash=0, Collisions=7/129=5%
 
 # Pattern-specific Variable Values
 
@@ -225,7 +228,7 @@ DOTNET_ROOT = /usr/share/dotnet
 
 # Directories
 
-# . (device 66309, inode 525810): 11 files, no impossibilities.
+# . (device 66310, inode 6815746): 11 files, no impossibilities.
 
 # 11 files, no impossibilities in 1 directories.
 
@@ -270,20 +273,19 @@ GNUmakefile:
 #  Failed to be updated.
 
 # files hash-table stats:
-# Load=6/1024=1%, Rehash=0, Collisions=0/15=0%
+# Load=6/1024=1%, Rehash=0, Collisions=0/16=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 19 / storage = 154 B / avg = 8 B
-# current buf: size = 8162 B / used = 154 B / count = 19 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 20 / storage = 160 B / avg = 8 B
+# current buf: size = 8162 B / used = 160 B / count = 20 / avg = 8 B
 
-# strcache performance: lookups = 22 / hit rate = 13%
+# strcache performance: lookups = 22 / hit rate = 9%
 # hash-table stats:
-# Load=19/8192=0%, Rehash=0, Collisions=0/22=0%
- 
-# Finished Make data base on Sat Sep  3 18:31:07 2022
+# Load=20/8192=0%, Rehash=0, Collisions=0/22=0%
+# Finished Make data base on Tue Jun  6 15:58:58 2023
 
  

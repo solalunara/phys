@@ -24,20 +24,18 @@ struct Element
     virtual inline bool IsMesh() { return false; }
 
     Window *const container;
-    Transform transform;
+    Transform *transform;
 
 protected:
-    Element( Window *container, Transform &&transform, vector<Element *> Elements );
-
-private:
+    Element( Window *container, Transform *transform, vector<Element *> Elements );
     vector<Element *> Elements;
 };
 
 struct UIElement :
     public Element
 {
-    UIElement( Window *container, Transform &&transform ) :
-        Element( container, (Transform &&)transform, vector<Element *>() )
+    UIElement( Window *container, Transform *transform ) :
+        Element( container, transform, vector<Element *>() )
     {
     }
 
@@ -47,8 +45,8 @@ struct UIElement :
 struct GameElement :
     public Element
 {
-    GameElement( Window *container, Transform &&transform ) :
-        Element( container, (Transform &&)transform, vector<Element *>() )
+    GameElement( Window *container, Transform *transform ) :
+        Element( container, transform, vector<Element *>() )
     {
     }
 

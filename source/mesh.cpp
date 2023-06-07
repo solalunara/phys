@@ -15,8 +15,8 @@
 #include <string>
 
 
-Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform &&transform, Window *container ) : 
-    verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Element( container, (Transform &&)transform, vector<Element *>() )
+Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container ) : 
+    verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Element( container, transform, vector<Element *>() )
 {
     if ( !container )
         printf( "Attempted to make mesh with no container!\n" );
@@ -48,25 +48,45 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
     glBindVertexArray( 0 );
 }
 
-Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform &&transform, Window *container ) :
-    Mesh(
-        new float[] {
-            maxs.x, maxs.y, .0f,        1.0f, 1.0f,
-            maxs.x, mins.y, .0f,        1.0f, 0.0f,
-            mins.x, mins.y, .0f,        0.0f, 0.0f,
-            mins.x, maxs.y, .0f,        0.0f, 1.0f,
-        }, 
-        20,
-        new unsigned int[] {
-            0, 1, 3,
-            1, 2, 3
-        },
-        6,
-        texture,
-        (Transform &&)transform,
-        container
-    )
+Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transform, Window *container ) :
+    _texture( texture ), Element( container, transform, vector<Element *>() )
 {
+    this->verts = new float[] {
+        maxs.x, maxs.y, .0f,        1.0f, 1.0f,
+        maxs.x, mins.y, .0f,        1.0f, 0.0f,
+        mins.x, mins.y, .0f,        0.0f, 0.0f,
+        mins.x, maxs.y, .0f,        0.0f, 1.0f,
+    };
+    this->verts_len = 20;
+    this->inds = new unsigned int[] {
+        0, 1, 3,
+        1, 2, 3
+    };
+    this->inds_len = 6;
+
+    if ( !container )
+        printf( "Attempted to make mesh with no container!\n" );
+
+    glfwMakeContextCurrent( container->ID );
+
+    glGenVertexArrays( 1, &_VAO );
+    glGenBuffers( 1, &_VBO );
+    glGenBuffers( 1, &_EBO );
+
+    glBindVertexArray( _VAO );
+    
+    glBindBuffer( GL_ARRAY_BUFFER, _VBO );
+    glBufferData( GL_ARRAY_BUFFER, sizeof( float ) * verts_len, verts, GL_STATIC_DRAW );
+
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, _EBO );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( unsigned int ) * inds_len, inds, GL_STATIC_DRAW );
+
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), (void *)0 );
+    glEnableVertexAttribArray( 0 );  
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), (void *)( 3 * sizeof( float ) ) );
+    glEnableVertexAttribArray( 1 );
+
+    glBindVertexArray( 0 );
 }
 
 Mesh::~Mesh()
@@ -82,7 +102,7 @@ Mesh::~Mesh()
 void Mesh::Render()
 {
     container->shader.SetShaderValue( "Text", IsText() );
-    container->shader.SetShaderValue( "Transform", transform.GetMatrix() );
+    container->shader.SetShaderValue( "Transform", transform->GetMatrix() );
     if ( IsText() )
     {
         CharacterMesh *t = static_cast<CharacterMesh *>( this );
