@@ -22,15 +22,6 @@ using std::map;
 
 #include <glm/gtc/matrix_transform.hpp>
 
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-FT_Library  library;
-FT_Face     face;
-FT_Error    error;
-
-
-
 enum Settings
 {
     NONE = 0,
@@ -56,37 +47,6 @@ int main( int argc, const char *argv[] )
     {
         Window *w = new Window( WindowState::Windowed, 90.f, 200, 152, argv[ i ] );
         new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( 0 ), glm::identity<glm::quat>(), glm::vec3( 1 ) ), universe->FindLocalTexture( w ), w );
-    }
-
-    //freetype init
-    {
-        error = FT_Init_FreeType( &library );
-        if ( error )
-            printf( "Error initializing freetype library\n" );
-        error = FT_New_Face( library, "/usr/share/fonts/TTF/Hack-Regular.ttf", 0, &face );
-        if ( error == FT_Err_Unknown_File_Format )
-            printf( "Error initializing freetype face -- unknown file format\n" );
-        else if ( error )
-            printf( "Error initializing freetype face\n" );
-        FT_Set_Pixel_Sizes( face, 0, 48 );  
-        for ( unsigned char c = 0; c < 128; c++ )
-        {
-            unsigned int in = FT_Get_Char_Index( face, c );
-            FT_Load_Glyph( face, in, FT_LOAD_DEFAULT );
-            FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
-            // generate texture
-            GlobalTexture *texture = new GlobalTexture( face->glyph->bitmap.buffer, std::to_string( static_cast<int>( c ) ).c_str(), face->glyph->bitmap.width, face->glyph->bitmap.rows );
-            // now store character for later use
-            Character character = {
-                texture, 
-                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-                static_cast<unsigned int>( face->glyph->advance.x )
-            };
-            Characters.insert( std::pair<char, Character>( c, character ) );
-        }
-        FT_Done_Face( face );
-        FT_Done_FreeType( library );
     }
 
     //glfwSetInputMode( MainWindow->ID, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );

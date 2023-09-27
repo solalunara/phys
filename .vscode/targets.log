@@ -279,6 +279,7 @@ GNUmakefile:
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
+ 
 
 # strcache buffers: 1 (0) / strings = 20 / storage = 160 B / avg = 8 B
 # current buf: size = 8162 B / used = 160 B / count = 20 / avg = 8 B

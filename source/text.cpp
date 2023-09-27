@@ -1,6 +1,7 @@
 #include "text.h"
 #include "mesh.h"
 #include "window.h"
+#include "UI/font.h"
 #include <cstring>
 
 UIText::UIText( const char *text, float x, float y, float scale, vec3 color, Window *container ) :
@@ -9,7 +10,7 @@ UIText::UIText( const char *text, float x, float y, float scale, vec3 color, Win
     unsigned long long len = strlen( text );
     struct Data
     {
-        Character ch;
+        Glyph ch;
         float xpos;
         float ypos;
         float w;
@@ -22,7 +23,7 @@ UIText::UIText( const char *text, float x, float y, float scale, vec3 color, Win
     float xnet = 0.f;
     for ( unsigned long long i = 0; i < len; ++i )
     {
-        Character ch = Characters[ text[ i ] ];
+        Glyph ch = font->char_to_glyph[ text[ i ] ];
 
         float xpos = xnet + ch.Bearing.x * scale;
         float ypos = (ch.Size.y - ch.Bearing.y) * scale;
@@ -53,7 +54,7 @@ GameText::GameText( const char *text, float x, float y, float z, float scale, ve
     unsigned long long len = strlen( text );
     struct Data
     {
-        Character ch;
+        Glyph ch;
         float xpos;
         float ypos;
         float w;
@@ -66,7 +67,7 @@ GameText::GameText( const char *text, float x, float y, float z, float scale, ve
     float xnet = 0.f;
     for ( int i = 0; i < strlen( text ); ++i )
     {
-        Character ch = Characters[ text[ i ] ];
+        Glyph ch = font->char_to_glyph[ text[ i ] ];
 
         float xpos = xnet + ch.Bearing.x * scale;
         float ypos = (ch.Size.y - ch.Bearing.y) * scale;

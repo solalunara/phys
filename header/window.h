@@ -75,15 +75,6 @@ private:
     long KeyFlags[ 6 ] { 0 };
 };
 
-struct Character {
-    GlobalTexture *TextureID;  // ID handle of the glyph texture
-    glm::ivec2    Size;       // Size of glyph
-    glm::ivec2    Bearing;    // Offset from baseline to left/top of glyph
-    unsigned int  Advance;    // Offset to advance to next glyph
-};
-inline map<char, Character> Characters;
-
-
 void ResizeCallback( GLFWwindow *window, int width, int height );
 void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mods );
 
