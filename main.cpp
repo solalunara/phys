@@ -80,6 +80,9 @@ int main( int argc, const char *argv[] )
     Axis *y = new Axis( j_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
     Axis *z = new Axis( k_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
 
+    glm::quat i = glm::angleAxis( glm::radians( 90.f ), vec3( 1, 0, 0 ) );
+    #define MGT 30.f
+
     float wavelength = 2.f;
     float frequency = 1.f;
     float k = 2.f * M_PI / wavelength;
@@ -87,9 +90,17 @@ int main( int argc, const char *argv[] )
     Transform *DefTransform = new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() );
     //DynamicFunction *fn1 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, sin( k * x - w * t ), 0 ); }, DefTransform, black, main );
     //DynamicFunction *fn2 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, 0, cos( k * x - w * t ) ); }, DefTransform, black, main );
-    DynamicFunction *quantum = new DynamicFunction( -10, 10, [] ( float x, float t ) { return vec3( x, cos( t ) * exp( -( x * x ) ), sin( t ) * exp( -( x * x ) ) ); }, DefTransform, black, main );
+    //DynamicFunction *quantum = new DynamicFunction( -10, 10, [] ( float x, float t ) { return vec3( x, cos( t ) * exp( -( x * x ) ), sin( t ) * exp( -( x * x ) ) ); }, DefTransform, black, main );
+    DifferentialFunction *quantum = new DifferentialFunction( -10, 10, [] ( float x ) { return vec3( x, sin( 10 * x ) * exp( -( x * x ) ), cos( 10 * x ) * exp( -( x * x ) ) ); }, [ &quantum, i ] ( float x, float dx, float t, float dt ) {
+        if ( x < quantum->min || x > quantum->max ) return vec3( x, 0, 0 );
+        if ( dt <= 0 ) return quantum->PreviousState( x );
+        vec3 prev = quantum->PreviousState( x );
+        vec3 d2xdx2 = ( quantum->PreviousState( x + MGT * dx ) + quantum->PreviousState( x - MGT * dx ) - 2.f * prev ) / ( MGT * dx * MGT * dx );
+        d2xdx2.x = 0;
+        return -( i * d2xdx2 ) * dt / 100.f + prev;
+    }, DefTransform, black, main, 0.01f );
 
-    main->CameraTransform.pos = vec3( 5, 0, 5 );
+    main->CameraTransform.pos = vec3( 1, 0, 5 );
 
     while ( true )
     {
@@ -98,6 +109,7 @@ int main( int argc, const char *argv[] )
         dt = t_new - t;
         t = t_new;
         DynamicFunction::FunctionTime = t;
+        DifferentialFunction::FunctionDeltaTime = dt;
 
 
         //per frame per window

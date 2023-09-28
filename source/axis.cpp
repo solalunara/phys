@@ -5,6 +5,8 @@
 #include "window.h"
 #include <string>
 
+#define AXIS_THICKNESS .01f
+
 Axis::Axis( unsigned char CartnBasisVector, vec3 Origin, GlobalTexture *tex, int Length, int Step, Window *container ) :
     dir( CartnBasisVector ), Length( Length ), Step( Step )
 {
@@ -30,7 +32,7 @@ Axis::Axis( unsigned char CartnBasisVector, vec3 Origin, GlobalTexture *tex, int
         switch ( CartnBasisVector )
         {
             case i_hat:
-            boxes.push_back( new Cube( vec3( -(float)Step / 2.0f, -.1f, -.1f ), vec3( (float)Step / 2.0f, .1f, .1f ), 
+            boxes.push_back( new Cube( vec3( -(float)Step / 2.0f, -AXIS_THICKNESS / 2, -AXIS_THICKNESS / 2 ), vec3( (float)Step / 2.0f, AXIS_THICKNESS / 2, AXIS_THICKNESS / 2 ), 
                 new Transform( Origin + vec3( (float)i * (float)Step - Length, 0, 0 ), glm::identity<quat>(), vec3( 1.f, 1.f, 1.f ) ),
                 tex->FindLocalTexture( container ), container ) );
 
@@ -38,7 +40,7 @@ Axis::Axis( unsigned char CartnBasisVector, vec3 Origin, GlobalTexture *tex, int
             break;
 
             case j_hat:
-            boxes.push_back( new Cube( vec3( -.1f, -(float)Step / 2.0f, -.1f ), vec3( .1f, (float)Step / 2.0f, .1f ), 
+            boxes.push_back( new Cube( vec3( -AXIS_THICKNESS / 2, -(float)Step / 2.0f, -AXIS_THICKNESS / 2 ), vec3( AXIS_THICKNESS / 2, (float)Step / 2.0f, AXIS_THICKNESS / 2 ), 
                 new Transform( Origin + vec3( 0, (float)i * (float)Step - Length, 0 ), glm::identity<quat>(), vec3( 1.f, 1.f, 1.f ) ),
                 tex->FindLocalTexture( container ), container ) );
 
@@ -46,7 +48,7 @@ Axis::Axis( unsigned char CartnBasisVector, vec3 Origin, GlobalTexture *tex, int
             break;
 
             case k_hat:
-            boxes.push_back( new Cube( vec3( -.1f, -.1f, -(float)Step / 2.0f ), vec3( .1f, .1f, (float)Step / 2.0f ), 
+            boxes.push_back( new Cube( vec3( -AXIS_THICKNESS / 2, -AXIS_THICKNESS / 2, -(float)Step / 2.0f ), vec3( AXIS_THICKNESS / 2, AXIS_THICKNESS / 2, (float)Step / 2.0f ), 
                 new Transform( Origin + vec3( 0, 0, (float)i * (float)Step - Length ), glm::identity<quat>(), vec3( 1.f, 1.f, 1.f ) ),
                 tex->FindLocalTexture( container ), container ) );
 

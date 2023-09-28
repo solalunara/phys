@@ -63,4 +63,47 @@ struct DynamicFunction :
     static inline float FunctionTime;
 };
 
+// f = f[x, dx, t, dt]
+struct DifferentialFunction :
+    public GameElement
+{
+    DifferentialFunction( float min, float max, function<vec3( float )> InitialState, function<vec3( float, float, float, float )> fn, Transform *transform, GlobalTexture *tex, Window *w, float step = 0.03f ) :
+        GameElement( w, transform ), PreviousState( InitialState ), fn( fn ), min( min ), max( max ), step( step )
+    {
+        u_long n_Segments = (u_long)( ( max - min ) / step ) + 1;
+        for ( u_long i = 0; i < n_Segments; ++i )
+        {
+            AddElement( new Cube(
+                vec3( -step / 2 ),
+                vec3(  step / 2 ),
+                new Transform( InitialState( i * step + min ), glm::identity<quat>(), glm::one<vec3>() ),
+                tex->FindLocalTexture( w ),
+                w
+            ) );
+        }
+    }
+
+    virtual void Render()
+    {
+        PreviousStateSave = new vec3[ Elements.size() ];
+        for ( u_long i = 0; i < Elements.size(); ++i )
+        {
+            PreviousStateSave[ i ] = Elements[ i ]->transform->pos;
+            PreviousStateSave[ i ].x = i * step + min;
+        }
+        PreviousState = [ this ] ( float x ) { if ( x >= min && x <= max ) return PreviousStateSave[ (u_long)( ( x - min ) / step ) ]; else return vec3( x, 0, 0 ); };
+
+        for ( u_long i = 0; i < Elements.size(); ++i )
+            Elements[ i ]->transform->pos = fn( i * step + min, step, DynamicFunction::FunctionTime, FunctionDeltaTime );
+        Element::Render();
+    }
+
+    function<vec3( float )> PreviousState;
+    vec3 *PreviousStateSave;
+    function<vec3( float, float, float, float )> fn;
+    float min, max, step;
+
+    static inline float FunctionDeltaTime;
+};
+
 #endif
