@@ -12,6 +12,14 @@ using std::map;
 
 struct GlobalTexture;
 
+struct Glyph 
+{
+    GlobalTexture * TextureID;
+    ivec2           Size;
+    ivec2           Bearing; // Offset from baseline to left/top of glyph
+    unsigned int    Advance; // Offset to advance to next glyph
+};
+
 struct Font
 {
     Font( const char *FontPath );
@@ -22,13 +30,5 @@ struct Font
 };
 static const char *DefaultFont = "/usr/share/fonts/TTF/Hack-Regular.ttf";
 
-
-struct Glyph 
-{
-    GlobalTexture * TextureID;
-    ivec2           Size;
-    ivec2           Bearing; // Offset from baseline to left/top of glyph
-    unsigned int    Advance; // Offset to advance to next glyph
-};
 
 #endif

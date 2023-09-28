@@ -85,8 +85,9 @@ int main( int argc, const char *argv[] )
     float k = 2.f * M_PI / wavelength;
     float w = frequency * ( 2.f * M_PI );
     Transform *DefTransform = new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() );
-    DynamicFunction *fn1 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, sin( k * x - w * t ), 0 ); }, DefTransform, black, main );
-    DynamicFunction *fn2 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, 0, cos( k * x - w * t ) ); }, DefTransform, black, main );
+    //DynamicFunction *fn1 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, sin( k * x - w * t ), 0 ); }, DefTransform, black, main );
+    //DynamicFunction *fn2 = new DynamicFunction( -10, 10, [ k, w ] ( float x, float t ) { return vec3( x, 0, cos( k * x - w * t ) ); }, DefTransform, black, main );
+    DynamicFunction *quantum = new DynamicFunction( -10, 10, [] ( float x, float t ) { return vec3( x, cos( t ) * exp( -( x * x ) ), sin( t ) * exp( -( x * x ) ) ); }, DefTransform, black, main );
 
     main->CameraTransform.pos = vec3( 5, 0, 5 );
 
