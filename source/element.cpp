@@ -1,6 +1,8 @@
 #include "element.h"
 #include "window.h"
 #include "mesh.h"
+#include "physics.h"
+#include "function.h"
 
 
 Element::Element( Window *container, Transform *transform, vector<Element *> Elements ) :
@@ -31,6 +33,9 @@ void Element::Render()
 {
     for ( int i = 0; i < Elements.size(); ++i )
         Elements[ i ]->Render();
+    
+    if ( phys_obj )
+        phys_obj->FrameUpdate( DifferentialFunction::FunctionDeltaTime );
 }
 
 void Element::AddElement( Element *e )

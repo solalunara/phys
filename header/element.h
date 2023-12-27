@@ -10,13 +10,14 @@ using std::vector;
 
 struct Mesh;
 struct Element;
+struct PhysicsObject;
 
 struct Element
 {
     Element( const Element & ) = delete;
     Element &operator =( const Element & ) = delete;
     Element( Element && ) = delete;
-    ~Element();
+    virtual ~Element();
 
     void AddElement( Element *e );
     void RemoveElement( Element *e );
@@ -25,10 +26,12 @@ struct Element
 
     Window *const container;
     Transform *transform;
+    PhysicsObject *phys_obj = NULL;
 
 protected:
     Element( Window *container, Transform *transform, vector<Element *> Elements );
     vector<Element *> Elements;
+
 };
 
 struct UIElement :

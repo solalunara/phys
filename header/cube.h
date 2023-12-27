@@ -38,6 +38,8 @@ struct Cube :
 {
     Cube( vec3 mins, vec3 maxs, Transform *transform, Texture *texture, Window *container );
     Cube( vec3 mins, vec3 maxs, Transform *transform, Texture *textures[ 6 ], Window *container );
+    Cube( vec3 mins, vec3 maxs, Transform *transform, GlobalTexture *texture, Window *container );
+    Cube( vec3 mins, vec3 maxs, Transform *transform, GlobalTexture *textures[ 6 ], Window *container );
 
     //Mesh *sides[ 6 ];
 
