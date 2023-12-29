@@ -215,8 +215,9 @@ int main( int argc, const char *argv[] )
         Textures[ InbuiltTexture::dirt ] };
 
     //set the ground
-    for ( int i = -3; i < 3; ++i )
-        for ( int j = -3; j < 3; ++j )
+    #define INT_GROUND_SIZE 10
+    for ( int i = -INT_GROUND_SIZE; i <= INT_GROUND_SIZE; ++i )
+        for ( int j = -INT_GROUND_SIZE; j <= INT_GROUND_SIZE; ++j )
         {
             Cube *c = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( i, -3.f, j ), glm::identity<quat>(), glm::one<vec3>() ), GroundTextures, main );
             c->collide = new Collide( *c, glm::vec3( -.5f ), glm::vec3( .5f ) );

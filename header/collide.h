@@ -10,6 +10,8 @@ using std::vector;
 using glm::vec3;
 
 struct Element;
+struct AABB;
+struct Window;
 
 enum class CollideType : char
 {
@@ -36,8 +38,6 @@ struct IntersectionData
     bool Intersection;
 };
 
-struct AABB;
-
 struct Collide
 {
     Collide( Element &object, vec3 mins, vec3 maxs );
@@ -46,26 +46,32 @@ struct Collide
     IntersectionData GetIntersection( Collide *other );
     void ResolveIntersection( Collide *other, IntersectionData data );
 
-    Element         &object;
+    Element    &object;
+    const AABB *BoundingBox;
 
 protected:
     Collide( Element &object, AABB *BoundingBox );
 
-    AABB            *BoundingBox;
+    AABB       *_BoundingBox;
 };
 
 struct AABB :
     public Collide
 {
-    AABB( Element &object, vec3 mins, vec3 maxs ) :
-        Collide( object, this ), mins( mins ), maxs( maxs )
-    {}
+    AABB( Element &object, vec3 mins, vec3 maxs );
 
-    bool TestAABBCollision( AABB *other );
+    bool TestAABBCollision( const AABB *other ) const;
+    bool TestAABBCollision( vec3 other_mins, vec3 other_maxs ) const;
 
     vec3 mins;
     vec3 maxs;
+
+private:
+    vec3 __world_space_mins;
+    vec3 __world_space_maxs;
 };
+
+vector<Collide> UTIL_TraceLine( Window *window, vec3 startpt, vec3 endpt );
 
 
 #endif

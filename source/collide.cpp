@@ -1,6 +1,7 @@
 #include "collide.h"
 #include "element.h"
 #include "physics.h"
+#include "window.h"
 #include <cmath>
 
 Collide::Collide( Element &object, AABB *BoundingBox ) :
@@ -19,11 +20,18 @@ Collide::~Collide()
 
 IntersectionData Collide::GetIntersection( Collide *other )
 {
+    //don't do self collisions
     if ( other == this )
         return IntersectionData( 0, glm::zero<vec3>(), false );
 
+    //only test for collision if BBoxes are colliding
     if ( !BoundingBox->TestAABBCollision( other->BoundingBox ) )
         return IntersectionData( 0, glm::zero<vec3>(), false );
+
+    //we can only resolve collisions if there is at least one physics object - don't bother with static objects    
+    if ( !object.phys_obj && !other->object.phys_obj )
+        return IntersectionData( 0, glm::zero<vec3>(), false );
+
 
     // project the points from each object onto each normal vector for both objects
     // if there is no collision then at least one of the penetration values must be zero
@@ -128,13 +136,39 @@ void Collide::ResolveIntersection( Collide *other, IntersectionData data )
     }
 }
 
-bool AABB::TestAABBCollision( AABB *other )
-{
-    vec3 ThisWorldSpaceMins = object.transform->LocalToWorldPoint( mins );
-    vec3 ThisWorldSpaceMaxs = object.transform->LocalToWorldPoint( maxs );
+AABB::AABB( Element &object, vec3 mins, vec3 maxs ) :
+    Collide( object, this ), mins( mins ), maxs( maxs ), __world_space_mins( object.transform->LocalToWorldPoint( mins ) ), __world_space_maxs( object.transform->LocalToWorldPoint( maxs ) )
+{}
 
-    vec3 OtherWorldSpaceMins = other->object.transform->LocalToWorldPoint( other->mins );
-    vec3 OtherWorldSpaceMaxs = other->object.transform->LocalToWorldPoint( other->maxs );
+bool AABB::TestAABBCollision( const AABB *other ) const
+{
+    // get world space boundaries
+    // if we don't have a physics object, we're static, so use cached mins and maxs
+    vec3 ThisWorldSpaceMins;
+    vec3 ThisWorldSpaceMaxs;
+    if ( !object.phys_obj )
+    {
+        ThisWorldSpaceMins = __world_space_mins;
+        ThisWorldSpaceMaxs = __world_space_maxs;
+    }
+    else
+    {
+        ThisWorldSpaceMins = object.transform->LocalToWorldPoint( mins );
+        ThisWorldSpaceMaxs = object.transform->LocalToWorldPoint( maxs );
+    }
+
+    vec3 OtherWorldSpaceMins;
+    vec3 OtherWorldSpaceMaxs;
+    if ( !other->object.phys_obj )
+    {
+        OtherWorldSpaceMins = other->__world_space_mins;
+        OtherWorldSpaceMaxs = other->__world_space_maxs;
+    }
+    else
+    {
+        OtherWorldSpaceMins = other->object.transform->LocalToWorldPoint( other->mins );
+        OtherWorldSpaceMaxs = other->object.transform->LocalToWorldPoint( other->maxs );
+    }
 
 
     return  ThisWorldSpaceMins.x <= OtherWorldSpaceMaxs.x &&
@@ -143,4 +177,32 @@ bool AABB::TestAABBCollision( AABB *other )
             ThisWorldSpaceMaxs.y >= OtherWorldSpaceMins.y &&
             ThisWorldSpaceMins.z <= OtherWorldSpaceMaxs.z &&
             ThisWorldSpaceMaxs.z >= OtherWorldSpaceMins.z;
+}
+bool AABB::TestAABBCollision( vec3 other_mins, vec3 other_maxs ) const
+{
+    vec3 ThisWorldSpaceMins = object.transform->LocalToWorldPoint( mins );
+    vec3 ThisWorldSpaceMaxs = object.transform->LocalToWorldPoint( maxs );
+
+    vec3 OtherWorldSpaceMins = other_mins;
+    vec3 OtherWorldSpaceMaxs = other_maxs;
+
+
+    return  ThisWorldSpaceMins.x <= OtherWorldSpaceMaxs.x &&
+            ThisWorldSpaceMaxs.x >= OtherWorldSpaceMins.x &&
+            ThisWorldSpaceMins.y <= OtherWorldSpaceMaxs.y &&
+            ThisWorldSpaceMaxs.y >= OtherWorldSpaceMins.y &&
+            ThisWorldSpaceMins.z <= OtherWorldSpaceMaxs.z &&
+            ThisWorldSpaceMaxs.z >= OtherWorldSpaceMins.z;
+}
+
+vector<Collide> UTIL_TraceLine( Window *window, vec3 startpt, vec3 endpt )
+{
+    for ( int i = 0; i < window->Elements.size(); ++i )
+    {
+        if ( window->Elements[ i ]->collide && window->Elements[ i ]->collide->BoundingBox->TestAABBCollision( startpt, endpt ) )
+        {
+
+        }
+    }
+    return vector<Collide>();
 }
