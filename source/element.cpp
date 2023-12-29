@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "physics.h"
 #include "function.h"
+#include "collide.h"
 
 
 Element::Element( Window *container, Transform *transform, vector<Element *> Elements ) :
@@ -36,6 +37,10 @@ void Element::Render()
     
     if ( phys_obj )
         phys_obj->FrameUpdate( DifferentialFunction::FunctionDeltaTime );
+    if ( collide )
+        for ( int i = 0; i < container->Elements.size(); ++i ) 
+            if ( container->Elements[ i ]->collide ) 
+                collide->ResolveIntersection( container->Elements[ i ]->collide, collide->GetIntersection( container->Elements[ i ]->collide ) );
 }
 
 void Element::AddElement( Element *e )
@@ -64,6 +69,53 @@ void Element::RemoveElement( Element *e )
             break;
         }
     }
+}
+vector<vec3> Element::GetNormals()
+{
+    vector<vec3> normals;
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() )
+            normals.push_back( static_cast<Mesh *>( Elements[ i ] )->GetNormal() );
+        else
+        {
+            vector<vec3> childnormals = Elements[ i ]->GetNormals();
+            for ( int j = 0; j < childnormals.size(); ++j )
+                normals.push_back( childnormals[ j ] );
+        }
+    }
+    return normals;
+}
+vector<vec3> Element::GetVertices()
+{
+    vector<vec3> verts;
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() )
+        {
+            vector<vec3> meshverts = static_cast<Mesh *>( Elements[ i ] )->GetVertices();
+            for ( int j = 0; j < meshverts.size(); ++j )
+                verts.push_back( meshverts[ j ] );
+        }
+        else
+        {
+            vector<vec3> childverts = Elements[ i ]->GetVertices();
+            for ( int j = 0; j < childverts.size(); ++j )
+                verts.push_back( childverts[ j ] );
+        }
+    }
+    for ( int i = 0; i < verts.size(); ++i )
+    {
+        for ( int j = i + 1; j < verts.size(); ++j )
+        {
+            if ( verts[ i ] == verts[ j ] )
+            {
+                verts.erase( verts.begin() + j );
+                --j;
+            }
+        }
+    }
+    return verts;
 }
 
 void UIElement::Render()

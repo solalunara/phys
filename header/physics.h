@@ -15,13 +15,16 @@ struct PhysicsObject
     {}
 
     void AddImpulse( vec3 I );
+    void ZeroMomentumAlongVector( vec3 v );
 
     void FrameUpdate( float dt );
+
+
+    float mass;
 protected:
 
     Element &Object;
 
-    float mass;
     vec3 _linear_momentum = vec3( 0 );
     vec3 _angular_momentum = vec3( 0 );
 };

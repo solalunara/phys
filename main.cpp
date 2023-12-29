@@ -19,6 +19,7 @@ using std::filesystem::recursive_directory_iterator;
 #include "axis.h"
 #include "function.h"
 #include "physics.h"
+#include "collide.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -214,13 +215,16 @@ int main( int argc, const char *argv[] )
         Textures[ InbuiltTexture::dirt ] };
 
     //set the ground
-    for ( int i = -10; i < 10; ++i )
-        for ( int j = -10; j < 10; ++j )
-            new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( i, -3.f, j ), glm::identity<quat>(), glm::one<vec3>() ), 
-            GroundTextures, main );
+    for ( int i = 0; i < 1; ++i )
+        for ( int j = 0; j < 1; ++j )
+        {
+            Cube *c = new Cube( glm::vec3( -.5f, -.5f, -.5f ), glm::vec3( .5f, .5f, .5f ), new Transform( glm::vec3( i, -3.f, j ), glm::identity<quat>(), glm::one<vec3>() ), GroundTextures, main );
+            c->collide = new Collide( *c );
+        }
     
     Cube *PhysCube = new Cube( vec3( -.5f ), vec3( .5f ), new Transform( vec3( 0, 5, 0 ), glm::identity<quat>(), glm::one<vec3>() ), Textures[ InbuiltTexture::universe ], main );
     PhysCube->phys_obj = new PhysicsObject( *PhysCube, 1 );
+    PhysCube->collide = new Collide( *PhysCube );
 
 
     // fun with differential equations

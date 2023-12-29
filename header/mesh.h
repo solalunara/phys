@@ -31,7 +31,12 @@ struct Mesh :
     virtual inline bool IsText() { return false; }
     virtual inline bool IsMesh() { return true; }
 
+    vec3 GetNormal();
+    float GetPlaneDist();
+    vector<vec3> GetVertices();
+
     Texture *const &texture = _texture;
+
 
 protected:
     Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container );
@@ -47,6 +52,9 @@ protected:
     unsigned long long inds_len;
 
     Texture *_texture;
+
+    vec3 _norm;
+    vector<vec3> _verts_pts;
 };
 
 struct CharacterMesh : 

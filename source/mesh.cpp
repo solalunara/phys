@@ -46,6 +46,16 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
     glEnableVertexAttribArray( 1 );
 
     glBindVertexArray( 0 );
+
+    for ( int i = 0; i < verts_len / 5; ++i )
+        _verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+
+    if ( verts_len >= 3 )
+    {
+        vec3 a = _verts_pts[ 1 ] - _verts_pts[ 0 ];
+        vec3 b = _verts_pts[ 2 ] - _verts_pts[ 1 ];
+        _norm = glm::normalize( glm::cross( a, b ) );
+    }
 }
 
 Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transform, Window *container ) :
@@ -87,6 +97,16 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transfo
     glEnableVertexAttribArray( 1 );
 
     glBindVertexArray( 0 );
+
+    for ( int i = 0; i < verts_len / 5; ++i )
+        _verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+
+    if ( verts_len >= 3 )
+    {
+        vec3 a = _verts_pts[ 1 ] - _verts_pts[ 0 ];
+        vec3 b = _verts_pts[ 2 ] - _verts_pts[ 1 ];
+        _norm = glm::normalize( glm::cross( a, b ) );
+    }
 }
 
 Mesh::~Mesh()
@@ -114,4 +134,22 @@ void Mesh::Render()
     glBindTexture( GL_TEXTURE_2D, texture->id );
     glBindVertexArray( _VAO );
     glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+}
+
+vec3 Mesh::GetNormal()
+{
+    return transform->LocalToWorldDirection( _norm );
+}
+
+float Mesh::GetPlaneDist()
+{
+    return glm::dot( transform->GetAbsOrigin(), GetNormal() );
+}
+
+vector<vec3> Mesh::GetVertices()
+{
+    vector<vec3> result;
+    for ( int i = 0; i < _verts_pts.size(); ++i )
+        result.push_back( transform->LocalToWorldPoint( _verts_pts[ i ] ) );
+    return result;
 }

@@ -6,11 +6,14 @@
 #include "transform.h"
 #include "window.h"
 #include <vector>
+#include <glm/glm.hpp>
 using std::vector;
+using glm::vec3;
 
 struct Mesh;
 struct Element;
 struct PhysicsObject;
+struct Collide;
 
 struct Element
 {
@@ -23,10 +26,13 @@ struct Element
     void RemoveElement( Element *e );
     virtual void Render();
     virtual inline bool IsMesh() { return false; }
+    vector<vec3> GetNormals();
+    vector<vec3> GetVertices();
 
     Window *const container;
     Transform *transform;
     PhysicsObject *phys_obj = NULL;
+    Collide *collide = NULL;
 
 protected:
     Element( Window *container, Transform *transform, vector<Element *> Elements );
