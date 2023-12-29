@@ -173,7 +173,8 @@ void Mesh::Render()
 
 vec3 Mesh::GetNormal()
 {
-    return transform->LocalToWorldDirection( _norm );
+    vec3 norm = transform->LocalToWorldDirection( _norm );
+    return glm::round( norm * 1e4f ) / 1e4f;
 }
 
 float Mesh::GetPlaneDist()

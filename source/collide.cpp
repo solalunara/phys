@@ -87,9 +87,9 @@ IntersectionData Collide::GetIntersection( Collide *other )
         }
 
         if ( amin > bmin && amax < bmax )
-            penetration_vals.push_back( abs( amin - bmin ) < abs( amax - bmax ) ? bmin - amin : bmax - amax ); //a enclosed in b
+            penetration_vals.push_back( abs( amin - bmin ) < abs( amax - bmax ) ? bmin - amax : bmax - amin ); //a enclosed in b
         else if ( bmin > amin && bmax < amax )
-            penetration_vals.push_back( abs( amin - bmin ) < abs( amax - bmax ) ? amin - bmin : amax - bmax ); //b enclosed in a
+            penetration_vals.push_back( abs( amin - bmin ) < abs( amax - bmax ) ? amin - bmax : amax - bmin ); //b enclosed in a
         else if ( amin <= bmax && amin >= bmin )
             penetration_vals.push_back( bmax - amin ); // a > b, thus positive for pushing a positive
         else if ( bmin <= amax && bmin >= amin )
@@ -157,8 +157,8 @@ bool AABB::TestAABBCollision( const AABB *other ) const
     }
     else
     {
-        ThisWorldSpaceMins = object.transform->LocalToWorldPoint( mins );
-        ThisWorldSpaceMaxs = object.transform->LocalToWorldPoint( maxs );
+        ThisWorldSpaceMins = object.transform->GetAbsOrigin() + mins;
+        ThisWorldSpaceMaxs = object.transform->GetAbsOrigin() + maxs;
     }
 
     vec3 OtherWorldSpaceMins;
@@ -170,8 +170,8 @@ bool AABB::TestAABBCollision( const AABB *other ) const
     }
     else
     {
-        OtherWorldSpaceMins = other->object.transform->LocalToWorldPoint( other->mins );
-        OtherWorldSpaceMaxs = other->object.transform->LocalToWorldPoint( other->maxs );
+        OtherWorldSpaceMins = other->object.transform->GetAbsOrigin() + other->mins;
+        OtherWorldSpaceMaxs = other->object.transform->GetAbsOrigin() + other->maxs;
     }
 
 
@@ -184,12 +184,23 @@ bool AABB::TestAABBCollision( const AABB *other ) const
 }
 bool AABB::TestAABBCollision( vec3 other_mins, vec3 other_maxs ) const
 {
-    vec3 ThisWorldSpaceMins = object.transform->LocalToWorldPoint( mins );
-    vec3 ThisWorldSpaceMaxs = object.transform->LocalToWorldPoint( maxs );
+    // get world space boundaries
+    // if we don't have a physics object, we're static, so use cached mins and maxs
+    vec3 ThisWorldSpaceMins;
+    vec3 ThisWorldSpaceMaxs;
+    if ( !object.phys_obj )
+    {
+        ThisWorldSpaceMins = __world_space_mins;
+        ThisWorldSpaceMaxs = __world_space_maxs;
+    }
+    else
+    {
+        ThisWorldSpaceMins = object.transform->GetAbsOrigin() + mins;
+        ThisWorldSpaceMaxs = object.transform->GetAbsOrigin() + maxs;
+    }
 
     vec3 OtherWorldSpaceMins = other_mins;
     vec3 OtherWorldSpaceMaxs = other_maxs;
-
 
     return  ThisWorldSpaceMins.x <= OtherWorldSpaceMaxs.x &&
             ThisWorldSpaceMaxs.x >= OtherWorldSpaceMins.x &&
