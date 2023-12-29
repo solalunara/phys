@@ -3,6 +3,7 @@
 #include "physics.h"
 #include "window.h"
 #include <cmath>
+#include <stdexcept>
 
 Collide::Collide( Element &object, AABB *BoundingBox ) :
     object( object ), BoundingBox( BoundingBox )
@@ -22,7 +23,7 @@ IntersectionData Collide::GetIntersection( Collide *other )
 {
     //don't do self collisions
     if ( other == this )
-        return IntersectionData( 0, glm::zero<vec3>(), false );
+        throw std::invalid_argument( "Collide::GetIntersection called on same object - unoptimized code likely" );
 
     //only test for collision if BBoxes are colliding
     if ( !BoundingBox->TestAABBCollision( other->BoundingBox ) )
@@ -119,8 +120,11 @@ IntersectionData Collide::GetIntersection( Collide *other )
 
 void Collide::ResolveIntersection( Collide *other, IntersectionData data )
 {
-    if ( !data.Intersection || !object.phys_obj )
-        return;
+    if ( !object.phys_obj )
+        throw std::invalid_argument( "Collide::ResolveIntersection called on static object (no physics object)!" );
+
+    if ( !data.Intersection )
+        throw std::invalid_argument( "Collide::ResolveIntersection called on non-intersection" );
 
     if ( other->object.phys_obj )
     {

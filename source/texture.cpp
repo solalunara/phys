@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <filesystem>
 #include <string.h>
+#include <system_error>
 
 Texture::Texture( const unsigned char *buffer, const char *name, unsigned int width, unsigned int rows, Window *container ) :
     container( container )
@@ -60,16 +61,16 @@ Texture::Texture( const char *path, Window *container ) :
         if ( !fp )
         {
             char *err = new char[ strlen( path ) + 100 ];
-            sprintf( err, "Error creating texture: could not open texture %s\n", path );
-            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code() );
+            sprintf( err, "Error creating texture: could not open texture %s", path );
+            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code( std::io_errc::stream ) );
         }
         unsigned char header[ 8 ] { 0 };
         fread( header, 1, 8, fp );
         if ( png_sig_cmp( header, 0, 8 ) )
         {
             char *err = new char[ strlen( path ) + 100 ];
-            sprintf( err, "Error creating texture: %s is not a png\n", path );
-            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code() );
+            sprintf( err, "Error creating texture: %s is not a png", path );
+            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code( std::io_errc::stream ) );
         }
 
         char error[ 512 ] { 0 };
@@ -77,8 +78,8 @@ Texture::Texture( const char *path, Window *container ) :
         if ( !png_ptr )
         {
             char *err = new char[ strlen( path ) + 100 ];
-            sprintf( err, "Error creating texture: %s\n", error );
-            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code() );
+            sprintf( err, "Error creating texture: %s", error );
+            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code( std::io_errc::stream ) );
         }
 
         png_infop info_ptr = png_create_info_struct( png_ptr );
@@ -87,7 +88,7 @@ Texture::Texture( const char *path, Window *container ) :
             png_destroy_read_struct( &png_ptr, (png_infopp)NULL, (png_infopp)NULL );
             fclose( fp );
             const char *err = "Error creating texture: info struct failed to create";
-            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code() );
+            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code( std::io_errc::stream ) );
         }
 
         png_infop end_info = png_create_info_struct( png_ptr );
@@ -95,8 +96,8 @@ Texture::Texture( const char *path, Window *container ) :
         {
             png_destroy_read_struct( &png_ptr, &info_ptr, (png_infopp)NULL );
             fclose( fp );
-            const char *err = "Error creating texture: end info struct failed to create\n";
-            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code() );
+            const char *err = "Error creating texture: end info struct failed to create";
+            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code( std::io_errc::stream ) );
         }
 
         if ( setjmp( png_jmpbuf( png_ptr ) ) )
@@ -142,7 +143,7 @@ Texture::Texture( const char *path, Window *container ) :
             case PNG_COLOR_TYPE_GRAY:
             case PNG_COLOR_TYPE_GRAY_ALPHA:
             case PNG_COLOR_TYPE_PALETTE:
-            throw std::system_error( std::error_code(), "Error: colour mode not supported\n" );
+            throw std::system_error( std::error_code( std::io_errc::stream ), "Error: colour mode not supported" );
             break;
         }
 
@@ -158,8 +159,8 @@ Texture::Texture( const char *path, Window *container ) :
         if ( !fp )
         {
             char *err = new char[ strlen( path ) + 100 ];
-            sprintf( err, "Error creating texture: could not open texture %s\n", path );
-            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code() );
+            sprintf( err, "Error creating texture: could not open texture %s", path );
+            throw std::filesystem::filesystem_error( std::string( err ), filesys_path, std::error_code( std::io_errc::stream ) );
         }
         fseek( fp, 0, SEEK_END );
         long fsize = ftell( fp );
@@ -173,7 +174,7 @@ Texture::Texture( const char *path, Window *container ) :
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
         glGenerateMipmap( GL_TEXTURE_2D );
     }
-    else throw std::system_error( std::error_code(), "Error: could not make texture, was not png or webp\n" );
+    else throw std::system_error( std::error_code( std::io_errc::stream ), "Error: could not make texture, was not png or webp" );
     container->Textures.push_back( this );
 }
 

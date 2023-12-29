@@ -36,11 +36,23 @@ void Element::Render()
         Elements[ i ]->Render();
     
     if ( phys_obj )
+    {
         phys_obj->FrameUpdate( DifferentialFunction::FunctionDeltaTime );
-    if ( collide )
-        for ( int i = 0; i < container->Elements.size(); ++i ) 
-            if ( container->Elements[ i ]->collide ) 
-                collide->ResolveIntersection( container->Elements[ i ]->collide, collide->GetIntersection( container->Elements[ i ]->collide ) );
+
+        //only if phys_obj since otherwise we can't resolve a collision
+        if ( collide )
+        {
+            for ( int i = 0; i < container->Elements.size(); ++i ) 
+            {
+                if ( this != container->Elements[ i ] && container->Elements[ i ]->collide )
+                {
+                    IntersectionData id = collide->GetIntersection( container->Elements[ i ]->collide );
+                    if ( id.Intersection )
+                        collide->ResolveIntersection( container->Elements[ i ]->collide, id );
+                }
+            }
+        }
+    }
 }
 
 void Element::AddElement( Element *e )

@@ -13,13 +13,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <stdexcept>
 
 
 Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container ) : 
     verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Element( container, transform, vector<Element *>() )
 {
     if ( !container )
-        printf( "Attempted to make mesh with no container!\n" );
+        throw std::invalid_argument( "Attempted to make mesh with no container!\n" );
 
     glfwMakeContextCurrent( container->ID );
     this->verts = new float[ verts_len ];
@@ -70,7 +71,7 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
             float dist = glm::dot( a, _norm );
             for ( int i = 4; i < verts_len / 5; ++i )
                 if ( std::abs( glm::dot( __verts_pts[ i ], _norm ) - dist ) > 1e-2f )
-                    printf( "Mesh does not lie on a plane! Check mesh.cpp line 63\n" );
+                    throw std::invalid_argument( "Mesh does not lie on a plane!" );
         }
     }
 }
@@ -92,7 +93,7 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transfo
     this->inds_len = 6;
 
     if ( !container )
-        printf( "Attempted to make mesh with no container!\n" );
+        throw std::invalid_argument( "Attempted to make mesh with no container!\n" );
 
     glfwMakeContextCurrent( container->ID );
 
@@ -138,7 +139,7 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transfo
             float dist = glm::dot( a, _norm );
             for ( int i = 4; i < verts_len / 5; ++i )
                 if ( std::abs( glm::dot( __verts_pts[ i ], _norm ) - dist ) > 1e-2f )
-                    printf( "Mesh does not lie on a plane! Check mesh.cpp line 63\n" );
+                    throw std::invalid_argument( "Mesh does not lie on a plane!" );
         }
     }
 }
