@@ -47,14 +47,31 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
 
     glBindVertexArray( 0 );
 
+    __verts_pts.reserve( verts_len / 5 );
     for ( int i = 0; i < verts_len / 5; ++i )
-        _verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+        __verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+    __verts_pts.shrink_to_fit();
 
-    if ( verts_len >= 3 )
+
+    __smallest_inter_point_dist = INFINITY;
+    for ( int i = 0; i < verts_len / 5; ++i )
+        for ( int j = 0; j < verts_len / 5; ++j )
+            if ( i != j && glm::length( __verts_pts[ i ] - __verts_pts[ j ] ) < __smallest_inter_point_dist )
+                __smallest_inter_point_dist = glm::length( __verts_pts[ i ] - __verts_pts[ j ] );
+
+
+    if ( verts_len >= 3*5 )
     {
-        vec3 a = _verts_pts[ 1 ] - _verts_pts[ 0 ];
-        vec3 b = _verts_pts[ 2 ] - _verts_pts[ 1 ];
+        vec3 a = __verts_pts[ 1 ] - __verts_pts[ 0 ];
+        vec3 b = __verts_pts[ 2 ] - __verts_pts[ 1 ];
         _norm = glm::normalize( glm::cross( a, b ) );
+        if ( verts_len > 3*5 )
+        {
+            float dist = glm::dot( a, _norm );
+            for ( int i = 4; i < verts_len / 5; ++i )
+                if ( std::abs( glm::dot( __verts_pts[ i ], _norm ) - dist ) > 1e-2f )
+                    printf( "Mesh does not lie on a plane! Check mesh.cpp line 63\n" );
+        }
     }
 }
 
@@ -98,14 +115,31 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transfo
 
     glBindVertexArray( 0 );
 
+    __verts_pts.reserve( verts_len / 5 );
     for ( int i = 0; i < verts_len / 5; ++i )
-        _verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+        __verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+    __verts_pts.shrink_to_fit();
 
-    if ( verts_len >= 3 )
+
+    __smallest_inter_point_dist = INFINITY;
+    for ( int i = 0; i < verts_len / 5; ++i )
+        for ( int j = 0; j < verts_len / 5; ++j )
+            if ( i != j && glm::length( __verts_pts[ i ] - __verts_pts[ j ] ) < __smallest_inter_point_dist )
+                __smallest_inter_point_dist = glm::length( __verts_pts[ i ] - __verts_pts[ j ] );
+
+
+    if ( verts_len >= 3*5 )
     {
-        vec3 a = _verts_pts[ 1 ] - _verts_pts[ 0 ];
-        vec3 b = _verts_pts[ 2 ] - _verts_pts[ 1 ];
+        vec3 a = __verts_pts[ 1 ] - __verts_pts[ 0 ];
+        vec3 b = __verts_pts[ 2 ] - __verts_pts[ 1 ];
         _norm = glm::normalize( glm::cross( a, b ) );
+        if ( verts_len > 3*5 )
+        {
+            float dist = glm::dot( a, _norm );
+            for ( int i = 4; i < verts_len / 5; ++i )
+                if ( std::abs( glm::dot( __verts_pts[ i ], _norm ) - dist ) > 1e-2f )
+                    printf( "Mesh does not lie on a plane! Check mesh.cpp line 63\n" );
+        }
     }
 }
 
@@ -149,7 +183,8 @@ float Mesh::GetPlaneDist()
 vector<vec3> Mesh::GetVertices()
 {
     vector<vec3> result;
-    for ( int i = 0; i < _verts_pts.size(); ++i )
-        result.push_back( transform->LocalToWorldPoint( _verts_pts[ i ] ) );
+    result.reserve( verts_len / 5 );
+    for ( int i = 0; i < __verts_pts.size(); ++i )
+        result.push_back( transform->LocalToWorldPoint( __verts_pts[ i ] ) );
     return result;
 }

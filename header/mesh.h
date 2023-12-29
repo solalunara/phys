@@ -11,7 +11,6 @@ using glm::vec3;
 struct Texture;
 struct Shader;
 struct Window;
-struct Entity;
 struct GlobalTexture;
 struct Word;
 
@@ -36,7 +35,7 @@ struct Mesh :
     vector<vec3> GetVertices();
 
     Texture *const &texture = _texture;
-
+    const float &smallest_inter_point_dist = __smallest_inter_point_dist;
 
 protected:
     Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container );
@@ -54,7 +53,8 @@ protected:
     Texture *_texture;
 
     vec3 _norm;
-    vector<vec3> _verts_pts;
+    vector<vec3> __verts_pts;
+    float __smallest_inter_point_dist;
 };
 
 struct CharacterMesh : 

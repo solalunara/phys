@@ -3,32 +3,56 @@
 #include "physics.h"
 #include <cmath>
 
+Collide::Collide( Element &object, AABB *BoundingBox ) :
+    object( object ), BoundingBox( BoundingBox )
+{}
+
+Collide::Collide( Element &object, vec3 mins, vec3 maxs ) :
+    object( object ), BoundingBox( new AABB( object, mins, maxs ) )
+{}
+
+Collide::~Collide()
+{
+    if ( (void *)BoundingBox != (void *)this )
+        delete BoundingBox;
+}
+
 IntersectionData Collide::GetIntersection( Collide *other )
 {
     if ( other == this )
         return IntersectionData( 0, glm::zero<vec3>(), false );
 
+    if ( !BoundingBox->TestAABBCollision( other->BoundingBox ) )
+        return IntersectionData( 0, glm::zero<vec3>(), false );
+
+    // project the points from each object onto each normal vector for both objects
+    // if there is no collision then at least one of the penetration values must be zero
+    // if there is no zero value along any of the normals then there is a collision with a penetration equal to the lowest penetration normal
+    // this function will calculate the normal of the collision as well as the penetration value
+
     vector<vec3> norms1 = object.GetNormals();
     vector<vec3> norms2 = other->object.GetNormals();
     vector<vec3> norms;
+    norms.reserve( norms1.size() + norms2.size() );
     for ( int i = 0; i < norms1.size(); ++i )
         norms.push_back( norms1[ i ] );
     for ( int i = 0; i < norms2.size(); ++i )
         norms.push_back( norms2[ i ] );
 
     vector<float> penetration_vals;
+    penetration_vals.reserve( norms.size() );
 
     vector<vec3> Points1 = object.GetVertices();
     vector<vec3> Points2 = other->object.GetVertices();
     if ( Points1.size() == 0 || Points2.size() == 0 )
         return IntersectionData( 0, glm::zero<vec3>(), false );
 
+    float *ProjectedPoints1 = new float[ Points1.size() ];
+    float *ProjectedPoints2 = new float[ Points2.size() ];
     for ( int n = 0; n < norms.size(); ++n )
     {
         vec3 Normal = norms[ n ];
 
-        float *ProjectedPoints1 = new float[ Points1.size() ];
-        float *ProjectedPoints2 = new float[ Points2.size() ];
 
         for ( int i = 0; i < Points1.size(); ++i )
             ProjectedPoints1[ i ] = glm::dot( Points1[ i ], Normal );
@@ -64,6 +88,8 @@ IntersectionData Collide::GetIntersection( Collide *other )
         else
             penetration_vals.push_back( 0 );
     }
+    delete[] ProjectedPoints1;
+    delete[] ProjectedPoints2;
 
     // if there exists an axis with 0 penetration, we are not colliding
     // otherwise, we want the penetration with the lowest absolute magnitude
@@ -98,6 +124,23 @@ void Collide::ResolveIntersection( Collide *other, IntersectionData data )
     else
     {
         object.transform->SetAbsOrigin( object.transform->GetAbsOrigin() + data.Penetration * data.Normal );
-        object.phys_obj->ZeroMomentumAlongVector( data.Normal );
+        object.phys_obj->ZeroMomentumIntoPlane( data.Normal );
     }
+}
+
+bool AABB::TestAABBCollision( AABB *other )
+{
+    vec3 ThisWorldSpaceMins = object.transform->LocalToWorldPoint( mins );
+    vec3 ThisWorldSpaceMaxs = object.transform->LocalToWorldPoint( maxs );
+
+    vec3 OtherWorldSpaceMins = other->object.transform->LocalToWorldPoint( other->mins );
+    vec3 OtherWorldSpaceMaxs = other->object.transform->LocalToWorldPoint( other->maxs );
+
+
+    return  ThisWorldSpaceMins.x <= OtherWorldSpaceMaxs.x &&
+            ThisWorldSpaceMaxs.x >= OtherWorldSpaceMins.x &&
+            ThisWorldSpaceMins.y <= OtherWorldSpaceMaxs.y &&
+            ThisWorldSpaceMaxs.y >= OtherWorldSpaceMins.y &&
+            ThisWorldSpaceMins.z <= OtherWorldSpaceMaxs.z &&
+            ThisWorldSpaceMaxs.z >= OtherWorldSpaceMins.z;
 }

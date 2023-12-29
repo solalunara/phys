@@ -15,7 +15,7 @@ struct PhysicsObject
     {}
 
     void AddImpulse( vec3 I );
-    void ZeroMomentumAlongVector( vec3 v );
+    void ZeroMomentumIntoPlane( vec3 norm );
 
     void FrameUpdate( float dt );
 

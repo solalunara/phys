@@ -28,6 +28,7 @@ struct Element
     virtual inline bool IsMesh() { return false; }
     vector<vec3> GetNormals();
     vector<vec3> GetVertices();
+    float SmallestInterPointDist();
 
     Window *const container;
     Transform *transform;

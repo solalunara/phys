@@ -8,10 +8,10 @@ void PhysicsObject::AddImpulse( vec3 I )
     _linear_momentum += I;
 }
 
-void PhysicsObject::ZeroMomentumAlongVector( vec3 v )
+void PhysicsObject::ZeroMomentumIntoPlane( vec3 norm )
 {
-    if ( glm::dot( _linear_momentum, v ) > 0 )
-        _linear_momentum -= v * glm::dot( _linear_momentum, v );
+    if ( glm::dot( _linear_momentum, norm ) < 0 )
+        _linear_momentum -= norm * glm::dot( _linear_momentum, norm );
 }
 
 void PhysicsObject::FrameUpdate( float dt )
