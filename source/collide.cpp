@@ -48,11 +48,17 @@ IntersectionData Collide::GetIntersection( Collide *other )
     for ( int i = 0; i < norms2.size(); ++i )
         norms.push_back( norms2[ i ] );
 
+    vector<vec3> otherpts = other->object.GetVertices();
+
+    return GetIntersection( norms, otherpts );
+}
+IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<vec3> pts )
+{
     vector<float> penetration_vals;
     penetration_vals.reserve( norms.size() );
 
     vector<vec3> Points1 = object.GetVertices();
-    vector<vec3> Points2 = other->object.GetVertices();
+    vector<vec3> Points2 = pts;
     if ( Points1.size() == 0 || Points2.size() == 0 )
         return IntersectionData( 0, glm::zero<vec3>(), false );
 
@@ -116,6 +122,34 @@ IntersectionData Collide::GetIntersection( Collide *other )
     if ( MinPen == 0 )
         return IntersectionData( 0, glm::zero<vec3>(), false );
     else return IntersectionData( penetration_vals[ MinPen_index ], norms[ MinPen_index ], true );
+}
+IntersectionData Collide::GetIntersection( vec3 mins, vec3 maxs )
+{
+    vector<vec3> pts;
+    pts.reserve( 8 );
+
+    pts.push_back( vec3( mins.x, mins.y, mins.z ) );
+    pts.push_back( vec3( mins.x, maxs.y, mins.z ) );
+    pts.push_back( vec3( mins.x, mins.y, maxs.z ) );
+    pts.push_back( vec3( mins.x, maxs.y, maxs.z ) );
+
+    pts.push_back( vec3( maxs.x, mins.y, mins.z ) );
+    pts.push_back( vec3( maxs.x, maxs.y, mins.z ) );
+    pts.push_back( vec3( maxs.x, mins.y, maxs.z ) );
+    pts.push_back( vec3( maxs.x, maxs.y, maxs.z ) );
+
+
+    vector<vec3> norms;
+    norms.reserve( 6 );
+
+    norms.push_back( vec3(  1,  0,  0 ) );
+    norms.push_back( vec3( -1,  0,  0 ) );
+    norms.push_back( vec3(  0,  1,  0 ) );
+    norms.push_back( vec3(  0, -1,  0 ) );
+    norms.push_back( vec3(  0,  0,  1 ) );
+    norms.push_back( vec3(  0,  0, -1 ) );
+
+    return GetIntersection( norms, pts );
 }
 
 void Collide::ResolveIntersection( Collide *other, IntersectionData data )

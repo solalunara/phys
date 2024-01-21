@@ -9,9 +9,9 @@ using glm::mat3;
 
 struct Element;
 
-struct PhysicsObject
+struct PhysicsBaseObject
 {
-    PhysicsObject( Element &Object, float mass );
+    PhysicsBaseObject( float mass, vec3 mins, vec3 maxs );
 
     void AddForce( vec3 F );
     void AddTorque( vec3 T );
@@ -19,18 +19,30 @@ struct PhysicsObject
 
     void ZeroMomentumIntoPlane( vec3 norm );
 
-    void FrameUpdate();
+    float mass;
+    mat3 inertia_inv;
 
+    const vec3 &linear_momentum = _linear_momentum;
+    const vec3 &angular_momentum = _angular_momentum;
+
+protected:
+    PhysicsBaseObject( float mass );
+    vec3 _linear_momentum = vec3( 0 );
+    vec3 _angular_momentum = vec3( 0 );
+};
+
+struct PhysicsObject :
+    public PhysicsBaseObject
+{
+    PhysicsObject( Element &Object, float mass );
+
+    void FrameUpdate();
 
     float mass;
     mat3 inertia_inv;
 
 protected:
-
     Element &Object;
-
-    vec3 _linear_momentum = vec3( 0 );
-    vec3 _angular_momentum = vec3( 0 );
 };
 
 #endif

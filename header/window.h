@@ -18,6 +18,7 @@ struct GLFWwindow;
 struct Mesh;
 struct Texture;
 struct Element;
+struct PhysicsBaseObject;
 
 enum class WindowState : unsigned char
 {
@@ -57,6 +58,8 @@ public:
     mat4 Perspective;
     mat4 UIPerspective;
     float FOV;
+
+    PhysicsBaseObject *PlayerPhysics = NULL;
 
     vector<Texture *> Textures = vector<Texture *>();
     vector<Element *> Elements = vector<Element *>();

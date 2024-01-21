@@ -44,6 +44,8 @@ struct Collide
     ~Collide();
 
     IntersectionData GetIntersection( Collide *other );
+    IntersectionData GetIntersection( vector<vec3> norms, vector<vec3> verts );
+    IntersectionData GetIntersection( vec3 mins, vec3 maxs );
     void ResolveIntersection( Collide *other, IntersectionData data );
 
     Element    &object;

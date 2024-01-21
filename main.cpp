@@ -256,7 +256,11 @@ int main( int argc, const char *argv[] )
     }, DefTransform, black, main, 0.01f );
     */
 
-    main->CameraTransform.pos = vec3( 1, 0, 5 );
+    main->CameraTransform.pos = vec3( 1, 0, 3 );
+
+    vec3 player_mins = vec3( -.2f, -1.2f, -.2f );
+    vec3 player_maxs = vec3(  .2f,   .2f,  .2f );
+    main->PlayerPhysics = new PhysicsBaseObject( 10.f, player_mins, player_maxs );
 
     while ( true )
     {
@@ -276,7 +280,50 @@ int main( int argc, const char *argv[] )
                 continue;
             }
             CameraMovement( Windows[ i ], dt, Settings );
+            if ( Windows[ i ]->PlayerPhysics )
+            {
+                //player collision detection/resolution
+                for ( int j = 0; j < Windows[ i ]->Elements.size(); ++j ) 
+                {
+                    if ( Windows[ i ]->Elements[ j ]->collide )
+                    {
+                        IntersectionData data = Windows[ i ]->Elements[ j ]->collide->GetIntersection( player_mins + Windows[ i ]->CameraTransform.pos, player_maxs + Windows[ i ]->CameraTransform.pos );
+                        if ( data.Intersection )
+                        {
+                            data.Normal = -data.Normal; //switch to player frame
+
+                            //player collision resolution code
+                            Collide *other = Windows[ i ]->Elements[ j ]->collide;
+                            if ( other->object.phys_obj )
+                            {
+                                float MassFraction = Windows[ i ]->PlayerPhysics->mass / other->object.phys_obj->mass;
+
+                                Windows[ i ]->CameraTransform.pos += MassFraction * data.Penetration * data.Normal;
+                                other->object.transform->SetAbsOrigin( other->object.transform->GetAbsOrigin() + ( 1 / MassFraction ) * data.Penetration * data.Normal );
+                            }
+                            else
+                            {
+                                Windows[ i ]->CameraTransform.pos += data.Penetration * data.Normal;
+                                Windows[ i ]->PlayerPhysics->ZeroMomentumIntoPlane( data.Normal );
+                            }
+                        }
+                            
+                    }
+                }
+                //player physics tick
+                Windows[ i ]->PlayerPhysics->AddForce( vec3( 0, -Windows[ i ]->PlayerPhysics->mass, 0 ) );
+                Windows[ i ]->CameraTransform.pos += ( 1 / 60.f ) * Windows[ i ]->PlayerPhysics->linear_momentum / Windows[ i ]->PlayerPhysics->mass;
+
+                if ( Windows[ i ]->PlayerPhysics->angular_momentum != glm::zero<vec3>() )
+                {
+                    vec3 angular_velocity = Windows[ i ]->PlayerPhysics->inertia_inv * Windows[ i ]->PlayerPhysics->angular_momentum;
+                    quat q_angular_velocity = glm::angleAxis( ( 1 / 60.f ) * glm::length( angular_velocity ), glm::normalize( angular_velocity ) );
+                    Windows[ i ]->CameraTransform.rot = q_angular_velocity * Windows[ i ]->CameraTransform.rot;
+                }
+            }
+
             WindowRender( Windows[ i ] );
+
             WindowPostFrame( Windows[ i ] );
         }
     }

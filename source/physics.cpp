@@ -5,8 +5,47 @@
 
 #define FIXED_FRAME_TIME ( 1 / 60.f )
 
+PhysicsBaseObject::PhysicsBaseObject( float mass, vec3 mins, vec3 maxs ) :
+    mass( mass )
+{
+    //for now, assume uniform density
+    mat3 inertia;
+    vec3 size = maxs - mins;
+
+    // I_ij = integral r^2 delta_ij - r_i r_j dm
+    for ( int i = 0; i < 3; ++i )
+    {
+        for ( int j = 0; j < 3; ++j )
+        {
+            inertia[ i ][ j ] = 0.f;
+            if ( i == j )
+            {
+                for ( int k = 0; k < 3; ++k )
+                {
+                    if ( k != i )
+                        inertia[ i ][ j ] += powf( maxs[ k ], 3.f ) / 3.f;
+                }
+            }
+            else
+            {
+                for ( int k = 0; k < 3; ++k )
+                    inertia[ i ][ j ] -= maxs[ k ] * maxs[ k ] * mins[ k ] * mins[ k ] / 4.f;
+            }
+        }
+    }
+    float density = mass / ( size.x * size.y * size.z );
+    inertia = density * inertia;
+
+    inertia_inv = glm::inverse( inertia );
+}
+
+PhysicsBaseObject::PhysicsBaseObject( float mass ) :
+    mass( mass )
+{
+}
+
 PhysicsObject::PhysicsObject( Element &Object, float mass ) :
-    Object( Object ), mass( mass )
+    Object( Object ), PhysicsBaseObject( mass )
 {
     //for now, assume uniform density
     mat3 inertia;
@@ -52,7 +91,7 @@ PhysicsObject::PhysicsObject( Element &Object, float mass ) :
     inertia_inv = glm::inverse( inertia );
 }
 
-void PhysicsObject::AddForce( vec3 F )
+void PhysicsBaseObject::AddForce( vec3 F )
 {
 #ifdef FIXED_FRAME_TIME
     _linear_momentum += F * FIXED_FRAME_TIME;
@@ -61,7 +100,7 @@ void PhysicsObject::AddForce( vec3 F )
 #endif
 }
 
-void PhysicsObject::AddTorque( vec3 T )
+void PhysicsBaseObject::AddTorque( vec3 T )
 {
 #ifdef FIXED_FRAME_TIME
     _angular_momentum += T * FIXED_FRAME_TIME;
@@ -70,12 +109,12 @@ void PhysicsObject::AddTorque( vec3 T )
 #endif
 }
 
-void PhysicsObject::AddOffCentreForce( vec3 F, vec3 pt )
+void PhysicsBaseObject::AddOffCentreForce( vec3 F, vec3 pt )
 {
     AddTorque( glm::cross( pt, F ) );
 }
 
-void PhysicsObject::ZeroMomentumIntoPlane( vec3 norm )
+void PhysicsBaseObject::ZeroMomentumIntoPlane( vec3 norm )
 {
     if ( glm::dot( _linear_momentum, norm ) < 0 )
         _linear_momentum -= norm * glm::dot( _linear_momentum, norm );
@@ -94,7 +133,7 @@ void PhysicsObject::FrameUpdate()
         Object.transform->rot = q_angular_velocity * Object.transform->rot;
     }
 #else
-    AddImpulse( vec3( 0, -mass, 0 ) * DifferentialFunction::FunctionDeltaTime );
+    AddForce( vec3( 0, -mass, 0 ) );
     Object.transform->pos += DifferentialFunction::FunctionDeltaTime * _linear_momentum / mass;
 
     if ( _angular_momentum != glm::zero<vec3>() )
