@@ -16,7 +16,6 @@ using std::map;
 struct GLFWmonitor;
 struct GLFWwindow;
 struct Mesh;
-struct Entity;
 struct Texture;
 struct Element;
 

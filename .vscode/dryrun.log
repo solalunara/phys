@@ -1,6 +1,6 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/run/media/fvp/e7b3230e-3206-40ef-85df-9fc292bee6ce/prog/graph'
-make: Leaving directory '/run/media/fvp/e7b3230e-3206-40ef-85df-9fc292bee6ce/prog/graph'
+make: Entering directory '/home/fvp/Documents/prog/phys'
+make: Leaving directory '/home/fvp/Documents/prog/phys'
  
 make: *** No targets specified and no makefile found.  Stop.
 

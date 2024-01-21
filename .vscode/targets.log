@@ -8,10 +8,12 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jun  6 15:58:58 2023
+# Make data base, printed on Mon Dec 25 09:50:26 2023
 
 # Variables
 
+# environment
+MEMORY_PRESSURE_WRITE = c29tZSAyMDAwMDAgMjAwMDAwMAA=
 # environment
 GDK_BACKEND = x11
 # environment
@@ -21,7 +23,7 @@ NO_AT_BRIDGE = 1
 # environment
 GTK_RC_FILES = /etc/gtk/gtkrc:/home/fvp/.gtkrc:/home/fvp/.config/gtkrc
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-1ea8e55b-f607-450e-a638-220c1c2fa782.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-48b91a8a-2be7-45a8-a827-a44cea749694.sock
 # environment
 LC_NUMERIC = en_GB.UTF-8
 # environment
@@ -37,7 +39,7 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
 .VARIABLES := 
 # environment
-PWD = /run/media/fvp/e7b3230e-3206-40ef-85df-9fc292bee6ce/prog/graph
+PWD = /home/fvp/Documents/prog/phys
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -58,10 +60,12 @@ XAUTHORITY = /home/fvp/.Xauthority
 .LOADED := 
 # default
 .INCLUDE_DIRS := /usr/local/include /usr/include
+# environment
+MEMORY_PRESSURE_WATCH = /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/plasma-plasmashell.service/memory.pressure
 # makefile
 MAKEFLAGS = pqrR
 # makefile
-CURDIR := /run/media/fvp/e7b3230e-3206-40ef-85df-9fc292bee6ce/prog/graph
+CURDIR := /home/fvp/Documents/prog/phys
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
@@ -85,13 +89,13 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 26076
+VSCODE_PID = 16703
 # environment
 XDG_SESSION_TYPE = tty
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/451,unix/fvparch:/tmp/.ICE-unix/451
+SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/629,unix/fvparch:/tmp/.ICE-unix/629
 # automatic
 *F = $(notdir $*)
 # environment
@@ -131,7 +135,7 @@ MOTD_SHOWN = pam
 # environment
 LC_TIME = C
 # environment
-INVOCATION_ID = 775d636d10704a01b10faf915c53a21f
+INVOCATION_ID = 46d5bd19551c4c80a2a31ce870721e51
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -157,7 +161,7 @@ XDG_VTNR = 1
 # makefile
 .DEFAULT_GOAL := 
 # environment
-SYSTEMD_EXEC_PID = 487
+SYSTEMD_EXEC_PID = 669
 # environment
 DISPLAY = :0
 # environment
@@ -169,7 +173,7 @@ MAKE_VERSION := 4.4.1
 # environment
 KDE_SESSION_UID = 1000
 # environment
-MANAGERPID = 333
+MANAGERPID = 453
 # environment
 LC_MEASUREMENT = C
 # environment
@@ -179,7 +183,7 @@ _ = /usr/bin/make
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-JOURNAL_STREAM = 8:19006
+JOURNAL_STREAM = 8:4896
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -219,8 +223,7 @@ KDE_FULL_SESSION = true
 # environment
 DOTNET_ROOT = /usr/share/dotnet
 # variable set hash-table stats:
- 
-# Load=103/1024=10%, Rehash=0, Collisions=7/129=5%
+# Load=105/1024=10%, Rehash=0, Collisions=8/131=6%
 
 # Pattern-specific Variable Values
 
@@ -228,7 +231,7 @@ DOTNET_ROOT = /usr/share/dotnet
 
 # Directories
 
-# . (device 66310, inode 6815746): 11 files, no impossibilities.
+# . (device 66308, inode 293926): 11 files, no impossibilities.
 
 # 11 files, no impossibilities in 1 directories.
 
@@ -279,7 +282,6 @@ GNUmakefile:
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
- 
 
 # strcache buffers: 1 (0) / strings = 20 / storage = 160 B / avg = 8 B
 # current buf: size = 8162 B / used = 160 B / count = 20 / avg = 8 B
@@ -287,6 +289,6 @@ GNUmakefile:
 # strcache performance: lookups = 22 / hit rate = 9%
 # hash-table stats:
 # Load=20/8192=0%, Rehash=0, Collisions=0/22=0%
-# Finished Make data base on Tue Jun  6 15:58:58 2023
+# Finished Make data base on Mon Dec 25 09:50:26 2023
 
  

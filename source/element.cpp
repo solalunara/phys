@@ -1,6 +1,9 @@
 #include "element.h"
 #include "window.h"
 #include "mesh.h"
+#include "physics.h"
+#include "function.h"
+#include "collide.h"
 
 
 Element::Element( Window *container, Transform *transform, vector<Element *> Elements ) :
@@ -31,6 +34,25 @@ void Element::Render()
 {
     for ( int i = 0; i < Elements.size(); ++i )
         Elements[ i ]->Render();
+    
+    if ( phys_obj )
+    {
+        phys_obj->FrameUpdate( DifferentialFunction::FunctionDeltaTime );
+
+        //only if phys_obj since otherwise we can't resolve a collision
+        if ( collide )
+        {
+            for ( int i = 0; i < container->Elements.size(); ++i ) 
+            {
+                if ( this != container->Elements[ i ] && container->Elements[ i ]->collide )
+                {
+                    IntersectionData id = collide->GetIntersection( container->Elements[ i ]->collide );
+                    if ( id.Intersection )
+                        collide->ResolveIntersection( container->Elements[ i ]->collide, id );
+                }
+            }
+        }
+    }
 }
 
 void Element::AddElement( Element *e )
@@ -59,6 +81,77 @@ void Element::RemoveElement( Element *e )
             break;
         }
     }
+}
+vector<vec3> Element::GetNormals()
+{
+    vector<vec3> normals;
+    normals.reserve( Elements.size() );
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() )
+            normals.push_back( static_cast<Mesh *>( Elements[ i ] )->GetNormal() );
+        else
+        {
+            vector<vec3> childnormals = Elements[ i ]->GetNormals();
+            for ( int j = 0; j < childnormals.size(); ++j )
+                normals.push_back( childnormals[ j ] );
+        }
+    }
+    normals.shrink_to_fit();
+    return normals;
+}
+vector<vec3> Element::GetVertices()
+{
+    vector<vec3> verts;
+    verts.reserve( 4 * Elements.size() );
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() )
+        {
+            vector<vec3> meshverts = static_cast<Mesh *>( Elements[ i ] )->GetVertices();
+            for ( int j = 0; j < meshverts.size(); ++j )
+                verts.push_back( meshverts[ j ] );
+        }
+        else
+        {
+            vector<vec3> childverts = Elements[ i ]->GetVertices();
+            for ( int j = 0; j < childverts.size(); ++j )
+                verts.push_back( childverts[ j ] );
+        }
+    }
+    for ( int i = 0; i < verts.size(); ++i )
+    {
+        for ( int j = i + 1; j < verts.size(); ++j )
+        {
+            // round to a precision better than the smallest distance between points on meshes of the object
+            // this method probably works for any closed surface - gaps between meshes must be filled with a mesh with a small IPD
+            float IPD = SmallestInterPointDist();
+            if ( glm::round( verts[ i ] * 10.f / IPD ) == glm::round( verts[ j ] * 10.f / IPD ) )
+            {
+                verts.erase( verts.begin() + j );
+                --j;
+            }
+        }
+    }
+    verts.shrink_to_fit();
+    return verts;
+}
+
+float Element::SmallestInterPointDist()
+{
+    float result = INFINITY;
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() && static_cast<Mesh *>( Elements[ i ] )->smallest_inter_point_dist < result )
+            result = static_cast<Mesh *>( Elements[ i ] )->smallest_inter_point_dist;
+        else
+        {
+            float childresult = Elements[ i ]->SmallestInterPointDist();
+            if ( childresult < result )
+                result = childresult;
+        }
+    }
+    return result;
 }
 
 void UIElement::Render()

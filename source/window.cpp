@@ -68,6 +68,7 @@ Window::Window( WindowState state, float FOV, int xres, int yres, const char *na
     glfwSetKeyCallback( ID, KeyCallback );
     if ( !Windows.size() )
     {
+        //requires a context to be active - has to be done after first window creation
         if ( !gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress ) )
             printf( "Couldn't initialize glad\n" );
     }

@@ -13,13 +13,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <stdexcept>
 
 
 Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container ) : 
     verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Element( container, transform, vector<Element *>() )
 {
     if ( !container )
-        printf( "Attempted to make mesh with no container!\n" );
+        throw std::invalid_argument( "Attempted to make mesh with no container!\n" );
 
     glfwMakeContextCurrent( container->ID );
     this->verts = new float[ verts_len ];
@@ -46,6 +47,33 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
     glEnableVertexAttribArray( 1 );
 
     glBindVertexArray( 0 );
+
+    __verts_pts.reserve( verts_len / 5 );
+    for ( int i = 0; i < verts_len / 5; ++i )
+        __verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+    __verts_pts.shrink_to_fit();
+
+
+    __smallest_inter_point_dist = INFINITY;
+    for ( int i = 0; i < verts_len / 5; ++i )
+        for ( int j = 0; j < verts_len / 5; ++j )
+            if ( i != j && glm::length( __verts_pts[ i ] - __verts_pts[ j ] ) < __smallest_inter_point_dist )
+                __smallest_inter_point_dist = glm::length( __verts_pts[ i ] - __verts_pts[ j ] );
+
+
+    if ( verts_len >= 3*5 )
+    {
+        vec3 a = __verts_pts[ 1 ] - __verts_pts[ 0 ];
+        vec3 b = __verts_pts[ 2 ] - __verts_pts[ 1 ];
+        _norm = glm::normalize( glm::cross( a, b ) );
+        if ( verts_len > 3*5 )
+        {
+            float dist = glm::dot( a, _norm );
+            for ( int i = 4; i < verts_len / 5; ++i )
+                if ( std::abs( glm::dot( __verts_pts[ i ], _norm ) - dist ) > 1e-2f )
+                    throw std::invalid_argument( "Mesh does not lie on a plane!" );
+        }
+    }
 }
 
 Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transform, Window *container ) :
@@ -65,7 +93,7 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transfo
     this->inds_len = 6;
 
     if ( !container )
-        printf( "Attempted to make mesh with no container!\n" );
+        throw std::invalid_argument( "Attempted to make mesh with no container!\n" );
 
     glfwMakeContextCurrent( container->ID );
 
@@ -87,6 +115,33 @@ Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transfo
     glEnableVertexAttribArray( 1 );
 
     glBindVertexArray( 0 );
+
+    __verts_pts.reserve( verts_len / 5 );
+    for ( int i = 0; i < verts_len / 5; ++i )
+        __verts_pts.push_back( vec3( verts[ i*5 + 0 ], verts[ i*5 + 1 ], verts[ i*5 + 2 ] ) );
+    __verts_pts.shrink_to_fit();
+
+
+    __smallest_inter_point_dist = INFINITY;
+    for ( int i = 0; i < verts_len / 5; ++i )
+        for ( int j = 0; j < verts_len / 5; ++j )
+            if ( i != j && glm::length( __verts_pts[ i ] - __verts_pts[ j ] ) < __smallest_inter_point_dist )
+                __smallest_inter_point_dist = glm::length( __verts_pts[ i ] - __verts_pts[ j ] );
+
+
+    if ( verts_len >= 3*5 )
+    {
+        vec3 a = __verts_pts[ 1 ] - __verts_pts[ 0 ];
+        vec3 b = __verts_pts[ 2 ] - __verts_pts[ 1 ];
+        _norm = glm::normalize( glm::cross( a, b ) );
+        if ( verts_len > 3*5 )
+        {
+            float dist = glm::dot( a, _norm );
+            for ( int i = 4; i < verts_len / 5; ++i )
+                if ( std::abs( glm::dot( __verts_pts[ i ], _norm ) - dist ) > 1e-2f )
+                    throw std::invalid_argument( "Mesh does not lie on a plane!" );
+        }
+    }
 }
 
 Mesh::~Mesh()
@@ -114,4 +169,24 @@ void Mesh::Render()
     glBindTexture( GL_TEXTURE_2D, texture->id );
     glBindVertexArray( _VAO );
     glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+}
+
+vec3 Mesh::GetNormal()
+{
+    vec3 norm = transform->LocalToWorldDirection( _norm );
+    return glm::round( norm * 1e4f ) / 1e4f;
+}
+
+float Mesh::GetPlaneDist()
+{
+    return glm::dot( transform->GetAbsOrigin(), GetNormal() );
+}
+
+vector<vec3> Mesh::GetVertices()
+{
+    vector<vec3> result;
+    result.reserve( verts_len / 5 );
+    for ( int i = 0; i < __verts_pts.size(); ++i )
+        result.push_back( transform->LocalToWorldPoint( __verts_pts[ i ] ) );
+    return result;
 }
