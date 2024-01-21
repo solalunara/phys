@@ -37,7 +37,7 @@ void Element::Render()
     
     if ( phys_obj )
     {
-        phys_obj->FrameUpdate( DifferentialFunction::FunctionDeltaTime );
+        phys_obj->FrameUpdate();
 
         //only if phys_obj since otherwise we can't resolve a collision
         if ( collide )
@@ -100,7 +100,7 @@ vector<vec3> Element::GetNormals()
     normals.shrink_to_fit();
     return normals;
 }
-vector<vec3> Element::GetVertices()
+vector<vec3> Element::GetVertices( bool local )
 {
     vector<vec3> verts;
     verts.reserve( 4 * Elements.size() );
@@ -132,6 +132,8 @@ vector<vec3> Element::GetVertices()
                 --j;
             }
         }
+        if ( local )
+            verts[ i ] = transform->WorldToLocalPoint( verts[ i ] );
     }
     verts.shrink_to_fit();
     return verts;

@@ -5,22 +5,26 @@
 
 #include <glm/glm.hpp>
 using glm::vec3;
+using glm::mat3;
 
 struct Element;
 
 struct PhysicsObject
 {
-    PhysicsObject( Element &Object, float mass ) :
-        Object( Object ), mass( mass )
-    {}
+    PhysicsObject( Element &Object, float mass );
 
-    void AddImpulse( vec3 I );
+    void AddForce( vec3 F );
+    void AddTorque( vec3 T );
+    void AddOffCentreForce( vec3 F, vec3 pt );
+
     void ZeroMomentumIntoPlane( vec3 norm );
 
-    void FrameUpdate( float dt );
+    void FrameUpdate();
 
 
     float mass;
+    mat3 inertia_inv;
+
 protected:
 
     Element &Object;

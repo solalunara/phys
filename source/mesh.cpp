@@ -187,6 +187,8 @@ vector<vec3> Mesh::GetVertices()
     vector<vec3> result;
     result.reserve( verts_len / 5 );
     for ( int i = 0; i < __verts_pts.size(); ++i )
+    {
         result.push_back( transform->LocalToWorldPoint( __verts_pts[ i ] ) );
+    }
     return result;
 }

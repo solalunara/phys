@@ -137,6 +137,7 @@ void Collide::ResolveIntersection( Collide *other, IntersectionData data )
     {
         object.transform->SetAbsOrigin( object.transform->GetAbsOrigin() + data.Penetration * data.Normal );
         object.phys_obj->ZeroMomentumIntoPlane( data.Normal );
+        object.phys_obj->AddOffCentreForce( data.Penetration * data.Normal, vec3( 0, 0, 1.f ) );
     }
 }
 
