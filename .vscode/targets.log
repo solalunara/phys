@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.4.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2023 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jan 16 13:22:33 2024
+# Make data base, printed on Mon Dec 25 09:50:26 2023
 
 # Variables
 
@@ -21,7 +23,7 @@ NO_AT_BRIDGE = 1
 # environment
 GTK_RC_FILES = /etc/gtk/gtkrc:/home/fvp/.gtkrc:/home/fvp/.config/gtkrc
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-6a35f4a6-6174-4ab1-ae71-a6c546ad8087.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-48b91a8a-2be7-45a8-a827-a44cea749694.sock
 # environment
 LC_NUMERIC = en_GB.UTF-8
 # environment
@@ -41,7 +43,7 @@ PWD = /home/fvp/Documents/prog/phys
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
-MAIL = /var/spool/mail/luna
+MAIL = /var/spool/mail/fvp
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
@@ -87,13 +89,13 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 1703
+VSCODE_PID = 16703
 # environment
 XDG_SESSION_TYPE = tty
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/630,unix/fvparch:/tmp/.ICE-unix/630
+SESSION_MANAGER = local/fvparch:@/tmp/.ICE-unix/629,unix/fvparch:/tmp/.ICE-unix/629
 # automatic
 *F = $(notdir $*)
 # environment
@@ -111,13 +113,15 @@ SHELL = /bin/sh
 # default
 MAKECMDGOALS := all
 # environment
+DOTNET_BUNDLE_EXTRACT_BASE_DIR = /home/fvp/.cache/dotnet_bundle_extract
+# environment
 SHLVL = 1
 # environment
 MAKELEVEL := 0
 # default
 MAKE = $(MAKE_COMMAND)
 # environment
-PATH = /usr/local/texlive/2022/bin/x86_64-linux:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+PATH = /usr/local/texlive/2022/bin/x86_64-linux:/usr/local/sbin:/usr/local/bin:/usr/bin:/home/fvp/.dotnet/tools:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
 # default
 MAKEFILES := 
 # environment
@@ -131,7 +135,7 @@ MOTD_SHOWN = pam
 # environment
 LC_TIME = C
 # environment
-INVOCATION_ID = 34c373cb5ad7471ba5895519a7ac8533
+INVOCATION_ID = 46d5bd19551c4c80a2a31ce870721e51
 # environment
 VSCODE_LOG_NATIVE = false
 # automatic
@@ -151,7 +155,7 @@ ORIGINAL_XDG_CURRENT_DESKTOP = KDE
 # 'override' directive
 GNUMAKEFLAGS := 
 # environment
-LOGNAME = luna
+LOGNAME = fvp
 # environment
 XDG_VTNR = 1
 # makefile
@@ -163,13 +167,13 @@ DISPLAY = :0
 # environment
 GTK_MODULES = canberra-gtk-module
 # environment
-USER = luna
+USER = fvp
 # default
 MAKE_VERSION := 4.4.1
 # environment
 KDE_SESSION_UID = 1000
 # environment
-MANAGERPID = 475
+MANAGERPID = 453
 # environment
 LC_MEASUREMENT = C
 # environment
@@ -179,7 +183,7 @@ _ = /usr/bin/make
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
-JOURNAL_STREAM = 8:7904
+JOURNAL_STREAM = 8:4896
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -216,8 +220,10 @@ KDE_SESSION_VERSION = 5
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs notintermediate shell-export archives jobserver jobserver-fifo output-sync check-symlink guile load
 # environment
 KDE_FULL_SESSION = true
+# environment
+DOTNET_ROOT = /usr/share/dotnet
 # variable set hash-table stats:
-# Load=103/1024=10%, Rehash=0, Collisions=8/129=6%
+# Load=105/1024=10%, Rehash=0, Collisions=8/131=6%
 
 # Pattern-specific Variable Values
 
@@ -225,9 +231,9 @@ KDE_FULL_SESSION = true
 
 # Directories
 
-# . (device 66308, inode 293926): 12 files, no impossibilities.
+# . (device 66308, inode 293926): 11 files, no impossibilities.
 
-# 12 files, no impossibilities in 1 directories.
+# 11 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -277,14 +283,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 21 / storage = 171 B / avg = 8 B
-# current buf: size = 8162 B / used = 171 B / count = 21 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 20 / storage = 160 B / avg = 8 B
+# current buf: size = 8162 B / used = 160 B / count = 20 / avg = 8 B
 
-# strcache performance: lookups = 23 / hit rate = 8%
+# strcache performance: lookups = 22 / hit rate = 9%
 # hash-table stats:
-# Load=21/8192=0%, Rehash=0, Collisions=0/23=0%
-# Finished Make data base on Tue Jan 16 13:22:33 2024
+# Load=20/8192=0%, Rehash=0, Collisions=0/22=0%
+# Finished Make data base on Mon Dec 25 09:50:26 2023
 
  
-make: *** No rule to make target 'all'.  Stop.
-

@@ -48,6 +48,15 @@ IntersectionData Collide::GetIntersection( Collide *other )
     for ( int i = 0; i < norms2.size(); ++i )
         norms.push_back( norms2[ i ] );
 
+    vector<vec3> otherpts = other->object.GetVertices();
+
+    return GetIntersection( norms, otherpts );
+}
+IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<vec3> pts )
+{
+    vector<float> penetration_vals;
+    penetration_vals.reserve( norms.size() );
+
     vector<vec3> Points1 = object.GetVertices();
     vector<vec3> Points2 = pts;
     if ( Points1.size() == 0 || Points2.size() == 0 )
@@ -55,11 +64,6 @@ IntersectionData Collide::GetIntersection( Collide *other )
 
     float *ProjectedPoints1 = new float[ Points1.size() ];
     float *ProjectedPoints2 = new float[ Points2.size() ];
-
-
-    float MinPen = INFINITY;
-    vec3 CollisionNorm = glm::zero<vec3>();
-
     for ( int n = 0; n < norms.size(); ++n )
     {
         vec3 Normal = norms[ n ];
@@ -88,34 +92,36 @@ IntersectionData Collide::GetIntersection( Collide *other )
                 bmax = ProjectedPoints2[ i ];
         }
 
-        float penetration = 0;    
         if ( amin > bmin && amax < bmax )
-            penetration = abs( amin - bmin ) < abs( amax - bmax ) ? bmin - amax : bmax - amin; //a enclosed in b
+            penetration_vals.push_back( abs( amin - bmin ) < abs( amax - bmax ) ? bmin - amax : bmax - amin ); //a enclosed in b
         else if ( bmin > amin && bmax < amax )
-            penetration = abs( amin - bmin ) < abs( amax - bmax ) ? amin - bmax : amax - bmin; //b enclosed in a
+            penetration_vals.push_back( abs( amin - bmin ) < abs( amax - bmax ) ? amin - bmax : amax - bmin ); //b enclosed in a
         else if ( amin <= bmax && amin >= bmin )
-            penetration = bmax - amin; // a > b, thus positive for pushing a positive
+            penetration_vals.push_back( bmax - amin ); // a > b, thus positive for pushing a positive
         else if ( bmin <= amax && bmin >= amin )
-            penetration = -( amax - bmin ); // a < b, thus negative for pushing a negative
+            penetration_vals.push_back( -( amax - bmin ) ); // a < b, thus negative for pushing a negative
         else
-            penetration = 0;
-
-        // if there exists an axis with 0 penetration, we are not colliding
-        // otherwise, we want the penetration with the lowest absolute magnitude
-        if ( glm::round( penetration * 1e4f ) / 1e4f == 0 )
-            return IntersectionData( 0, glm::zero<vec3>(), false );
-
-        if ( std::abs( penetration ) < std::abs( MinPen ) ||
-            ( std::abs( penetration ) <= std::abs( MinPen ) && penetration > 0 ) )
-        {
-            MinPen = penetration;
-            CollisionNorm = Normal;
-        }
+            penetration_vals.push_back( 0 );
     }
     delete[] ProjectedPoints1;
     delete[] ProjectedPoints2;
 
-    return IntersectionData( MinPen, CollisionNorm, true );
+    // if there exists an axis with 0 penetration, we are not colliding
+    // otherwise, we want the penetration with the lowest absolute magnitude
+    float MinPen = INFINITY;
+    int MinPen_index = -1;
+    for ( int i = 0; i < penetration_vals.size(); ++i )
+    {
+        if ( std::abs( penetration_vals[ i ] ) < MinPen ||
+            ( std::abs( penetration_vals[ i ] ) <= MinPen && penetration_vals[ i ] > 0 ) )
+        {
+            MinPen = std::abs( penetration_vals[ i ] );
+            MinPen_index = i;
+        }
+    }
+    if ( MinPen == 0 )
+        return IntersectionData( 0, glm::zero<vec3>(), false );
+    else return IntersectionData( penetration_vals[ MinPen_index ], norms[ MinPen_index ], true );
 }
 IntersectionData Collide::GetIntersection( vec3 mins, vec3 maxs )
 {

@@ -20,7 +20,6 @@ using std::filesystem::recursive_directory_iterator;
 #include "function.h"
 #include "physics.h"
 #include "collide.h"
-#include "UI/panel.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -228,9 +227,6 @@ int main( int argc, const char *argv[] )
     PhysCube->transform->rot = glm::angleAxis( glm::radians( 45.f ), glm::vec3( 1, 0, 0 ) );
     PhysCube->phys_obj = new PhysicsObject( *PhysCube, 1 );
     PhysCube->collide = new Collide( *PhysCube, glm::vec3( -1.f ), glm::vec3( 1.f ) );
-
-    GlobalTexture *backing = new GlobalTexture( Texture::GenSolidTexture( glm::vec4( .2f, .4f, .2f, 1.0f ), glm::ivec2( 100, 100 ), "backing", main ) );
-    new UIPanelTitlebar( "test title", vec3( .5f, .5f, -1.f ), 1.0f, backing, main );
 
     //Cube *PhysCube2 = new Cube( vec3( -.5f ), vec3( .5f ), new Transform( vec3( 0, 10, 0 ), glm::identity<quat>(), glm::one<vec3>() ), Textures[ InbuiltTexture::universe ], main );
     //PhysCube2->transform->rot = glm::angleAxis( glm::radians( 30.f ), glm::vec3( 1, 0, 0 ) );

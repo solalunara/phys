@@ -3,13 +3,10 @@
 #include "window.h"
 #include "UI/font.h"
 #include <cstring>
-#include <stdexcept>
 
-UIText::UIText( const char *text, Font *font, vec3 pos, float scale, vec3 color, Window *container ) :
-    UIElement( container, new Transform( pos, glm::identity<quat>(), glm::one<vec3>() ) )
+UIText::UIText( const char *text, Font *font, float x, float y, float scale, vec3 color, Window *container ) :
+    UIElement( container, new Transform( vec3( x, y, -1 ), glm::identity<quat>(), glm::one<vec3>() ) )
 {
-    if ( pos.z >= 0 )
-        throw std::invalid_argument( "pos.z must be <0" );
     bool InitialFontNull = !font;
     if ( InitialFontNull )
         font = new Font( DefaultFont );
@@ -58,8 +55,8 @@ UIText::UIText( const char *text, Font *font, vec3 pos, float scale, vec3 color,
         delete font;
 }
 
-GameText::GameText( const char *text, Font *font, vec3 pos, float scale, vec3 color, Window *container ) :
-    GameElement( container, new Transform( pos, glm::identity<quat>(), glm::one<vec3>() ) )
+GameText::GameText( const char *text, Font *font, float x, float y, float z, float scale, vec3 color, Window *container ) :
+    GameElement( container, new Transform( vec3( x, y, z ), glm::identity<quat>(), glm::one<vec3>() ) )
 {    
     bool InitialFontNull = !font;
     if ( InitialFontNull )
