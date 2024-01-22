@@ -10,7 +10,7 @@
 #include <system_error>
 
 Texture::Texture( const unsigned char *buffer, const char *name, unsigned int width, unsigned int rows, Window *container ) :
-    container( container )
+    container( container ), _width( width ), _height( rows )
 {
     this->path = new char[ strlen( name ) + 1 ];
     strcpy( this->path, name );
@@ -111,9 +111,11 @@ Texture::Texture( const char *path, Window *container ) :
 
         png_read_png( png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL );
 
-        unsigned int width, height;
+        unsigned int w, h;
         int bit_depth, colour_type, interlace_type, compression_type, filter_method;
-        png_get_IHDR( png_ptr, info_ptr, &width, &height, &bit_depth, &colour_type, &interlace_type, &compression_type, &filter_method );
+        png_get_IHDR( png_ptr, info_ptr, &w, &h, &bit_depth, &colour_type, &interlace_type, &compression_type, &filter_method );
+        _width = (int)w;
+        _height = (int)h;
 
         unsigned char **data_2d = png_get_rows( png_ptr, info_ptr );
         unsigned char data[ height * width * 4 ] { 0 };
@@ -169,13 +171,22 @@ Texture::Texture( const char *path, Window *container ) :
         fread( raw_data, 1, fsize, fp );
         fclose( fp );
 
-        int width, height;
-        unsigned char *data = WebPDecodeRGBA( raw_data, fsize, &width, &height );
+        unsigned char *data = WebPDecodeRGBA( raw_data, fsize, &_width, &_height );
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
         glGenerateMipmap( GL_TEXTURE_2D );
     }
     else throw std::system_error( std::error_code( std::io_errc::stream ), "Error: could not make texture, was not png or webp" );
     container->Textures.push_back( this );
+}
+
+Texture *Texture::GenSolidTexture( vec4 colour, glm::ivec2 size, const char *name, Window *container )
+{
+    unsigned char *data = new unsigned char[ size.x * size.y * 4 ];
+    for ( int i = 0; i < size.y; ++i )
+        for ( int j = 0; j < size.x; ++j )
+            for ( int k = 0; k < 4; ++k )
+                data[ ( i * size.x + j ) * 4 + k ] = static_cast<unsigned char>( colour[ k ] );
+    return new Texture( data, name, size.x, size.y, container );
 }
 
 Texture::~Texture()

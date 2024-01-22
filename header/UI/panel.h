@@ -5,13 +5,15 @@
 
 #include "element.h"
 #include <cstring>
+#include <glm/glm.hpp>
 
 struct Text;
+struct GlobalTexture;
 
 struct UIPanelTitlebar :
     public UIElement
 {
-    UIPanelTitlebar( const char *PanelTitle, float x, float y, float scale, float depth, Window *container );
+    UIPanelTitlebar( const char *PanelTitle, vec3 pos, float scale, GlobalTexture *background, Window *container );
 
     // const char *const -> a constant pointer to a constant character
     // neccesary to make title read-only and to make the variable itself read-only
