@@ -7,6 +7,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include <functional>
+#include <cstdio>
 using glm::vec3;
 using std::function;
 
@@ -99,8 +100,7 @@ struct DifferentialFunction :
     FourierConstants FourierDerivative( FourierConstants f );
     StaticFunction *FourierFnApprox( FourierConstants f, float min, float max, GlobalTexture *texture, Window *window );
 
-
-    virtual void Render()
+    void GenPrevState()
     {
         delete[] PreviousStateSave;
         PreviousStateSave = new vec3[ Elements.size() ];
@@ -111,6 +111,11 @@ struct DifferentialFunction :
             PreviousStateSave[ i ] = Elements[ i ]->transform->pos;
             PreviousStateSave[ i ].x = i * step + min;
         }
+    }
+
+    virtual void Render()
+    {
+        GenPrevState();
 
         //calculate the function as a fourier series
         FourierConstants f0 = FourierApproximation( 100 );
@@ -118,26 +123,37 @@ struct DifferentialFunction :
         FourierConstants f2 = FourierDerivative( f1 );
 
         auto FourierSeries = [] ( FourierConstants f, float x ) {
-            vec2 val = f.a_n[ 0 ];
+            vec2 val = f.a_n[ 0 ] / 2.f;
             for ( int n = 1; n < f.N; ++n )
-                val += f.a_n[ n ] * glm::cos( glm::pi<float>() * n / f.T * x ) + f.b_n[ n ] * glm::sin( glm::pi<float>() * n / f.T * x );
+                val += f.a_n[ n ] * glm::cos( 2.f * glm::pi<float>() * n / f.T * x ) + f.b_n[ n ] * glm::sin( 2.f * glm::pi<float>() * n / f.T * x );
             return val;
         };
 
         for ( u_long i = 0; i < Elements.size(); ++i )
         {
-            vec2 pfpx = FourierSeries( f1, min + i*step );
-            vec2 p2fpx2 = FourierSeries( f2, min + i*step );
+            vec2 pfpx_0 = FourierSeries( f1, min + i*step );
+            vec2 pfpx_1 = FourierSeries( f1, min + i*step + step );
+            vec2 pfpx_2 = FourierSeries( f1, min + i*step - step );
+            vec2 p2fpx2_0 = FourierSeries( f2, min + i*step );
+            vec2 p2fpx2_1 = FourierSeries( f2, min + i*step + step );
+            vec2 p2fpx2_2 = FourierSeries( f2, min + i*step - step );
 
-            vec2 f = vec2( PreviousStateSave[ i ].y, PreviousStateSave[ i ].z );
+            vec2 f_0 = vec2( PreviousStateSave[ i ].y, PreviousStateSave[ i ].z );
+            vec2 f_1 = FourierSeries( f0, min + i*step + step );
+            vec2 f_2 = FourierSeries( f0, min + i*step - step );
 
-            //vec2 dv_0 = PartialTimeDerivative( f, pfpx, p2fpx2,  i * step + min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
-            //vec2 dv_1 = PartialTimeDerivative( f, pfpx, p2fpx2,  i * step + min + step / 2.f, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
-            //vec2 dv_2 = PartialTimeDerivative( f, pfpx, p2fpx2,  i * step + min - step / 2.f, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
-            vec2 dv = PartialTimeDerivative( f, pfpx, p2fpx2, i*step+min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+            vec2 dv_0 = PartialTimeDerivative( f_0, pfpx_0, p2fpx2_0,  i * step + min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+            vec2 dv_1 = PartialTimeDerivative( f_1, pfpx_1, p2fpx2_1,  i * step + min + step, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+            vec2 dv_2 = PartialTimeDerivative( f_2, pfpx_2, p2fpx2_2,  i * step + min - step, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+            //vec2 dv = PartialTimeDerivative( f, pfpx, p2fpx2, i*step+min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
 
-            //Elements[ i ]->transform->pos += (1.f/6) * vec3( 0, dv_0 ) + (2.f/3) * vec3( 0, dv_1 ) + (1.f/6) * vec3( 0, dv_2 );
-            Elements[ i ]->transform->pos = vec3( min + i*step, dv + FourierSeries( f0, min + i*step ) );
+            Elements[ i ]->transform->pos += (1.f/6) * vec3( 0, dv_0 ) + (2.f/3) * vec3( 0, dv_1 ) + (1.f/6) * vec3( 0, dv_2 );
+            //vec3 predpos = vec3( min + i*step, FourierSeries( f0, min + i*step ) );
+            //vec3 oldpos = Elements[ i ]->transform->pos;
+            //vec3 diff = predpos-oldpos;
+            //if ( glm::length( diff ) > 1e-2f )
+            //    printf( "Fourier series failure!!\n" );
+            //Elements[ i ]->transform->pos += vec3( 0, dv );
         }
         Element::Render();
     }

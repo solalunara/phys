@@ -24,8 +24,6 @@ using std::filesystem::recursive_directory_iterator;
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 enum class Setting : char
 {
     NONE = 0,
@@ -140,15 +138,13 @@ int CameraMovement( Window *window, float dt, map<Setting, int> Settings )
     if ( window->GetKeyFlag( GLFW_KEY_E ) )
         window->CameraTransform.pos += window->CameraTransform.LocalToWorldDirection( glm::vec3( 0, -dt * 3, 0 ) );
 
-/*
     if ( window->GetKeyFlag( GLFW_KEY_SPACE ) )
     {
         window->SetKeyFlag( GLFW_KEY_SPACE, false );
 
-        DifferentialFunction::FunctionDeltaTime = 1 / 60.f;
-        DynamicFunction::FunctionTime += 1 / 60.f;
+        DifferentialFunction::FunctionDeltaTime = 1 / 10.f;
+        DynamicFunction::FunctionTime += 1 / 10.f;
     }
-    */
 
 
     //can't do *= because it does the * in the wrong order (rot * new instaed of new * rot)
@@ -262,6 +258,13 @@ int main( int argc, const char *argv[] )
         //return vec2( 0, 0 );
     }, DefTransform, Textures[ InbuiltTexture::black ], main, 0.01f );
 
+    DifferentialFunction *sinfunc = new DifferentialFunction( -10, 10, [] ( float x ) { return vec2( 0, sin( x ) ); },
+    [] ( vec2 f, vec2 pfpx, vec2 p2fpx2, float x, float t ) {
+        return vec2( 0, 0 );
+    }, DefTransform, Textures[ InbuiltTexture::dirt ], main );
+    sinfunc->GenPrevState();
+    StaticFunction *cosfunc = sinfunc->FourierFnApprox( sinfunc->FourierDerivative( sinfunc->FourierApproximation( 100 ) ), -10, 10, Textures[ InbuiltTexture::universe ], main );
+
     main->CameraTransform.pos = vec3( 1, 0, 3 );
 
     vec3 player_mins = vec3( -.2f, -1.2f, -.2f );
@@ -275,8 +278,8 @@ int main( int argc, const char *argv[] )
         double t_new = glfwGetTime();
         dt = t_new - t;
         t = t_new;
-        DynamicFunction::FunctionTime = t;
-        DifferentialFunction::FunctionDeltaTime = dt;
+        //DynamicFunction::FunctionTime = t;
+        //DifferentialFunction::FunctionDeltaTime = dt;
 
         //per frame per window
         for ( int i = 0; i < Windows.size(); ++i )
@@ -334,7 +337,7 @@ int main( int argc, const char *argv[] )
             StaticFunction *approx_1 = NULL;
             if ( quantum->PreviousStateSave )
             {
-                approx_0 = quantum->FourierFnApprox( quantum->FourierApproximation( 100 ), -5, 5, Textures[ InbuiltTexture::universe ], main );
+                //approx_0 = quantum->FourierFnApprox( quantum->FourierApproximation( 100 ), -5, 5, Textures[ InbuiltTexture::universe ], main );
                 approx_1 = quantum->FourierFnApprox( quantum->FourierDerivative( quantum->FourierDerivative( quantum->FourierApproximation( 100 ) ) ), -5, 5, Textures[ InbuiltTexture::universe ], main );
             }
 
