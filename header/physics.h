@@ -15,7 +15,6 @@ struct PhysicsBaseObject
 
     void AddForce( vec3 F );
     void AddTorque( vec3 T );
-    void AddOffCentreForce( vec3 F, vec3 pt );
 
     void ZeroMomentumIntoPlane( vec3 norm );
 
@@ -35,6 +34,8 @@ struct PhysicsObject :
     public PhysicsBaseObject
 {
     PhysicsObject( Element &Object, float mass );
+
+    void AddOffCentreForce( vec3 F, vec3 pt );
 
     void FrameUpdate();
 

@@ -138,6 +138,45 @@ vector<vec3> Element::GetVertices( bool local )
     verts.shrink_to_fit();
     return verts;
 }
+vector<float> Element::GetPlaneDists()
+{
+    vector<float> dists;
+    dists.reserve( Elements.size() );
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() )
+        {
+            float meshdist = static_cast<Mesh *>( Elements[ i ] )->GetPlaneDist();
+            dists.push_back( meshdist );
+        }
+        else
+        {
+            vector<float> childdists = Elements[ i ]->GetPlaneDists();
+            for ( int j = 0; j < childdists.size(); ++j )
+                dists.push_back( childdists[ j ] );
+        }
+    }
+    dists.shrink_to_fit();
+    return dists;
+}
+vector<Mesh *> Element::GetMeshes()
+{
+    vector<Mesh *> meshes;
+    meshes.reserve( Elements.size() );
+    for ( int i = 0; i < Elements.size(); ++i )
+    {
+        if ( Elements[ i ]->IsMesh() )
+            meshes.push_back( static_cast<Mesh *>( Elements[ i ] ) );
+        else
+        {
+            vector<Mesh *> children = Elements[ i ]->GetMeshes();
+            for ( int j = 0; j < children.size(); ++j )
+                meshes.push_back( children[ j ] );
+        }
+    }
+    meshes.shrink_to_fit();
+    return meshes;
+}
 
 float Element::SmallestInterPointDist()
 {

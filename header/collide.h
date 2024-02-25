@@ -29,13 +29,15 @@ enum class CollideType : char
 
 struct IntersectionData
 {
-    IntersectionData( float Penetration, vec3 Normal, bool Intersection ) :
-        Penetration( Penetration ), Normal( Normal ), Intersection( Intersection )
+    IntersectionData( float Penetration, vec3 Normal, bool Intersection, vector<vec3> CollisionPtsSelf, vector<vec3> CollisionPtsOther ) :
+        Penetration( Penetration ), Normal( Normal ), Intersection( Intersection ), CollisionPtsSelf( CollisionPtsSelf ), CollisionPtsOther( CollisionPtsOther )
     {}
 
     float Penetration;
     vec3 Normal;
     bool Intersection;
+    vector<vec3> CollisionPtsSelf;
+    vector<vec3> CollisionPtsOther;
 };
 
 struct Collide
@@ -44,7 +46,7 @@ struct Collide
     ~Collide();
 
     IntersectionData GetIntersection( Collide *other );
-    IntersectionData GetIntersection( vector<vec3> norms, vector<vec3> verts );
+    IntersectionData GetIntersection( vector<vec3> norms, vector<float> planedists, vector<vec3> verts );
     IntersectionData GetIntersection( vec3 mins, vec3 maxs );
     void ResolveIntersection( Collide *other, IntersectionData data );
 

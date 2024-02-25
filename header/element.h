@@ -27,6 +27,8 @@ struct Element
     virtual void Render();
     virtual inline bool IsMesh() { return false; }
     vector<vec3> GetNormals();
+    vector<float> GetPlaneDists();
+    vector<Mesh *> GetMeshes();
     vector<vec3> GetVertices( bool local = false );
     float SmallestInterPointDist();
 

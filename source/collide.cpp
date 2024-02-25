@@ -2,6 +2,7 @@
 #include "element.h"
 #include "physics.h"
 #include "window.h"
+#include "mesh.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -27,11 +28,11 @@ IntersectionData Collide::GetIntersection( Collide *other )
 
     //only test for collision if BBoxes are colliding
     if ( !BoundingBox->TestAABBCollision( other->BoundingBox ) )
-        return IntersectionData( 0, glm::zero<vec3>(), false );
+        return IntersectionData( 0, glm::zero<vec3>(), false, vector<vec3>(), vector<vec3>() );
 
     //we can only resolve collisions if there is at least one physics object - don't bother with static objects    
     if ( !object.phys_obj && !other->object.phys_obj )
-        return IntersectionData( 0, glm::zero<vec3>(), false );
+        return IntersectionData( 0, glm::zero<vec3>(), false, vector<vec3>(), vector<vec3>() );
 
 
     // project the points from each object onto each normal vector for both objects
@@ -40,19 +41,30 @@ IntersectionData Collide::GetIntersection( Collide *other )
     // this function will calculate the normal of the collision as well as the penetration value
 
     vector<vec3> norms1 = object.GetNormals();
+    vector<float> dists1 = object.GetPlaneDists();
     vector<vec3> norms2 = other->object.GetNormals();
+    vector<float> dists2 = other->object.GetPlaneDists();
     vector<vec3> norms;
+    vector<float> dists;
     norms.reserve( norms1.size() + norms2.size() );
+    dists.reserve( dists1.size() + dists2.size() );
     for ( int i = 0; i < norms1.size(); ++i )
         norms.push_back( norms1[ i ] );
     for ( int i = 0; i < norms2.size(); ++i )
         norms.push_back( norms2[ i ] );
+    for ( int i = 0; i < dists1.size(); ++i )
+        dists.push_back( dists1[ i ] );
+    for ( int i = 0; i < dists2.size(); ++i )
+        dists.push_back( dists2[ i ] );
+
+    if ( norms.size() != dists.size() )
+        throw std::exception();
 
     vector<vec3> otherpts = other->object.GetVertices();
 
-    return GetIntersection( norms, otherpts );
+    return GetIntersection( norms, dists, otherpts );
 }
-IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<vec3> pts )
+IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<float> planedists, vector<vec3> pts )
 {
     vector<float> penetration_vals;
     penetration_vals.reserve( norms.size() );
@@ -60,7 +72,7 @@ IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<vec3> pts 
     vector<vec3> Points1 = object.GetVertices();
     vector<vec3> Points2 = pts;
     if ( Points1.size() == 0 || Points2.size() == 0 )
-        return IntersectionData( 0, glm::zero<vec3>(), false );
+        return IntersectionData( 0, glm::zero<vec3>(), false, vector<vec3>(), vector<vec3>() );
 
     float *ProjectedPoints1 = new float[ Points1.size() ];
     float *ProjectedPoints2 = new float[ Points2.size() ];
@@ -106,6 +118,7 @@ IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<vec3> pts 
     delete[] ProjectedPoints1;
     delete[] ProjectedPoints2;
 
+    int SelfNormsSize = object.GetNormals().size();
     // if there exists an axis with 0 penetration, we are not colliding
     // otherwise, we want the penetration with the lowest absolute magnitude
     float MinPen = INFINITY;
@@ -113,15 +126,58 @@ IntersectionData Collide::GetIntersection( vector<vec3> norms, vector<vec3> pts 
     for ( int i = 0; i < penetration_vals.size(); ++i )
     {
         if ( std::abs( penetration_vals[ i ] ) < MinPen ||
-            ( std::abs( penetration_vals[ i ] ) <= MinPen && penetration_vals[ i ] > 0 ) )
+            ( std::abs( penetration_vals[ i ] ) <= MinPen && penetration_vals[ i ] > 0 && i >= SelfNormsSize ) )
         {
             MinPen = std::abs( penetration_vals[ i ] );
             MinPen_index = i;
         }
     }
     if ( MinPen == 0 )
-        return IntersectionData( 0, glm::zero<vec3>(), false );
-    else return IntersectionData( penetration_vals[ MinPen_index ], norms[ MinPen_index ], true );
+        return IntersectionData( 0, glm::zero<vec3>(), false, vector<vec3>(), vector<vec3>() );
+
+    //get collision points
+    vector<vec3> CollisionPtsSelf = vector<vec3>();
+    vector<vec3> CollisionPtsOther = vector<vec3>();
+    for ( int i = 0; i < Points1.size(); ++i )
+    {
+        if ( MinPen_index < SelfNormsSize )
+        {
+            //our own normal is the collision norm
+            float ProjectedPoint = glm::dot( Points1[ i ], norms[ MinPen_index ] ) - planedists[ MinPen_index ];
+            if ( glm::round( ProjectedPoint * 1e3f ) == 0.f )
+                CollisionPtsSelf.push_back( Points1[ i ] );
+        }
+        else
+        {
+            //other object's normal is the collision norm
+            float ProjectedPoint = glm::dot( Points1[ i ], norms[ MinPen_index ] ) - planedists[ MinPen_index ];
+            if ( ProjectedPoint <= 0 )
+                CollisionPtsSelf.push_back( Points1[ i ] );
+        }
+    }
+    if ( CollisionPtsSelf.size() == 0 )
+        throw std::exception();
+    for ( int i = 0; i < Points2.size(); ++i )
+    {
+        if ( MinPen_index >= SelfNormsSize )
+        {
+            //other object's normal is the collision norm
+            float ProjectedPoint = glm::dot( Points2[ i ], norms[ MinPen_index ] ) - planedists[ MinPen_index ];
+            if ( glm::round( ProjectedPoint * 1e3f ) == 0.f )
+                CollisionPtsOther.push_back( Points2[ i ] );
+        }
+        else
+        {
+            //our own normal is the collision norm, not point 2
+            float ProjectedPoint = glm::dot( Points2[ i ], norms[ MinPen_index ] ) - planedists[ MinPen_index ];
+            if ( ProjectedPoint <= 0 )
+                CollisionPtsOther.push_back( Points2[ i ] );
+        }
+    }
+    if ( CollisionPtsOther.size() == 0 )
+        throw std::exception();
+
+    return IntersectionData( penetration_vals[ MinPen_index ], norms[ MinPen_index ], true, CollisionPtsSelf, CollisionPtsOther );
 }
 IntersectionData Collide::GetIntersection( vec3 mins, vec3 maxs )
 {
@@ -138,9 +194,18 @@ IntersectionData Collide::GetIntersection( vec3 mins, vec3 maxs )
     pts.push_back( vec3( maxs.x, mins.y, maxs.z ) );
     pts.push_back( vec3( maxs.x, maxs.y, maxs.z ) );
 
+    vector<vec3> objnorms = object.GetNormals();
+    vector<float> objdists = object.GetPlaneDists();
 
     vector<vec3> norms;
-    norms.reserve( 6 );
+    norms.reserve( 6 + objnorms.size() );
+    vector<float> dists;
+    dists.reserve( 6 + objdists.size() );
+
+    for ( int i = 0; i < objnorms.size(); ++i )
+        norms.push_back( objnorms[ i ] );
+    for ( int i = 0; i < objdists.size(); ++i )
+        dists.push_back( objdists[ i ] );
 
     norms.push_back( vec3(  1,  0,  0 ) );
     norms.push_back( vec3( -1,  0,  0 ) );
@@ -149,7 +214,16 @@ IntersectionData Collide::GetIntersection( vec3 mins, vec3 maxs )
     norms.push_back( vec3(  0,  0,  1 ) );
     norms.push_back( vec3(  0,  0, -1 ) );
 
-    return GetIntersection( norms, pts );
+
+    dists.push_back(  maxs.x );
+    dists.push_back( -mins.x );
+    dists.push_back(  maxs.y );
+    dists.push_back( -mins.y );
+    dists.push_back(  maxs.z );
+    dists.push_back( -mins.z );
+
+
+    return GetIntersection( norms, dists, pts );
 }
 
 void Collide::ResolveIntersection( Collide *other, IntersectionData data )
@@ -171,7 +245,8 @@ void Collide::ResolveIntersection( Collide *other, IntersectionData data )
     {
         object.transform->SetAbsOrigin( object.transform->GetAbsOrigin() + data.Penetration * data.Normal );
         object.phys_obj->ZeroMomentumIntoPlane( data.Normal );
-        object.phys_obj->AddOffCentreForce( data.Penetration * data.Normal, vec3( 0, 0, 1.f ) );
+        for ( int i = 0; i < data.CollisionPtsSelf.size(); ++i )
+            object.phys_obj->AddOffCentreForce( data.Penetration * data.Normal, object.transform->WorldToLocalPoint( data.CollisionPtsSelf[ i ] ) );
     }
 }
 

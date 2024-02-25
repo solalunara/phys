@@ -3,7 +3,7 @@
 #include "function.h"
 #include "collide.h"
 
-#define FIXED_FRAME_TIME ( 1 / 60.f )
+#define FIXED_FRAME_TIME ( 1 / 30.f )
 
 PhysicsBaseObject::PhysicsBaseObject( float mass, vec3 mins, vec3 maxs ) :
     mass( mass )
@@ -80,8 +80,8 @@ PhysicsObject::PhysicsObject( Element &Object, float mass ) :
             }
             else
             {
-                for ( int k = 0; k < 3; ++k )
-                    inertia[ i ][ j ] -= maxs[ k ] * maxs[ k ] * mins[ k ] * mins[ k ] / 4.f;
+                inertia[ i ][ j ] -= maxs[ i ] * maxs[ i ] * maxs[ j ] * maxs[ j ] / 4.f;
+                inertia[ i ][ j ] += mins[ i ] * mins[ i ] * mins[ j ] * mins[ j ] / 4.f;
             }
         }
     }
@@ -109,9 +109,15 @@ void PhysicsBaseObject::AddTorque( vec3 T )
 #endif
 }
 
-void PhysicsBaseObject::AddOffCentreForce( vec3 F, vec3 pt )
+void PhysicsObject::AddOffCentreForce( vec3 F, vec3 pt )
 {
-    AddTorque( glm::cross( pt, F ) );
+    vec3 T = glm::cross( pt, F );
+    vec3 dL = T * FIXED_FRAME_TIME;
+    _angular_momentum += dL;
+    mat4 rotation = glm::mat4_cast( glm::angleAxis( glm::length( dL ), glm::normalize( dL ) ) );
+    vec3 origin = -pt;
+    Object.transform->pos += vec3( rotation * vec4( origin, 1.f ) ) - origin;
+    AddForce( F );
 }
 
 void PhysicsBaseObject::ZeroMomentumIntoPlane( vec3 norm )
