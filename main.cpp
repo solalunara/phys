@@ -24,8 +24,6 @@ using std::filesystem::recursive_directory_iterator;
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 enum class Setting : char
 {
     NONE = 0,
@@ -140,6 +138,14 @@ int CameraMovement( Window *window, float dt, map<Setting, int> Settings )
     if ( window->GetKeyFlag( GLFW_KEY_E ) )
         window->CameraTransform.pos += window->CameraTransform.LocalToWorldDirection( glm::vec3( 0, -dt * 3, 0 ) );
 
+    if ( window->GetKeyFlag( GLFW_KEY_SPACE ) )
+    {
+        window->SetKeyFlag( GLFW_KEY_SPACE, false );
+
+        DifferentialFunction::FunctionDeltaTime = 1 / 10.f;
+        DynamicFunction::FunctionTime += 1 / 10.f;
+    }
+
 
     //can't do *= because it does the * in the wrong order (rot * new instaed of new * rot)
     if ( window->LockCursor )
@@ -223,10 +229,10 @@ int main( int argc, const char *argv[] )
             c->collide = new AABB( *c, glm::vec3( -.5f ), glm::vec3( .5f ) );
         }
     
-    Cube *PhysCube = new Cube( vec3( -.5f ), vec3( .5f ), new Transform( vec3( 0, 5, 0 ), glm::identity<quat>(), glm::one<vec3>() ), Textures[ InbuiltTexture::universe ], main );
-    PhysCube->transform->rot = glm::angleAxis( glm::radians( 45.f ), glm::vec3( 1, 0, 0 ) );
-    PhysCube->phys_obj = new PhysicsObject( *PhysCube, 1 );
-    PhysCube->collide = new Collide( *PhysCube, glm::vec3( -1.f ), glm::vec3( 1.f ) );
+    //Cube *PhysCube = new Cube( vec3( -.5f ), vec3( .5f ), new Transform( vec3( 0, 5, 0 ), glm::identity<quat>(), glm::one<vec3>() ), Textures[ InbuiltTexture::universe ], main );
+    //PhysCube->transform->rot = glm::angleAxis( glm::radians( 45.f ), glm::vec3( 1, 0, 0 ) );
+    //PhysCube->phys_obj = new PhysicsObject( *PhysCube, 1 );
+    //PhysCube->collide = new Collide( *PhysCube, glm::vec3( -1.f ), glm::vec3( 1.f ) );
 
     //Cube *PhysCube2 = new Cube( vec3( -.5f ), vec3( .5f ), new Transform( vec3( 0, 10, 0 ), glm::identity<quat>(), glm::one<vec3>() ), Textures[ InbuiltTexture::universe ], main );
     //PhysCube2->transform->rot = glm::angleAxis( glm::radians( 30.f ), glm::vec3( 1, 0, 0 ) );
@@ -235,41 +241,45 @@ int main( int argc, const char *argv[] )
 
 
     // fun with differential equations
-    /*
-    #define MGT 30.f
+    
     glm::quat i = glm::angleAxis( glm::radians( 90.f ), vec3( 1, 0, 0 ) );
-    Axis *x = new Axis( i_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
-    Axis *y = new Axis( j_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
-    Axis *z = new Axis( k_hat, vec3( 0, 0, 0 ), black, 10, 1, main );
-    float wavelength = 2.f;
-    float frequency = 1.f;
-    float k = 2.f * M_PI / wavelength;
-    float w = frequency * ( 2.f * M_PI );
+    Axis *x = new Axis( i_hat, vec3( 0, 0, 0 ), Textures[ InbuiltTexture::black ], 10, 1, main );
+    Axis *y = new Axis( j_hat, vec3( 0, 0, 0 ), Textures[ InbuiltTexture::black ], 10, 1, main );
+    Axis *z = new Axis( k_hat, vec3( 0, 0, 0 ), Textures[ InbuiltTexture::black ], 10, 1, main );
+    float p = 1;
+    float m = 1;
+    float hbar = 1;
     Transform *DefTransform = new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() );
-    DifferentialFunction *quantum = new DifferentialFunction( -10, 10, [] ( float x ) { return vec3( x, sin( 10 * x ) * exp( -( x * x ) ), cos( 10 * x ) * exp( -( x * x ) ) ); }, [ &quantum, i ] ( float x, float dx, float t, float dt ) {
-        if ( x < quantum->min || x > quantum->max ) return vec3( x, 0, 0 );
-        if ( dt <= 0 ) return quantum->PreviousState( x );
-        vec3 prev = quantum->PreviousState( x );
-        vec3 d2xdx2 = ( quantum->PreviousState( x + MGT * dx ) + quantum->PreviousState( x - MGT * dx ) - 2.f * prev ) / ( MGT * dx * MGT * dx );
-        d2xdx2.x = 0;
-        return -( i * d2xdx2 ) * dt / 100.f + prev;
-    }, DefTransform, black, main, 0.01f );
-    */
+    DifferentialFunction *quantum = new DifferentialFunction( -3, 3, [] ( float x ) { return vec2( exp( -( x * x ) ), 0 ); }, 
+        // pf/pt = F[ f, pf/px, p2f/px2, x, t ]
+        [ p, m, hbar ] ( vec2 f, vec2 pfpx, vec2 p2fpx2, float x, float t ) {
+        vec2 val = p * p / 2 / m / hbar * p2fpx2 + x * x / hbar * f;
+        return vec2( val.y, -val.x ) / 1000.f;
+        //return vec2( 0, 0 );
+    }, DefTransform, Textures[ InbuiltTexture::black ], main, 0.01f );
+
+    DifferentialFunction *sinfunc = new DifferentialFunction( -10, 10, [] ( float x ) { return vec2( 0, sin( x ) ); },
+    [] ( vec2 f, vec2 pfpx, vec2 p2fpx2, float x, float t ) {
+        return vec2( 0, 0 );
+    }, DefTransform, Textures[ InbuiltTexture::dirt ], main );
+    sinfunc->GenPrevState();
+    StaticFunction *cosfunc = sinfunc->FourierFnApprox( sinfunc->FourierDerivative( sinfunc->FourierApproximation( 100 ) ), -10, 10, Textures[ InbuiltTexture::universe ], main );
 
     main->CameraTransform.pos = vec3( 1, 0, 3 );
 
     vec3 player_mins = vec3( -.2f, -1.2f, -.2f );
     vec3 player_maxs = vec3(  .2f,   .2f,  .2f );
-    main->PlayerPhysics = new PhysicsBaseObject( 10.f, player_mins, player_maxs );
+    //main->PlayerPhysics = new PhysicsBaseObject( 10.f, player_mins, player_maxs );
 
     while ( true )
     {
         //per frame for all windows
+
         double t_new = glfwGetTime();
         dt = t_new - t;
         t = t_new;
-        DynamicFunction::FunctionTime = t;
-        DifferentialFunction::FunctionDeltaTime = dt;
+        //DynamicFunction::FunctionTime = t;
+        //DifferentialFunction::FunctionDeltaTime = dt;
 
         //per frame per window
         for ( int i = 0; i < Windows.size(); ++i )
@@ -298,12 +308,12 @@ int main( int argc, const char *argv[] )
                             {
                                 float MassFraction = Windows[ i ]->PlayerPhysics->mass / other->object.phys_obj->mass;
 
-                                Windows[ i ]->CameraTransform.pos += MassFraction * data.Penetration * data.Normal;
-                                other->object.transform->SetAbsOrigin( other->object.transform->GetAbsOrigin() + ( 1 / MassFraction ) * data.Penetration * data.Normal );
+                                //Windows[ i ]->CameraTransform.pos += MassFraction * data.Penetration * data.Normal;
+                                //other->object.transform->SetAbsOrigin( other->object.transform->GetAbsOrigin() + ( 1 / MassFraction ) * data.Penetration * data.Normal );
                             }
                             else
                             {
-                                Windows[ i ]->CameraTransform.pos += data.Penetration * data.Normal;
+                                //Windows[ i ]->CameraTransform.pos += data.Penetration * data.Normal;
                                 Windows[ i ]->PlayerPhysics->ZeroMomentumIntoPlane( data.Normal );
                             }
                         }
@@ -322,9 +332,25 @@ int main( int argc, const char *argv[] )
                 }
             }
 
+
+            StaticFunction *approx_0 = NULL;
+            StaticFunction *approx_1 = NULL;
+            if ( quantum->PreviousStateSave )
+            {
+                //approx_0 = quantum->FourierFnApprox( quantum->FourierApproximation( 100 ), -5, 5, Textures[ InbuiltTexture::universe ], main );
+                approx_1 = quantum->FourierFnApprox( quantum->FourierDerivative( quantum->FourierDerivative( quantum->FourierApproximation( 100 ) ) ), -5, 5, Textures[ InbuiltTexture::universe ], main );
+            }
+
             WindowRender( Windows[ i ] );
+
+            if ( approx_0 )
+                delete approx_0;
+            if ( approx_1 )
+                delete approx_1;
 
             WindowPostFrame( Windows[ i ] );
         }
+        if ( DifferentialFunction::FunctionDeltaTime != 0 )
+            DifferentialFunction::FunctionDeltaTime = 0;
     }
 }
