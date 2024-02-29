@@ -1,7 +1,7 @@
 #include "shader.h"
 
-#include "../assets/shaders/fragment.h"
-#include "../assets/shaders/vertex.h"
+#include "../../assets/shaders/fragment.h"
+#include "../../assets/shaders/vertex.h"
 
 #include <iostream>
 

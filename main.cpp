@@ -8,14 +8,6 @@ using std::vector;
 using std::map;
 using std::filesystem::recursive_directory_iterator;
 
-#include "shader.h"
-#include "mesh.h"
-#include "texture.h"
-#include "cube.h"
-#include "transform.h"
-#include "window.h"
-#include "GlobalTexture.h"
-#include "text.h"
 #include "axis.h"
 #include "function.h"
 #include "physics.h"

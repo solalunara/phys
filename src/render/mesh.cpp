@@ -1,9 +1,6 @@
 #include "mesh.h"
 
 #include "shader.h"
-#include "texture.h"
-#include "shader.h"
-#include "window.h"
 #include "GlobalTexture.h"
 #include "cube.h"
 
