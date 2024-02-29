@@ -1,5 +1,5 @@
 libs = -lglfw -lpng -lwebp -lfreetype
-includes = -I/usr/include/freetype2
+includes = -I/usr/include/freetype2 -Isrc
 export args = $(libs) $(includes)
 export obj = ./obj
 

@@ -1,7 +1,6 @@
 #include "collide.h"
 #include "element.h"
 #include "physics.h"
-#include "window.h"
 #include "mesh.h"
 #include <cmath>
 #include <stdexcept>

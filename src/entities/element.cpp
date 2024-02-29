@@ -1,5 +1,4 @@
 #include "element.h"
-#include "window.h"
 #include "mesh.h"
 #include "physics.h"
 #include "function.h"
