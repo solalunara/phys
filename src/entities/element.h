@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "transform.h"
-#include "window.h"
+#include "render/transform.h"
+#include "render/window.h"
+#include "render/renderable.h"
 #include <vector>
 #include <glm/glm.hpp>
 using std::vector;
@@ -15,31 +16,22 @@ struct Element;
 struct PhysicsObject;
 struct Collide;
 
-struct Element
+struct Element :
+    public Renderable
 {
     Element( const Element & ) = delete;
     Element &operator =( const Element & ) = delete;
     Element( Element && ) = delete;
     virtual ~Element();
 
-    void AddElement( Element *e );
-    void RemoveElement( Element *e );
     virtual void Render();
     virtual inline bool IsMesh() { return false; }
-    vector<vec3> GetNormals();
-    vector<float> GetPlaneDists();
-    vector<Mesh *> GetMeshes();
-    vector<vec3> GetVertices( bool local = false );
-    float SmallestInterPointDist();
 
-    Window *const container;
-    Transform *transform;
     PhysicsObject *phys_obj = NULL;
     Collide *collide = NULL;
 
 protected:
-    Element( Window *container, Transform *transform, vector<Element *> Elements );
-    vector<Element *> Elements;
+    Element( Window *container, Transform *transform, vector<Renderable *> Elements );
 
 };
 
@@ -47,7 +39,7 @@ struct UIElement :
     public Element
 {
     UIElement( Window *container, Transform *transform ) :
-        Element( container, transform, vector<Element *>() )
+        Element( container, transform, vector<Renderable *>() )
     {
     }
 
@@ -58,7 +50,7 @@ struct GameElement :
     public Element
 {
     GameElement( Window *container, Transform *transform ) :
-        Element( container, transform, vector<Element *>() )
+        Element( container, transform, vector<Renderable *>() )
     {
     }
 

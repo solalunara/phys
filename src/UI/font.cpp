@@ -1,5 +1,5 @@
 #include "UI/font.h"
-#include "GlobalTexture.h"
+#include "render/GlobalTexture.h"
 #include <string>
 
 using std::to_string;

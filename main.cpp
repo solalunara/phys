@@ -8,10 +8,10 @@ using std::vector;
 using std::map;
 using std::filesystem::recursive_directory_iterator;
 
-#include "axis.h"
-#include "function.h"
-#include "physics.h"
-#include "collide.h"
+#include "maths/axis.h"
+#include "maths/function.h"
+#include "physics/physics.h"
+#include "physics/collide.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -287,15 +287,16 @@ int main( int argc, const char *argv[] )
                 //player collision detection/resolution
                 for ( int j = 0; j < Windows[ i ]->Elements.size(); ++j ) 
                 {
-                    if ( Windows[ i ]->Elements[ j ]->collide )
+                    Element *element = dynamic_cast<Element *>( Windows[ i ]->Elements[ j ] );
+                    if ( element && element->collide )
                     {
-                        IntersectionData data = Windows[ i ]->Elements[ j ]->collide->GetIntersection( player_mins + Windows[ i ]->CameraTransform.pos, player_maxs + Windows[ i ]->CameraTransform.pos );
+                        IntersectionData data = element->collide->GetIntersection( player_mins + Windows[ i ]->CameraTransform.pos, player_maxs + Windows[ i ]->CameraTransform.pos );
                         if ( data.Intersection )
                         {
                             data.Normal = -data.Normal; //switch to player frame
 
                             //player collision resolution code
-                            Collide *other = Windows[ i ]->Elements[ j ]->collide;
+                            Collide *other = element->collide;
                             if ( other->object.phys_obj )
                             {
                                 float MassFraction = Windows[ i ]->PlayerPhysics->mass / other->object.phys_obj->mass;

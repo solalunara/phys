@@ -19,6 +19,7 @@ struct Mesh;
 struct Texture;
 struct Element;
 struct PhysicsBaseObject;
+struct Renderable;
 
 enum class WindowState : unsigned char
 {
@@ -62,7 +63,7 @@ public:
     PhysicsBaseObject *PlayerPhysics = NULL;
 
     vector<Texture *> Textures = vector<Texture *>();
-    vector<Element *> Elements = vector<Element *>();
+    vector<Renderable *> Elements = vector<Renderable *>();
 
     static Window *GetWindowFromID( GLFWwindow *ID )
     {

@@ -1,7 +1,7 @@
 #include "physics.h"
-#include "element.h"
-#include "function.h"
-#include "collide.h"
+#include "entities/element.h"
+#include "maths/function.h"
+#include "physics/collide.h"
 
 #define FIXED_FRAME_TIME ( 1 / 30.f )
 

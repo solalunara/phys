@@ -1,6 +1,6 @@
 #include "text.h"
-#include "mesh.h"
-#include "window.h"
+#include "render/mesh.h"
+#include "render/window.h"
 #include "UI/font.h"
 #include <cstring>
 
@@ -46,7 +46,7 @@ UIText::UIText( const char *text, Font *font, float x, float y, float scale, vec
 
     for ( unsigned long long i = 0; i < len; ++i )
     {
-        AddElement( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
+        AddChild( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
             data[ i ].ch.TextureID->FindLocalTexture( container ), new Transform( vec3( data[ i ].xpos - TextWidth / 2, data[ i ].ypos, 0 ), glm::identity<quat>(), glm::one<vec3>() ), 
             container, color, text[ i ], this ) );
     }
@@ -98,7 +98,7 @@ GameText::GameText( const char *text, Font *font, float x, float y, float z, flo
 
     for ( unsigned long long i = 0; i < len; ++i )
     {
-        AddElement( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
+        AddChild( new CharacterMesh( vec2( -data[ i ].w / 2, -data[ i ].h / 2 ), vec2( data[ i ].w / 2, data[ i ].h / 2 ),
             data[ i ].ch.TextureID->FindLocalTexture( container ), new Transform( vec3( data[ i ].xpos - TextWidth / 2, data[ i ].ypos, 0 ), glm::identity<quat>(), glm::one<vec3>() ), 
             container, color, text[ i ], this ) );
     }

@@ -1,8 +1,9 @@
 #include "mesh.h"
 
+#include "texture.h"
 #include "shader.h"
 #include "GlobalTexture.h"
-#include "cube.h"
+#include "window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -14,7 +15,7 @@
 
 
 Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsigned long long inds_len, Texture *texture, Transform *transform, Window *container ) : 
-    verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Element( container, transform, vector<Element *>() )
+    verts_len( verts_len ), inds_len( inds_len ), _texture( texture ), Renderable( container, transform, vector<Renderable *>() )
 {
     if ( !container )
         throw std::invalid_argument( "Attempted to make mesh with no container!\n" );
@@ -74,7 +75,7 @@ Mesh::Mesh( float *verts, unsigned long long verts_len, unsigned int *inds, unsi
 }
 
 Mesh::Mesh( glm::vec2 mins, glm::vec2 maxs, Texture *texture, Transform *transform, Window *container ) :
-    _texture( texture ), Element( container, transform, vector<Element *>() )
+    _texture( texture ), Renderable( container, transform, vector<Renderable *>() )
 {
     this->verts = new float[] {
         maxs.x, maxs.y, .0f,        1.0f, 1.0f,

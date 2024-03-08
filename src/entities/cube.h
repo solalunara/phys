@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "mesh.h"
+#include "render/mesh.h"
 #include "element.h"
 #include <vector>
 #include <glm/glm.hpp>

@@ -1,7 +1,7 @@
 #include "collide.h"
-#include "element.h"
+#include "entities/element.h"
 #include "physics.h"
-#include "mesh.h"
+#include "render/mesh.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -317,16 +317,4 @@ bool AABB::TestAABBCollision( vec3 other_mins, vec3 other_maxs ) const
             ThisWorldSpaceMaxs.y >= OtherWorldSpaceMins.y &&
             ThisWorldSpaceMins.z <= OtherWorldSpaceMaxs.z &&
             ThisWorldSpaceMaxs.z >= OtherWorldSpaceMins.z;
-}
-
-vector<Collide> UTIL_TraceLine( Window *window, vec3 startpt, vec3 endpt )
-{
-    for ( int i = 0; i < window->Elements.size(); ++i )
-    {
-        if ( window->Elements[ i ]->collide && window->Elements[ i ]->collide->BoundingBox->TestAABBCollision( startpt, endpt ) )
-        {
-
-        }
-    }
-    return vector<Collide>();
 }

@@ -1,8 +1,8 @@
 #include "axis.h"
-#include "cube.h"
-#include "text.h"
-#include "GlobalTexture.h"
-#include "window.h"
+#include "entities/cube.h"
+#include "entities/text.h"
+#include "render/GlobalTexture.h"
+#include "render/window.h"
 #include <string>
 
 #define AXIS_THICKNESS .01f

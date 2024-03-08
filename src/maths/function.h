@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "cube.h"
+#include "entities/cube.h"
 #include <glm/vec3.hpp>
 #include <vector>
 #include <functional>
@@ -21,7 +21,7 @@ struct StaticFunction :
         u_long n_Segments = (u_long)( ( max - min ) / step ) + 1;
         for ( u_long i = 0; i < n_Segments; ++i )
         {
-            AddElement( new Cube(
+            AddChild( new Cube(
                 vec3( -step / 2 ),
                 vec3(  step / 2 ),
                 new Transform( vec3( i*step+min, fn( i * step + min ) ), glm::identity<quat>(), glm::one<vec3>() ),
@@ -41,7 +41,7 @@ struct DynamicFunction :
         u_long n_Segments = (u_long)( ( max - min ) / step ) + 1;
         for ( u_long i = 0; i < n_Segments; ++i )
         {
-            AddElement( new Cube(
+            AddChild( new Cube(
                 vec3( -step / 2 ),
                 vec3(  step / 2 ),
                 new Transform( vec3( min+step*i, fn( i * step + min, 0 ) ), glm::identity<quat>(), glm::one<vec3>() ),
@@ -79,7 +79,7 @@ struct DifferentialFunction :
         u_long n_Segments = (u_long)( ( max - min ) / step ) + 1;
         for ( u_long i = 0; i < n_Segments; ++i )
         {
-            AddElement( new Cube(
+            AddChild( new Cube(
                 vec3( -step / 2 ),
                 vec3(  step / 2 ),
                 new Transform( vec3( i*step+min, InitialState( i * step + min )), glm::identity<quat>(), glm::one<vec3>() ),

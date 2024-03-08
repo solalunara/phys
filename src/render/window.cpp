@@ -1,9 +1,8 @@
 #include "window.h"
 #include "mesh.h"
-#include "cube.h"
 #include "texture.h"
 #include "GlobalTexture.h"
-#include "element.h"
+#include "renderable.h"
 
 #include <string>
 #include <string.h>

@@ -4,7 +4,7 @@
 #pragma once
 
 #include "transform.h"
-#include "entities/element.h"
+#include "renderable.h"
 using glm::vec2;
 using glm::vec3;
 
@@ -15,7 +15,7 @@ struct GlobalTexture;
 struct Word;
 
 struct Mesh :
-    public Element
+    public Renderable
 {
     Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform *transform, Window *container );
     ~Mesh();
