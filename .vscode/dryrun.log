@@ -1,6 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/fvp/Documents/prog/phys'
-make: Leaving directory '/home/fvp/Documents/prog/phys'
- 
-make: *** No targets specified and no makefile found.  Stop.
-

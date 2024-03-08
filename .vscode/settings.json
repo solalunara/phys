@@ -44,5 +44,13 @@
         "__node_handle": "cpp",
         "unordered_map": "cpp",
         "version": "cpp"
-    }
+    },
+    "makefile.makefilePath": "Makefile.mak",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/fvp/prog/phys",
+            "binaryPath": "/home/fvp/prog/phys/main",
+            "binaryArgs": []
+        }
+    ]
 }
