@@ -12,16 +12,17 @@
                 "-lglfw",
                 "-lpng",
                 "-lwebp",
-                "-lfreetype2",
+                "-lfreetype",
+                "-lm",
+                "-lstdc++",
                 "${workspaceFolder}/glad/glad.c",
-                "${workspaceFolder}/source/*"
+                "${workspaceFolder}/src/**/*.cpp"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "c++20",
-            "intelliSenseMode": "linux-clang-x64",
-            "configurationProvider": "ms-vscode.makefile-tools"
+            "intelliSenseMode": "linux-clang-x64"
         }
     ],
     "version": 4

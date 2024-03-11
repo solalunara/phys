@@ -15,7 +15,7 @@ Collide::Collide( Element &object, vec3 mins, vec3 maxs ) :
 
 Collide::~Collide()
 {
-    if ( (void *)BoundingBox != (void *)this )
+    if ( static_cast<const void *>( BoundingBox ) !=  static_cast<const void *>( this ) )
         delete BoundingBox;
 }
 

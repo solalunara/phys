@@ -241,7 +241,9 @@ int main( int argc, const char *argv[] )
     float p = 1;
     float m = 1;
     float hbar = 1;
-    Transform *DefTransform = new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() );
+
+#define DefTransform new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() )
+
     DifferentialFunction *quantum = new DifferentialFunction( -3, 3, [] ( float x ) { return vec2( exp( -( x * x ) ), 0 ); }, 
         // pf/pt = F[ f, pf/px, p2f/px2, x, t ]
         [ p, m, hbar ] ( vec2 f, vec2 pfpx, vec2 p2fpx2, float x, float t ) {
@@ -255,7 +257,10 @@ int main( int argc, const char *argv[] )
         return vec2( 0, 0 );
     }, DefTransform, Textures[ InbuiltTexture::dirt ], main );
     sinfunc->GenPrevState();
-    StaticFunction *cosfunc = sinfunc->FourierFnApprox( sinfunc->FourierDerivative( sinfunc->FourierApproximation( 100 ) ), -10, 10, Textures[ InbuiltTexture::universe ], main );
+
+    vector<vec3> cos_3d = to_vector_form( FourierSpaceDerivative( sinfunc->FourierTransform() ) );
+
+    StaticFunction *cosfunc = new StaticFunction( cos_3d, DefTransform, Textures[ InbuiltTexture::grass ], main );
 
     main->CameraTransform.pos = vec3( 1, 0, 3 );
 

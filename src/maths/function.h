@@ -31,6 +31,22 @@ struct StaticFunction :
             ) );
         }
     }
+
+    StaticFunction( vector<vec3> pts, Transform *transform, GlobalTexture *tex, Window *w, float step = 0.03f ) :
+        GameElement( w, transform )
+    {
+        u_long n_Segments = (u_long)( pts.size() );
+        for ( u_long i = 0; i < n_Segments; ++i )
+        {
+            AddChild( new Cube(
+                vec3( -step / 2 ),
+                vec3(  step / 2 ),
+                new Transform( pts[ i ], glm::identity<quat>(), glm::one<vec3>() ),
+                tex->FindLocalTexture( w ),
+                w
+            ) );
+        }
+    }
 };
 
 struct DynamicFunction :
@@ -101,6 +117,20 @@ struct DifferentialFunction :
     FourierConstants FourierDerivative( FourierConstants f );
     StaticFunction *FourierFnApprox( FourierConstants f, float min, float max, GlobalTexture *texture, Window *window );
 
+    vector<float> GetDomain()
+    {
+        vector<float> x = vector<float>( Elements.size() );
+        for ( u_long i = 0; i < Elements.size(); ++i )
+            x[ i ] = i * step + min;
+        return x;
+    }
+    vector<RCPoint> FourierTransform()
+    {
+        GenPrevState();
+        vector<RCPoint> f = to_complex_form( PreviousStateSave, Elements.size() );
+        return fft( f );
+    }
+
     void GenPrevState()
     {
         delete[] PreviousStateSave;
@@ -132,19 +162,19 @@ struct DifferentialFunction :
         };
         */
 
-        vector<complex> f = to_complex_form( PreviousStateSave, Elements.size() );
+        vector<RCPoint> f = to_complex_form( PreviousStateSave, Elements.size() );
 
         vector<float> x = vector<float>( Elements.size() );
         for ( u_long i = 0; i < Elements.size(); ++i )
             x[ i ] = i * step + min;
 
-        vector<complex> F0 = fft( f );
-        vector<complex> F1 = FourierSpaceDerivative( x, F0 );
-        vector<complex> F2 = FourierSpaceDerivative( x, F1 );
+        vector<RCPoint> F0 = fft( f );
+        vector<RCPoint> F1 = FourierSpaceDerivative( F0 );
+        vector<RCPoint> F2 = FourierSpaceDerivative( F1 );
 
-        vector<vec2> f0 = to_vector_form( f );
-        vector<vec2> f1 = to_vector_form( ifft( F1 ) );
-        vector<vec2> f2 = to_vector_form( ifft( F2 ) );
+        vector<vec3> f0 = to_vector_form( f );
+        vector<vec3> f1 = to_vector_form( ifft( F1 ) );
+        vector<vec3> f2 = to_vector_form( ifft( F2 ) );
 
         for ( u_long i = 0; i < Elements.size(); ++i )
         {

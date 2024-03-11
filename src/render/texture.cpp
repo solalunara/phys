@@ -54,7 +54,8 @@ Texture::Texture( const char *path, Window *container ) :
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
     std::filesystem::path filesys_path = std::filesystem::path( path );
-    const char *ext = filesys_path.extension().c_str();
+    std::string ext_str = filesys_path.extension().string(); //needed to prevent bad mem access
+    const char *ext = ext_str.c_str();
     if ( !strcmp( ext, ".png" ) )
     {
         FILE *fp = fopen( path, "rb" );

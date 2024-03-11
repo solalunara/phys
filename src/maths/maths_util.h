@@ -4,6 +4,8 @@
 #include <vector>
 using std::vector;
 
+#include <string>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 using glm::vec2;
@@ -74,133 +76,31 @@ struct complex
     }
 };
 
-vector<vec2> to_vector_form( vector<complex> x )
+struct RCPoint
 {
-    vector<vec2> ret_val;
-    for ( int i = 0; i < x.size(); ++i )
-        ret_val.push_back( vec2( x[ i ].real, x[ i ].imag ) );
-    return ret_val;
-}
-vector<complex> to_complex_form( vector<vec2> x )
-{
-    vector<complex> ret_val;
-    for ( int i = 0; i < x.size(); ++i )
-        ret_val.push_back( complex( x[ i ].x, x[ i ].y ) );
-    return ret_val;
-}
-vector<complex> to_complex_form( vector<vec3> x )
-{
-    vector<complex> ret_val;
-    for ( int i = 0; i < x.size(); ++i )
-        ret_val.push_back( complex( x[ i ].y, x[ i ].z ) );
-    return ret_val;
-}
-vector<complex> to_complex_form( vec3 *x, int N )
-{
-    vector<complex> ret_val;
-    for ( int i = 0; i < N; ++i )
-        ret_val.push_back( complex( x[ i ].y, x[ i ].z ) );
-    return ret_val;
-}
+    RCPoint( float x, complex y ) : x( x ), y( y ) {}
+    RCPoint( vec3 v ) : x( v.x ), y( complex( v.y, v.z ) ) {}
+    RCPoint() : x( 0.f ), y( complex( 0.f, 0.f ) ) {}
+    float x;
+    complex y;
 
-vector<complex> fft( vector<complex> x, int N, int s )
-{
-    if ( N == 1 )
-        return x;
-
-    vector<complex> even( N / 2 );
-    vector<complex> odd( N / 2 );
-    for ( int i = 0; i < N / 2; ++i )
+    vec3 to_vec3()
     {
-        even[ i ] = x[ i * 2 ];
-        odd[ i ] = x[ i * 2 + 1 ];
+        return vec3( x, y.real, y.imag );
     }
+};
 
-    even = fft( even, N / 2, s * 2 );
-    odd = fft( odd, N / 2, s * 2 );
-
-    vector<complex> X( N );
-    for ( int k = 0; k < N / 2; ++k )
-    {
-        complex t = complex( cos( -2.f * glm::pi<float>() * k / N ), sin( -2.f * glm::pi<float>() * k / N ) ) * odd[ k ];
-        X[ k ] = even[ k ] + t;
-        X[ k + N / 2 ] = even[ k ] - t;
-    }
-    return X;
-}
-
-vector<complex> fft( vector<complex> x )
-{
-    int N = x.size();
-    int M = 1;
-    while ( M < N ) M <<= 1; // find the smallest power of two greater than N
-
-    x.resize( M, 0 ); // resize the vector to M, padding with zeros if necessary
-    vector<complex> x_complex( M );
-    for ( int i = 0; i < M; ++i )
-        x_complex[ i ] = complex( x[ i ] );
-
-    vector<complex> ret_val_complex = fft( x_complex, M, 1 );
-    return ret_val_complex;
-}
-
-vector<complex> ifft( vector<complex> X, int N, int s )
-{
-    if ( N == 1 )
-        return X;
-
-    vector<complex> even( N / 2 );
-    vector<complex> odd( N / 2 );
-    for ( int i = 0; i < N / 2; ++i )
-    {
-        even[ i ] = X[ i * 2 ];
-        odd[ i ] = X[ i * 2 + 1 ];
-    }
-
-    even = ifft( even, N / 2, s * 2 );
-    odd = ifft( odd, N / 2, s * 2 );
-
-    vector<complex> x( N );
-    for ( int k = 0; k < N / 2; ++k )
-    {
-        complex t = complex( cos( 2.f * glm::pi<float>() * k / N ), sin( 2.f * glm::pi<float>() * k / N ) ) * odd[ k ];
-        x[ k ] = even[ k ] + t;
-        x[ k + N / 2 ] = even[ k ] - t;
-    }
-    return x;
-}
-
-vector<complex> ifft( vector<complex> X )
-{
-    int N = X.size();
-    int M = 1;
-    while ( M < N ) M <<= 1; // find the smallest power of two greater than N
-
-    X.resize( M, 0 ); // resize the vector to M, padding with zeros if necessary
-
-    vector<complex> ret_val_complex = ifft( X, M, 1 );
-    return ret_val_complex;
-}
+vector<vec3> to_vector_form( vector<RCPoint> x );
+vector<RCPoint> to_complex_form( vector<vec3> x );
+vector<RCPoint> to_complex_form( vec3 *x, int N );
+vector<RCPoint> fft( vector<RCPoint> x, int N, int s );
+vector<RCPoint> fft( vector<RCPoint> x );
+vector<RCPoint> ifft( vector<RCPoint> X, int N, int s );
+vector<RCPoint> ifft( vector<RCPoint> X );
 
 //takes x and X as input, where x is the domain and X is the function in the Fourier domain
-vector<complex> FourierSpaceDerivative( vector<float> x, vector<complex> X )
-{
-    int N = X.size();
-    if ( x.size() != N )
-        throw "FourierSpaceDerivative: x and X must have the same size";
-    vector<complex> X_prime( N );
-    for ( int n = 0; n < N; ++n )
-        X_prime[ n ] = X[ n ] * complex( 0.f, 2.f * glm::pi<float>() * x[ n ] );
-    return X_prime;
-}
+vector<RCPoint> FourierSpaceDerivative( vector<RCPoint> X );
 
-vector<vec3> FourierSpaceDerivative( vector<vec3> fn )
-{
-    int N = fn.size();
-    vector<vec3> X_prime( N );
-    for ( int n = 0; n < N; ++n )
-        X_prime[ n ] = vec3( fn[ n ].x, -fn[ n ].z * 2.f * glm::pi<float>() * fn[ n ].x, fn[ n ].y * 2.f * glm::pi<float>() * fn[ n ].x );
-    return X_prime;
-}
+vector<vec3> FourierSpaceDerivative( vector<vec3> fn );
 
 #endif

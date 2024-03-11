@@ -43,7 +43,7 @@ struct IntersectionData
 struct Collide
 {
     Collide( Element &object, vec3 mins, vec3 maxs );
-    ~Collide();
+    virtual ~Collide();
 
     IntersectionData GetIntersection( Collide *other );
     IntersectionData GetIntersection( vector<vec3> norms, vector<float> planedists, vector<vec3> verts );
@@ -55,8 +55,6 @@ struct Collide
 
 protected:
     Collide( Element &object, AABB *BoundingBox );
-
-    AABB       *_BoundingBox;
 };
 
 struct AABB :

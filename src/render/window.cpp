@@ -93,7 +93,7 @@ Window::Window( WindowState state, float FOV, int xres, int yres, const char *na
 
 Window::~Window()
 {
-    delete name;
+    delete[] name;
     glfwMakeContextCurrent( ID );
     glfwDestroyWindow( ID );
     for ( int i = 0; i < Elements.size(); ++i )

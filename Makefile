@@ -7,15 +7,19 @@ src = $(shell find $(root) -name '*.cpp' -o -name '*.c')
 obj_files = $(patsubst $(root)/%.cpp,$(obj)/%.o,$(patsubst $(root)/%.c,$(obj)/%.o,$(src)))
 
 all: $(obj_files)
-	$(CC) -o main $(obj_files) $(args)
+	$(CC) -fsanitize=address -g -o main $(obj_files) $(args)
 
 $(obj)/%.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CC) -c $< -o $@ $(args)
+	$(CC) -fsanitize=address -g -c $< -o $@ $(args)
 
 $(obj)/%.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) -c $< -o $@ $(args)
+	$(CC) -g -c $< -o $@ $(args)
 
 $(obj):
 	mkdir -p $(obj)
+
+clean: 
+	rm -rf $(obj)
+	rm -f main
