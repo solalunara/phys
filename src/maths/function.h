@@ -4,6 +4,7 @@
 #pragma once
 
 #include "entities/cube.h"
+#include "maths_util.h"
 #include <glm/vec3.hpp>
 #include <vector>
 #include <functional>
@@ -118,6 +119,7 @@ struct DifferentialFunction :
         GenPrevState();
 
         //calculate the function as a fourier series
+        /*
         FourierConstants f0 = FourierApproximation( 100 );
         FourierConstants f1 = FourierDerivative( f0 );
         FourierConstants f2 = FourierDerivative( f1 );
@@ -128,9 +130,26 @@ struct DifferentialFunction :
                 val += f.a_n[ n ] * glm::cos( 2.f * glm::pi<float>() * n / f.T * x ) + f.b_n[ n ] * glm::sin( 2.f * glm::pi<float>() * n / f.T * x );
             return val;
         };
+        */
+
+        vector<complex> f = to_complex_form( PreviousStateSave, Elements.size() );
+
+        vector<float> x = vector<float>( Elements.size() );
+        for ( u_long i = 0; i < Elements.size(); ++i )
+            x[ i ] = i * step + min;
+
+        vector<complex> F0 = fft( f );
+        vector<complex> F1 = FourierSpaceDerivative( x, F0 );
+        vector<complex> F2 = FourierSpaceDerivative( x, F1 );
+
+        vector<vec2> f0 = to_vector_form( f );
+        vector<vec2> f1 = to_vector_form( ifft( F1 ) );
+        vector<vec2> f2 = to_vector_form( ifft( F2 ) );
 
         for ( u_long i = 0; i < Elements.size(); ++i )
         {
+            //fourier series approach
+            /*
             vec2 pfpx_0 = FourierSeries( f1, min + i*step );
             vec2 pfpx_1 = FourierSeries( f1, min + i*step + step );
             vec2 pfpx_2 = FourierSeries( f1, min + i*step - step );
@@ -145,15 +164,36 @@ struct DifferentialFunction :
             vec2 dv_0 = PartialTimeDerivative( f_0, pfpx_0, p2fpx2_0,  i * step + min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
             vec2 dv_1 = PartialTimeDerivative( f_1, pfpx_1, p2fpx2_1,  i * step + min + step, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
             vec2 dv_2 = PartialTimeDerivative( f_2, pfpx_2, p2fpx2_2,  i * step + min - step, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
-            //vec2 dv = PartialTimeDerivative( f, pfpx, p2fpx2, i*step+min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
 
             Elements[ i ]->transform->pos += (1.f/6) * vec3( 0, dv_0 ) + (2.f/3) * vec3( 0, dv_1 ) + (1.f/6) * vec3( 0, dv_2 );
-            //vec3 predpos = vec3( min + i*step, FourierSeries( f0, min + i*step ) );
-            //vec3 oldpos = Elements[ i ]->transform->pos;
-            //vec3 diff = predpos-oldpos;
-            //if ( glm::length( diff ) > 1e-2f )
-            //    printf( "Fourier series failure!!\n" );
-            //Elements[ i ]->transform->pos += vec3( 0, dv );
+            */
+
+            //fourier transform approach
+            vec2 pfpx_0 = f1[ i ];
+            vec2 p2fpx2_0 = f2[ i ];
+
+            vec2 f_0 = f0[ i ];
+
+            vec2 dv_0 = PartialTimeDerivative( f_0, pfpx_0, p2fpx2_0,  i * step + min, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+
+            if ( i != 0 && i != Elements.size() - 1 )
+            {
+                vec2 pfpx_1 = f1[ i + 1 ];
+                vec2 pfpx_2 = f1[ i - 1 ];
+                vec2 p2fpx2_1 = f2[ i + 1 ];
+                vec2 p2fpx2_2 = f2[ i - 1 ];
+                vec2 f_1 = f0[ i + 1 ];
+                vec2 f_2 = f0[ i - 1 ];
+                vec2 dv_1 = PartialTimeDerivative( f_1, pfpx_1, p2fpx2_1,  i * step + min + step, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+                vec2 dv_2 = PartialTimeDerivative( f_2, pfpx_2, p2fpx2_2,  i * step + min - step, DynamicFunction::FunctionTime ) * FunctionDeltaTime;
+
+                Elements[ i ]->transform->pos += (1.f/6) * vec3( 0, dv_0 ) + (2.f/3) * vec3( 0, dv_1 ) + (1.f/6) * vec3( 0, dv_2 );
+            }
+            else
+            {
+                Elements[ i ]->transform->pos += vec3( 0, dv_0 );
+            }
+
         }
         Element::Render();
     }
