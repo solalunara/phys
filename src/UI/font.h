@@ -23,6 +23,7 @@ struct Glyph
 struct Font
 {
     Font( const char *FontPath );
+    ~Font();
     FT_Library  library;
     FT_Face     face;
     FT_Error    error;

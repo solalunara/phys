@@ -105,6 +105,10 @@ struct DifferentialFunction :
             ) );
         }
     }
+    ~DifferentialFunction()
+    {
+        delete[] PreviousStateSave;
+    }
 
     struct FourierConstants
     {

@@ -18,7 +18,7 @@ struct Mesh :
     public Renderable
 {
     Mesh( vec2 mins, vec2 maxs, Texture *texture, Transform *transform, Window *container );
-    ~Mesh();
+    virtual ~Mesh();
 
     Mesh( const Mesh & ) = delete;
     Mesh &operator =( const Mesh & ) = delete;

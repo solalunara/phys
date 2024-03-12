@@ -15,7 +15,7 @@ $(obj)/%.o: %.cpp
 
 $(obj)/%.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) -g -c $< -o $@ $(args)
+	$(CC) -fsanitize=address -g -c $< -o $@ $(args)
 
 $(obj):
 	mkdir -p $(obj)

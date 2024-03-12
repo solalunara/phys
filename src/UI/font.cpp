@@ -37,3 +37,9 @@ Font::Font( const char *FontPath )
     FT_Done_Face( face );
     FT_Done_FreeType( library );
 }
+
+Font::~Font()
+{
+    for ( auto &pair : char_to_glyph )
+        delete pair.second.TextureID;
+}
