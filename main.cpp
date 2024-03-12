@@ -244,6 +244,7 @@ int main( int argc, const char *argv[] )
 
 #define DefTransform new Transform( glm::zero<vec3>(), glm::identity<quat>(), glm::one<vec3>() )
 
+    /*
     DifferentialFunction *quantum = new DifferentialFunction( -3, 3, [] ( float x ) { return vec2( exp( -( x * x ) ), 0 ); }, 
         // pf/pt = F[ f, pf/px, p2f/px2, x, t ]
         [ p, m, hbar ] ( vec2 f, vec2 pfpx, vec2 p2fpx2, float x, float t ) {
@@ -251,16 +252,17 @@ int main( int argc, const char *argv[] )
         return vec2( val.y, -val.x ) / 1000.f;
         //return vec2( 0, 0 );
     }, DefTransform, Textures[ InbuiltTexture::black ], main, 0.01f );
+    */
 
-    DifferentialFunction *sinfunc = new DifferentialFunction( -10, 10, [] ( float x ) { return vec2( 0, sin( x ) ); },
+    DifferentialFunction *sinfunc = new DifferentialFunction( -10, 10, [] ( float x ) { return vec2( sin( x ), 0 ); },
     [] ( vec2 f, vec2 pfpx, vec2 p2fpx2, float x, float t ) {
         return vec2( 0, 0 );
     }, DefTransform, Textures[ InbuiltTexture::dirt ], main );
     sinfunc->GenPrevState();
 
-    vector<vec3> cos_3d = to_vector_form( FourierSpaceDerivative( sinfunc->FourierTransform() ) );
+    vector<vec3> cos_3d = to_vector_form( ifft( sinfunc->domain, FourierSpaceDerivative( sinfunc->FourierTransform() ) ) );
 
-    StaticFunction *cosfunc = new StaticFunction( cos_3d, DefTransform, Textures[ InbuiltTexture::grass ], main );
+    StaticFunction *cosfunc = new StaticFunction( cos_3d, DefTransform, Textures[ InbuiltTexture::universe ], main );
 
     main->CameraTransform.pos = vec3( 1, 0, 3 );
 
@@ -331,6 +333,7 @@ int main( int argc, const char *argv[] )
             }
 
 
+            /*
             StaticFunction *approx_0 = NULL;
             StaticFunction *approx_1 = NULL;
             if ( quantum->PreviousStateSave )
@@ -338,13 +341,14 @@ int main( int argc, const char *argv[] )
                 //approx_0 = quantum->FourierFnApprox( quantum->FourierApproximation( 100 ), -5, 5, Textures[ InbuiltTexture::universe ], main );
                 approx_1 = quantum->FourierFnApprox( quantum->FourierDerivative( quantum->FourierDerivative( quantum->FourierApproximation( 100 ) ) ), -5, 5, Textures[ InbuiltTexture::universe ], main );
             }
+            */
 
             WindowRender( Windows[ i ] );
 
-            if ( approx_0 )
-                delete approx_0;
-            if ( approx_1 )
-                delete approx_1;
+            //if ( approx_0 )
+            //    delete approx_0;
+            //if ( approx_1 )
+            //    delete approx_1;
 
             WindowPostFrame( Windows[ i ] );
         }

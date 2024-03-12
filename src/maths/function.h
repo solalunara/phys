@@ -104,6 +104,10 @@ struct DifferentialFunction :
                 w
             ) );
         }
+
+        domain = vector<float>( Elements.size() );
+        for ( u_long i = 0; i < Elements.size(); ++i )
+            domain[ i ] = i * step + min;
     }
     ~DifferentialFunction()
     {
@@ -121,13 +125,6 @@ struct DifferentialFunction :
     FourierConstants FourierDerivative( FourierConstants f );
     StaticFunction *FourierFnApprox( FourierConstants f, float min, float max, GlobalTexture *texture, Window *window );
 
-    vector<float> GetDomain()
-    {
-        vector<float> x = vector<float>( Elements.size() );
-        for ( u_long i = 0; i < Elements.size(); ++i )
-            x[ i ] = i * step + min;
-        return x;
-    }
     vector<RCPoint> FourierTransform()
     {
         GenPrevState();
@@ -150,6 +147,12 @@ struct DifferentialFunction :
 
     virtual void Render()
     {
+        if ( FunctionDeltaTime == 0.f )
+        {
+            Element::Render();
+            return;
+        }
+
         GenPrevState();
 
         //calculate the function as a fourier series
@@ -168,17 +171,14 @@ struct DifferentialFunction :
 
         vector<RCPoint> f = to_complex_form( PreviousStateSave, Elements.size() );
 
-        vector<float> x = vector<float>( Elements.size() );
-        for ( u_long i = 0; i < Elements.size(); ++i )
-            x[ i ] = i * step + min;
-
         vector<RCPoint> F0 = fft( f );
         vector<RCPoint> F1 = FourierSpaceDerivative( F0 );
         vector<RCPoint> F2 = FourierSpaceDerivative( F1 );
 
+
         vector<vec3> f0 = to_vector_form( f );
-        vector<vec3> f1 = to_vector_form( ifft( F1 ) );
-        vector<vec3> f2 = to_vector_form( ifft( F2 ) );
+        vector<vec3> f1 = to_vector_form( ifft( domain, F1 ) );
+        vector<vec3> f2 = to_vector_form( ifft( domain, F2 ) );
 
         for ( u_long i = 0; i < Elements.size(); ++i )
         {
@@ -240,6 +240,8 @@ struct DifferentialFunction :
     float min, max, step;
 
     static inline float FunctionDeltaTime;
+
+    vector<float> domain;
 };
 
 #endif

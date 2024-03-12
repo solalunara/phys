@@ -66,6 +66,17 @@ struct complex
         float r = c.real * c.real + c.imag * c.imag;
         return complex( ( real * c.real + imag * c.imag ) / r, ( imag * c.real - real * c.imag ) / r );
     }
+    void operator /= ( complex c )
+    {
+        complex t = *this / c;
+        real = t.real;
+        imag = t.imag;
+    }
+    void operator /= ( float f )
+    {
+        real /= f;
+        imag /= f;
+    }
     bool operator ==( complex c )
     {
         return real == c.real && imag == c.imag;
@@ -93,14 +104,9 @@ struct RCPoint
 vector<vec3> to_vector_form( vector<RCPoint> x );
 vector<RCPoint> to_complex_form( vector<vec3> x );
 vector<RCPoint> to_complex_form( vec3 *x, int N );
-vector<RCPoint> fft( vector<RCPoint> x, int N, int s );
 vector<RCPoint> fft( vector<RCPoint> x );
-vector<RCPoint> ifft( vector<RCPoint> X, int N, int s );
-vector<RCPoint> ifft( vector<RCPoint> X );
+vector<RCPoint> ifft( vector<float> domain, vector<RCPoint> X );
 
 //takes x and X as input, where x is the domain and X is the function in the Fourier domain
 vector<RCPoint> FourierSpaceDerivative( vector<RCPoint> X );
-
-vector<vec3> FourierSpaceDerivative( vector<vec3> fn );
-
 #endif
