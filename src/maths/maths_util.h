@@ -106,7 +106,5 @@ vector<RCPoint> to_complex_form( vector<vec3> x );
 vector<RCPoint> to_complex_form( vec3 *x, int N );
 vector<RCPoint> fft( vector<RCPoint> x );
 vector<RCPoint> ifft( vector<float> domain, vector<RCPoint> X );
-
-//takes x and X as input, where x is the domain and X is the function in the Fourier domain
-vector<RCPoint> FourierSpaceDerivative( vector<RCPoint> X );
+vector<RCPoint> FourierSpaceDerivative( vector<float> domain, vector<RCPoint> X );
 #endif

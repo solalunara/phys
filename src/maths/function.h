@@ -172,8 +172,8 @@ struct DifferentialFunction :
         vector<RCPoint> f = to_complex_form( PreviousStateSave, Elements.size() );
 
         vector<RCPoint> F0 = fft( f );
-        vector<RCPoint> F1 = FourierSpaceDerivative( F0 );
-        vector<RCPoint> F2 = FourierSpaceDerivative( F1 );
+        vector<RCPoint> F1 = FourierSpaceDerivative( domain, F0 );
+        vector<RCPoint> F2 = FourierSpaceDerivative( domain, F1 );
 
 
         vector<vec3> f0 = to_vector_form( f );

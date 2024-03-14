@@ -260,7 +260,7 @@ int main( int argc, const char *argv[] )
     }, DefTransform, Textures[ InbuiltTexture::dirt ], main );
     sinfunc->GenPrevState();
 
-    vector<vec3> cos_3d = to_vector_form( ifft( sinfunc->domain, FourierSpaceDerivative( sinfunc->FourierTransform() ) ) );
+    vector<vec3> cos_3d = to_vector_form( ifft( sinfunc->domain, FourierSpaceDerivative( sinfunc->domain, sinfunc->FourierTransform() ) ) );
 
     StaticFunction *cosfunc = new StaticFunction( cos_3d, DefTransform, Textures[ InbuiltTexture::universe ], main );
 
